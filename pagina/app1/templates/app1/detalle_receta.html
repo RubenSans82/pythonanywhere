@@ -1,0 +1,37 @@
+{% extends 'app1/base.html' %}
+
+{% block title %}{{ receta.nombre }}{% endblock %}
+
+{% block content %}
+    <p><a href="{% url 'lista_recetas' %}" class="btn btn-outline-secondary btn-sm">← Volver al listado</a></p> {# Estiliza el enlace de volver como un botón #}
+
+    <h1 class="text-center mb-4">{{ receta.nombre }}</h1>
+
+    {% if receta.tiempo_preparacion %}
+        <p><strong>Tiempo de preparación:</strong> {{ receta.tiempo_preparacion }}</p>
+    {% endif %}
+    {% if receta.tiempo_coccion %}
+        <p><strong>Tiempo de cocción:</strong> {{ receta.tiempo_coccion }}</p>
+    {% endif %}
+
+    <div class="row mt-4"> {# Usa filas y columnas para las secciones de ingredientes e instrucciones #}
+        <div class="col-md-6"> {# Media columna en pantallas medianas y grandes #}
+            <div class="card shadow-sm border-danger h-100"> {# Tarjeta para ingredientes con borde rojo #}
+                <div class="card-body">
+                    <h5 class="card-title text-danger">Ingredientes:</h5> {# Título en rojo #}
+                    <p class="card-text" style="white-space: pre-wrap;">{{ receta.ingredientes }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6"> {# Media columna en pantallas medianas y grandes #}
+             <div class="card shadow-sm border-warning h-100"> {# Tarjeta para instrucciones con borde amarillo #}
+                <div class="card-body">
+                    <h5 class="card-title text-warning">Instrucciones:</h5> {# Título en amarillo #}
+                    <p class="card-text" style="white-space: pre-wrap;">{{ receta.instrucciones }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock content %}

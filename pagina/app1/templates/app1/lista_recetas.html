@@ -1,0 +1,31 @@
+{% extends 'app1/base.html' %}
+
+{% block title %}Listado de Recetas - Divertido{% endblock %}
+
+{% block content %}
+    <h1 class="text-center mb-4">¡Recetas Filipinas Deliciosas!</h1> {# Centramos el título y añadimos margen inferior #}
+
+    {% if recetas %}
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4"> {# Usamos el sistema de rejilla: 1 columna en móvil, 2 en tablet, 3 en escritorio. g-4 añade espacio entre tarjetas #}
+        {% for receta in recetas %}
+            <div class="col"> {# Cada columna contendrá una tarjeta #}
+                <div class="card h-100 shadow-sm border-primary"> {# h-100 hace que las tarjetas tengan la misma altura, shadow-sm una pequeña sombra, border-primary borde azul #}
+                    <div class="card-body d-flex flex-column"> {# d-flex y flex-column para ayudar a que el botón "Ver Receta" quede abajo #}
+                        <h5 class="card-title text-center text-primary">{{ receta.nombre }}</h5> {# Título de la tarjeta en azul #}
+                        {# Puedes añadir un pequeño extracto si tuvieras un campo de descripción corta en el modelo #}
+                        {# <p class="card-text">Una breve descripción aquí...</p> #}
+
+                        {# Enlace a la receta, estilizado como botón filipino #}
+                        <a href="{% url 'detalle_receta' receta.pk %}" class="btn btn-filipino mt-auto">Ver Receta</a> {# mt-auto empuja el botón hacia abajo #}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-center">No hay recetas disponibles todavía.</p>
+    {% endif %}
+
+    <p class="text-center mt-4"><a href="{% url 'admin:index' %}" class="btn btn-outline-secondary">Ir al panel de administración</a></p> {# Enlace al admin #}
+
+{% endblock content %}
