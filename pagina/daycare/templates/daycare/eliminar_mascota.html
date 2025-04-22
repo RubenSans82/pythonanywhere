@@ -1,0 +1,19 @@
+{# pagina/daycare/templates/daycare/eliminar_mascota.html #}
+{% extends 'daycare/base.html' %}
+
+{% block title %}Eliminar {{ mascota.nombre }}{% endblock %}
+
+{% block content %}
+    <h1 class="mb-4">Eliminar Mascota</h1>
+
+    <p class="alert alert-danger">¿Estás seguro de que quieres eliminar a **{{ mascota.nombre }}**?</p>
+
+    {# Formulario simple para enviar la confirmación por POST #}
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger me-2">Sí, Eliminar</button> {# Botón de confirmar #}
+        <a href="{% url 'daycare:detalle_mascota' mascota.pk %}" class="btn btn-secondary">Cancelar</a> {# Botón de cancelar #}
+    </form>
+
+
+{% endblock content %}

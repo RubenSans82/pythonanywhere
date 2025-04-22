@@ -1,0 +1,45 @@
+{# pagina/daycare/templates/daycare/lista_mis_mascotas.html #}
+{% extends 'daycare/base.html' %}
+{% load static %}
+
+{% block title %}Mis Mascotas{% endblock %}
+
+{% block content %}
+    <h1 class="mb-4">Mis Mascotas</h1>
+
+    <p>
+        <a href="{% url 'daycare:agregar_mascota' %}" class="btn btn-primary">Agregar Nueva Mascota</a>
+    </p>
+
+
+    {% if mis_mascotas %}
+        <div class="row row-cols-1 row-cols-md-2 g-4"> {# Rejilla para mostrar tarjetas #}
+        {% for mascota in mis_mascotas %}
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    {# Si la mascota tiene foto, la mostramos en la tarjeta #}
+                    {% if mascota.foto %}
+                        {# La URL de la foto se accede con .url #}
+                        <img src="{{ mascota.foto.url }}" class="card-img-top" alt="Foto de {{ mascota.nombre }}" style="height: 200px; object-fit: cover;"> {# Estilo para que la imagen cubra el área sin deformarse #}
+                    {% else %}
+                        {# Imagen de placeholder si no hay foto #}
+                        <img src="{% static 'img/placeholder_pet.png' %}" class="card-img-top" alt="Sin foto" style="height: 200px; object-fit: cover;"> {# Necesitarías crear esta imagen #}
+                    {% endif %}
+
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">{{ mascota.nombre }}</h5>
+                        <p class="card-text"><small class="text-muted">{{ mascota.raza|default:"Raza no especificada" }}</small></p> {# Muestra la raza o texto por defecto #}
+
+                        {# Enlace a la página de detalles de la mascota (la crearemos luego) #}
+                        {# Usaremos 'detalle_mascota' como nombre de URL y pasaremos el pk #}
+                        <a href="{% url 'daycare:detalle_mascota' mascota.pk %}" class="btn btn-primary btn-sm mt-auto">Ver Detalles</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+    {% else %}
+        <p>Aún no has agregado ninguna mascota. ¡Agrega la primera!</p>
+    {% endif %}
+
+{% endblock content %}

@@ -1,0 +1,99 @@
+{# pagina/daycare/templates/daycare/registro_owner.html #}
+{% extends 'daycare/base.html' %}
+{% load static %} {# Cargar static por si acaso necesitas alguna imagen o CSS específico aquí #}
+
+{% block title %}Registro de Dueño{% endblock %}
+
+{% block content %}
+    <div class="row justify-content-center"> {# Centra el contenido en la fila #}
+        <div class="col-md-8 col-lg-6"> {# Columna para limitar el ancho del formulario #}
+            <div class="card shadow-sm"> {# Usa una tarjeta para el formulario #}
+                <div class="card-body">
+                    <h1 class="card-title text-center mb-4">Registro de Nuevo Dueño</h1>
+
+                    {# Mostrar errores generales del formulario si los hay #}
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <form method="post">
+                        {% csrf_token %}
+
+                        {# Renderizar los campos individualmente para más control #}
+
+                        {# Campos del modelo User (manejo por UserCreationForm) #}
+                        <div class="mb-3">
+                            <label for="{{ form.username.id_for_label }}" class="form-label">Nombre de Usuario:</label>
+                            {{ form.username }}
+                            {% for error in form.username.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.email.id_for_label }}" class="form-label">Correo Electrónico:</label>
+                            {{ form.email }}
+                            {% for error in form.email.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+                        </div>
+
+                         <div class="mb-3">
+                            <label for="{{ form.first_name.id_for_label }}" class="form-label">Nombre:</label>
+                            {{ form.first_name }}
+                            {% for error in form.first_name.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+                        </div>
+
+                         <div class="mb-3">
+                            <label for="{{ form.last_name.id_for_label }}" class="form-label">Apellido:</label>
+                            {{ form.last_name }}
+                            {% for error in form.last_name.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+                        </div>
+
+
+                        {# Campos de Contraseña (manejados por UserCreationForm) #}
+                        {# UserCreationForm automáticamente añade validación y texto de ayuda para contraseñas #}
+                        <div class="mb-3">
+                            <label for="{{ form.password1.id_for_label }}" class="form-label">Contraseña:</label>
+                            {{ form.password1 }}
+                            {% if form.password1.help_text %}<div class="form-text">{{ form.password1.help_text|safe }}</div>{% endif %}
+                            {% for error in form.password1.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.password2.id_for_label }}" class="form-label">Confirmar Contraseña:</label>
+                            {{ form.password2 }}
+                             {% if form.password2.help_text %}<div class="form-text">{{ form.password2.help_text|safe }}</div>{% endif %} {# UserCreationForm proporciona este help text #}
+                            {% for error in form.password2.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+                        </div>
+
+
+                        <hr> {# Separador entre campos de usuario y dueño #}
+
+                        {# Campos de nuestro modelo Owner #}
+                        <div class="mb-3">
+                            <label for="{{ form.telefono.id_for_label }}" class="form-label">Teléfono:</label>
+                            {{ form.telefono }}
+                             {% if form.telefono.help_text %}<div class="form-text">{{ form.telefono.help_text|safe }}</div>{% endif %}
+                             {% for error in form.telefono.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.direccion.id_for_label }}" class="form-label">Dirección:</label>
+                            {{ form.direccion }}
+                             {% if form.direccion.help_text %}<div class="form-text">{{ form.direccion.help_text|safe }}</div>{% endif %}
+                            {% for error in form.direccion.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+                        </div>
+
+
+                        <button type="submit" class="btn btn-primary w-100 mt-3">Registrarse</button> {# Botón de envío ancho completo #}
+                    </form>
+                </div>
+                 <div class="card-footer text-center"> {# Pie de tarjeta #}
+                    ¿Ya tienes una cuenta? <a href="{% url 'login' %}">Iniciar Sesión</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}

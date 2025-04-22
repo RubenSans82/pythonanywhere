@@ -1,0 +1,89 @@
+{# pagina/daycare/templates/daycare/agregar_mascota.html #}
+{% extends 'daycare/base.html' %}
+
+{% block title %}Agregar Nueva Mascota{% endblock %}
+
+{% block content %}
+    <h1 class="mb-4">Agregar Nueva Mascota</h1>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {# NO USAMOS {{ form.as_p }} AQUÍ para renderizar campos individualmente #}
+        {# Si quieres usar as_p, borra todo el bloque de abajo y deja solo {{ form.as_p }} #}
+
+
+        {# Renderizar cada campo individualmente para aplicar estilos de Bootstrap #}
+
+        {# Campo Nombre #}
+        <div class="mb-3"> {# Margen inferior #}
+            <label for="{{ form.nombre.id_for_label }}" class="form-label">Nombre de la Mascota:</label>
+            {{ form.nombre }} {# Renderiza solo el input del campo 'nombre' #}
+            {% if form.nombre.help_text %}
+                <div class="form-text">{{ form.nombre.help_text|safe }}</div> {# Muestra texto de ayuda si existe #}
+            {% endif %}
+            {% for error in form.nombre.errors %} {# Muestra errores específicos de este campo #}
+                <div class="text-danger">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        {# Campo Raza #}
+        <div class="mb-3">
+            <label for="{{ form.raza.id_for_label }}" class="form-label">Raza:</label>
+            {{ form.raza }}
+            {% if form.raza.help_text %}<div class="form-text">{{ form.raza.help_text|safe }}</div>{% endif %}
+            {% for error in form.raza.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+        </div>
+
+        {# Campo Fecha de Nacimiento #}
+         <div class="mb-3">
+            <label for="{{ form.fecha_nacimiento.id_for_label }}" class="form-label">Fecha de Nacimiento:</label>
+            {{ form.fecha_nacimiento }}
+            {% if form.fecha_nacimiento.help_text %}<div class="form-text">{{ form.fecha_nacimiento.help_text|safe }}</div>{% endif %}
+            {% for error in form.fecha_nacimiento.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+        </div>
+
+        {# Campo Notas Médicas (Textarea con widget) #}
+        <div class="mb-3">
+            <label for="{{ form.notas_medicas.id_for_label }}" class="form-label">Notas Médicas:</label>
+            {{ form.notas_medicas }} {# Renderiza el textarea con el widget #}
+            {% if form.notas_medicas.help_text %}<div class="form-text">{{ form.notas_medicas.help_text|safe }}</div>{% endif %}
+            {% for error in form.notas_medicas.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+        </div>
+
+        {# Campo Notas Comportamiento (Textarea) #}
+         <div class="mb-3">
+            <label for="{{ form.comportamiento_notas.id_for_label }}" class="form-label">Notas de Comportamiento:</label>
+            {{ form.comportamiento_notas }}
+            {% if form.comportamiento_notas.help_text %}<div class="form-text">{{ form.comportamiento_notas.help_text|safe }}</div>{% endif %}
+            {% for error in form.comportamiento_notas.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+        </div>
+
+
+        {# Campo Foto (Input de archivo) #}
+        <div class="mb-3">
+            <label for="{{ form.foto.id_for_label }}" class="form-label">Foto de la Mascota:</label>
+            {{ form.foto }} {# Renderiza el input type="file" #}
+            {% if form.foto.help_text %}
+                <div class="form-text">{{ form.foto.help_text|safe }}</div>
+            {% endif %}
+            {% for error in form.foto.errors %}
+                <div class="text-danger">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+
+        {# Si quieres mostrar errores NO asociados a un campo específico (ej: validación de formulario completa) #}
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+
+        <button type="submit" class="btn btn-primary mt-3">Guardar Mascota</button>
+    </form>
+
+{% endblock content %}

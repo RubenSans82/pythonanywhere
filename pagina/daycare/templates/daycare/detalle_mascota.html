@@ -1,0 +1,56 @@
+{# pagina/daycare/templates/daycare/detalle_mascota.html #}
+{% extends 'daycare/base.html' %}
+{% load static %} {# Necesario para usar la etiqueta static para la imagen placeholder #}
+
+{% block title %}Detalles de {{ mascota.nombre }}{% endblock %}
+
+{% block content %}
+    <p><a href="{% url 'daycare:home' %}" class="btn btn-outline-secondary btn-sm mb-3">← Volver a Mis Mascotas</a></p> {# Enlace para volver al listado #}
+
+    <h1 class="mb-4">Detalles de {{ mascota.nombre }}</h1>
+
+    <div class="row"> {# Usamos una fila para la imagen y los detalles #}
+        <div class="col-md-4"> {# Columna para la imagen #}
+            <div class="card shadow-sm">
+                 {% if mascota.foto %}
+                    <img src="{{ mascota.foto.url }}" class="card-img-top" alt="Foto de {{ mascota.nombre }}" style="width: 100%; height: auto; object-fit: cover;"> {# Imagen de la mascota #}
+                {% else %}
+                     <img src="{% static 'img/placeholder_pet.png' %}" class="card-img-top" alt="Sin foto" style="width: 100%; height: auto; object-fit: cover;"> {# Imagen de placeholder #}
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-md-8"> {# Columna para los detalles #}
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Información Básica</h5>
+                    <p class="card-text"><strong>Nombre:</strong> {{ mascota.nombre }}</p>
+                    <p class="card-text"><strong>Raza:</strong> {{ mascota.raza|default:"No especificada" }}</p>
+                    {% if mascota.fecha_nacimiento %}
+                         <p class="card-text"><strong>Fecha de Nacimiento:</strong> {{ mascota.fecha_nacimiento }}</p>
+                         {# Opcional: Calcular edad aproximada si quieres #}
+                        <p class="card-text"><strong>Edad:</strong> {{ mascota.fecha_nacimiento|timesince }}</p>
+                    {% endif %}
+
+                    {% if mascota.notas_medicas %}
+                        <h5 class="card-title mt-4">Notas Médicas:</h5>
+                        <p class="card-text" style="white-space: pre-wrap;">{{ mascota.notas_medicas }}</p>
+                    {% endif %}
+
+                     {% if mascota.comportamiento_notas %}
+                        <h5 class="card-title mt-4">Notas de Comportamiento:</h5>
+                        <p class="card-text" style="white-space: pre-wrap;">{{ mascota.comportamiento_notas }}</p>
+                    {% endif %}
+
+                    <div class="mt-4">
+                    <a href="{% url 'daycare:editar_mascota' mascota.pk %}" class="btn btn-warning btn-sm">Editar</a>
+                    <a href="{% url 'daycare:eliminar_mascota' mascota.pk %}" class="btn btn-danger btn-sm">Eliminar</a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock content %}

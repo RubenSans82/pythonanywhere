@@ -1,0 +1,26 @@
+{# mysite/daycare/templates/daycare/home.html #}
+{% extends 'base.html' %} {# Hereda de la base.html a nivel de proyecto #}
+
+{% block title %}Inicio - Guardería Canina{% endblock %}
+
+{% block content %}
+    <div class="jumbotron text-center bg-light p-4 rounded"> {# Un componente simple de Bootstrap para un encabezado grande #}
+        <h1 class="display-4">¡Bienvenido a la Guardería Canina!</h1>
+        <p class="lead">El mejor lugar para tu amigo de cuatro patas.</p>
+        <hr class="my-4">
+        <p>Gestiona las mascotas de tus clientes y sus reservas.</p>
+        {% if user.is_authenticated %}
+             <p>Hola, {{ user.username }}. <a href="{% url 'logout' %}">Cerrar Sesión</a></p>
+             {# Puedes añadir aquí enlaces a la página del perfil del usuario, lista de mascotas, etc. #}
+             <p><a href="{% url 'daycare:agregar_mascota' %}" class="btn btn-primary btn-lg">Agregar Nueva Mascota</a></p>
+        {% else %}
+            <p>Por favor, inicia sesión para gestionar mascotas.</p>
+            <a href="{% url 'login' %}" class="btn btn-primary btn-lg">Iniciar Sesión</a>
+            {# Puedes añadir enlace de registro aquí si implementas esa funcionalidad #}
+        {% endif %}
+    </div>
+
+    {# Puedes añadir más contenido aquí, como una descripción de la guardería, servicios, etc. #}
+
+
+{% endblock content %}
