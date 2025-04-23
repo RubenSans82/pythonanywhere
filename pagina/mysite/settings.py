@@ -139,3 +139,21 @@ LOGOUT_REDIRECT_URL = '/' # Redirige a la página de inicio después de cerrar s
 # Configuración para archivos media (subidos por usuarios)
 MEDIA_URL = '/media/' # URL pública para acceder a los archivos media
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media') # Directorio físico donde se guardarán los archivos
+
+# Configuración de Email para el restablecimiento de contraseña (y otros envíos)
+# --- Usando Backend de Consola para Desarrollo ---
+# Esto imprime los emails en la terminal donde corres runserver.
+# Es la forma RECOMENDADA para desarrollo cuando el SMTP real falla o no es necesario.
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' # <--- Usa este backend para desarrollo
+
+# --- Tu configuración SMTP (comentada o mantenida aparte para referencia) ---
+# Cuando prepares para producción, deberás usar un backend SMTP real y configurar
+# estos valores correctamente para tu servicio de email de producción.
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend' # Backend SMTP real (para producción)
+# EMAIL_HOST = 'smtp.gmail.com' # Ejemplo de configuración SMTP
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_USE_SSL = False
+# EMAIL_HOST_USER = 'tu_correo_de_envio@gmail.com'
+# EMAIL_HOST_PASSWORD = 'tu_contraseña_o_contraseña_de_aplicacion'
+# DEFAULT_FROM_EMAIL = 'Guardería Canina <no-responder@tu-dominio.com>'

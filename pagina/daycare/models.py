@@ -23,7 +23,7 @@ class Pet(models.Model):
     fecha_nacimiento = models.DateField(blank=True, null=True)
     foto = models.ImageField(upload_to='pets_photos/', blank=True, null=True)
     notas_medicas = models.TextField(blank=True, null=True) # Alergias, medicaciones, etc.
-    comportamiento_notas = models.TextField(blank=True, null=True) # Cómo se lleva con otros perros, etc.
+    comportamiento_notas = models.TextField(blank=True, null=True, verbose_name='Notas sobre la Mascota') # Cómo se lleva con otros perros, etc.
 
     def __str__(self):
         return self.nombre
@@ -36,33 +36,44 @@ STATUS_CHOICES = [
     ('Completed', 'Completada'),
 ]
 
-# Nuevo Modelo para representar una Reserva
-class Booking(models.Model):
-    # Relación con la mascota: una reserva es para una mascota específica
-    # Si la mascota se elimina, también se elimina la reserva (CASCADE)
-    pet = ForeignKey(Pet, on_delete=models.CASCADE, related_name='bookings')
 
-    # Podrías añadir una relación directa al Owner, pero ya está implícita a través de pet.owner
-    # owner = ForeignKey(Owner, on_delete=models.CASCADE, related_name='bookings')
+class Service(models.Model):
+    name = models.CharField(max_length=255, unique=True, verbose_name='Nombre del Servicio') # Nombre único del servicio
+    description = models.TextField(blank=True, null=True, verbose_name='Descripción') # Descripción detallada
+    # Opcional: Precio (usamos DecimalField para dinero)
+    price = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, verbose_name='Precio')
+    # Opcional: Duración (si aplica y es estándar, puedes usar un CharField o un campo de Duración si tu DB lo soporta bien)
+    duration_description = models.CharField(max_length=100, blank=True, null=True, verbose_name='Duración (ej: Medio día, 1 hora)')
 
-    # Fecha y hora de la reserva
-    date = DateField()
-    # Usaremos TimeField para una hora específica, o podrías usar CharField para 'Mañana'/'Tarde'
-    time = TimeField()
+    is_active = models.BooleanField(default=True, verbose_name='Activo') # Para poder desactivar servicios temporalmente
 
-    # Estado de la reserva (ej: Pendiente, Confirmada)
-    status = CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
-
-    # Notas adicionales para la reserva (opcional)
-    notes = TextField(blank=True, null=True)
-
-    # Fecha y hora en que se creó esta reserva
-    created_at = DateTimeField(auto_now_add=True)
+    def __str__(self):
+        return self.name # La representación legible es el nombre del servicio
 
     class Meta:
-        # Opcional: Ordenar las reservas por fecha y hora por defecto
+        verbose_name = 'Servicio' # Nombre singular en el Admin/Django
+        verbose_name_plural = 'Servicios' # Nombre plural en el Admin/Django
+        ordering = ['name'] # Ordenar servicios alfabéticamente por nombre
+
+
+## Modelo para representar una Reserva
+class Booking(models.Model):
+    pet = models.ForeignKey(Pet, on_delete=models.CASCADE, related_name='bookings')
+    service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='bookings', verbose_name='Servicio')
+    date = models.DateField()
+    time = models.TimeField()
+    status = CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
+    # Campo para las notas que el Dueño dejó al hacer la reserva
+    notes = models.TextField(blank=True, null=True, verbose_name='Notas del Dueño al Reservar')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    # --- Nuevo campo para Notas Internas del Staff ---
+    staff_notes = models.TextField(blank=True, null=True, verbose_name='Notas Internas del Staff') # <--- Añade este campo
+    # --- Fin Nuevo campo ---
+
+
+    class Meta:
         ordering = ['date', 'time']
 
     def __str__(self):
-        # Representación legible del objeto reserva
-        return f"Reserva para {self.pet.nombre} el {self.date} a las {self.time} - {self.status}"
+        return f"Reserva {self.pk} para {self.pet.nombre} - {self.service.name} el {self.date} ({self.status})"

@@ -17,7 +17,7 @@
 
             {# Enlace a la página de detalles de la mascota #}
             <p class="card-text"><strong>Mascota:</strong> <a href="{% url 'daycare:detalle_mascota' reserva.pet.pk %}">{{ reserva.pet.nombre }} ({{ reserva.pet.raza|default:"No especificada" }})</a></p>
-
+            <p class="card-text"><strong>Servicio:</strong> {{ reserva.service.name }}</p>
             <p class="card-text"><strong>Fecha:</strong> {{ reserva.date|date:"l, d \d\e F \d\e Y" }}</p> {# Formato de fecha amigable: Martes, 22 de Abril de 2025 #}
             <p class="card-text"><strong>Hora:</strong> {{ reserva.time|time:"H:i" }}</p> {# Formato de hora: 23:09 #}
             <p class="card-text">
@@ -26,6 +26,7 @@
                     {{ reserva.get_status_display }}
                 </span>
             </p>
+            <p class="card-text"><small class="text-muted">Solicitada el: {{ reserva.created_at|date:"d M Y H:i" }}</small></p>
             {% if reserva.notes %}
                 <h6 class="card-subtitle mt-3 mb-2 text-muted">Notas:</h6>
                 <p class="card-text" style="white-space: pre-wrap;">{{ reserva.notes }}</p>

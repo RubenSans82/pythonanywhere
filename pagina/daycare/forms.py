@@ -3,7 +3,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Pet, Owner, Booking, STATUS_CHOICES # Asegúrate de importar Booking
+from .models import Pet, Owner, Booking, STATUS_CHOICES, Service # Asegúrate de importar Booking
 
 # Nuestro formulario PetForm (ya lo teníamos)
 class PetForm(forms.ModelForm):
@@ -130,38 +130,47 @@ class UserOwnerProfileForm(forms.Form):
 class BookingForm(forms.ModelForm):
     class Meta:
         model = Booking
-        # Incluimos los campos que el usuario va a rellenar
-        fields = ['pet', 'date', 'time', 'notes']
-        # El campo 'status' y 'created_at' se manejan en la vista o modelo
+        # --- MODIFICAMOS LA LISTA DE FIELDS ---
+        # Incluimos los campos que el usuario va a rellenar al solicitar la reserva.
+        # Ahora incluimos 'service'.
+        # El orden aquí define el orden en que aparecen en el formulario por defecto.
+        fields = ['pet', 'service', 'date', 'time', 'notes'] # <-- AÑADE 'service' aquí
+        # --- Fin MODIFICAR FIELDS ---
 
-        # Opcional: Añadir widgets para una mejor entrada de fecha/hora
+        # El campo 'status' y 'created_at' se siguen manejando en la vista o modelo
+
+        # Opcional: Añadir widgets para una mejor entrada de fecha/hora/select con estilos Bootstrap
         widgets = {
+            'pet': forms.Select(attrs={'class': 'form-select'}), # Selector para la mascota
+            'service': forms.Select(attrs={'class': 'form-select'}), # <-- AÑADE widget para el selector de servicio
             'date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}), # Input de fecha HTML5
             'time': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}), # Input de hora HTML5
             'notes': forms.Textarea(attrs={'rows': 4, 'class': 'form-control'}), # Área de texto para notas
-            'pet': forms.Select(attrs={'class': 'form-select'}), # Select estilizado por Bootstrap
         }
 
-    # Sobrescribimos el método __init__ para filtrar las opciones del campo 'pet'
+    # Sobrescribimos el método __init__ para filtrar las opciones del campo 'pet' (Este método sigue igual)
     def __init__(self, *args, **kwargs):
-        # El usuario logueado se pasa como un argumento 'user' al crear la instancia del formulario en la vista
-        user = kwargs.pop('user', None) # Obtenemos el argumento 'user' y lo removemos de kwargs
+        # El usuario logueado se pasa como un argumento 'user' al crear la instancia del formulario en la vista (solicitar_reserva)
+        user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs) # Llamamos al __init__ de la clase padre
 
-        # Filtramos las opciones del campo 'pet'
+        # Filtramos las opciones del campo 'pet' para mostrar solo las del dueño logueado
         if user and user.is_authenticated:
             try:
-                # Obtenemos el perfil Owner del usuario logueado
                 owner_profile = user.owner
-                # Filtramos el queryset del campo 'pet' para incluir solo las mascotas de este owner
                 self.fields['pet'].queryset = Pet.objects.filter(owner=owner_profile).order_by('nombre')
             except Owner.DoesNotExist:
                  # Si por alguna razón el usuario logueado no tiene perfil Owner,
-                 # dejamos el queryset vacío para evitar errores.
+                 # dejamos el queryset vacío para evitar errores (ya manejamos esto en la vista).
                  self.fields['pet'].queryset = Pet.objects.none()
         else:
-            # Si no hay usuario logueado o no está autenticado, dejamos el queryset vacío
+            # Si no hay usuario logueado o no está autenticado, dejamos el queryset de mascotas vacío
             self.fields['pet'].queryset = Pet.objects.none()
+
+        # Opcional: Aquí podrías filtrar las opciones del campo 'service'
+        # Por ejemplo, para mostrar solo servicios activos:
+        # self.fields['service'].queryset = Service.objects.filter(is_active=True).order_by('name')
+        # Por ahora, mostraremos todos los servicios creados en el admin por defecto.
             
     # Definir el formulario de cambio de estado (en línea)
 class ChangeBookingStatusForm(forms.Form):
@@ -170,3 +179,14 @@ class ChangeBookingStatusForm(forms.Form):
         label='Nuevo Estado',
         widget=forms.Select(attrs={'class': 'form-control'})  # Clase de Bootstrap para el estilo
     )
+    
+    
+# --- Nuevo formulario solo para las notas internas del Staff ---
+class StaffNotesForm(forms.ModelForm):
+    class Meta:
+        model = Booking # Basado en el modelo Booking
+        fields = ['staff_notes'] # Incluye solo el campo staff_notes
+        widgets = {
+            'staff_notes': forms.Textarea(attrs={'rows': 4, 'class': 'form-control'}), # Área de texto con estilo Bootstrap
+        }
+        

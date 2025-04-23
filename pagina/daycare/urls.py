@@ -33,6 +33,8 @@ urlpatterns = [
 
         # URL para el listado de reservas para Staff
     path('staff/bookings/', views.staff_booking_list, name='staff_booking_list'),
+        # URL para ver y editar el detalle de una reserva específica para Staff
+    path('staff/bookings/<int:pk>/', views.staff_booking_detail, name='staff_booking_detail'),
 
     # ... otras URLs futuras ...
 ]

@@ -24,29 +24,55 @@
         </div>
     </div>
 
-    {# --- Sección para mostrar Reservas --- #}
-    <h2 class="mb-3 mt-4">Mis Reservas</h2>
-
-     <p>
-        <a href="{% url 'daycare:solicitar_reserva' %}" class="btn btn-success">Solicitar Nueva Reserva</a>
-    </p>
+    {# --- Mostrar las Reservas del Dueño --- #}
+    <h3 class="mt-5 mb-3">Mis Reservas</h3>
 
     {% if mis_reservas %}
-        <div class="list-group mb-4">
-        {% for reserva in mis_reservas %}
-            {# --- Modifica este enlace --- #}
-             <a href="{% url 'daycare:detalle_reserva' reserva.pk %}" class="list-group-item list-group-item-action"> {# Ahora usa la URL de detalle de reserva #}
-                Reserva para <strong>{{ reserva.pet.nombre }}</strong> el {{ reserva.date|date:"d M Y" }} a las {{ reserva.time|time:"H:i" }}
-                <span class="badge {% if reserva.status == 'Confirmed' %}bg-success{% elif reserva.status == 'Cancelled' %}bg-danger{% elif reserva.status == 'Completed' %}bg-secondary{% else %}bg-warning{% endif %} rounded-pill float-end">
-                    {{ reserva.get_status_display }}
-                </span>
-             </a>
-        {% endfor %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Mascota</th>
+                         <th>Servicio</th> {# <-- AÑADIR COLUMNA #}
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                        <th>Estado</th>
+                        <th>Solicitada El</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reserva in mis_reservas %}
+                        <tr>
+                            <td>{{ reserva.pk }}</td>
+                            <td>{{ reserva.pet.nombre }}</td>
+                            <td>{{ reserva.service.name }}</td> {# <-- MOSTRAR NOMBRE DEL SERVICIO #}
+                            <td>{{ reserva.date|date:"d M Y" }}</td>
+                            <td>{{ reserva.time|time:"H:i" }}</td>
+                             {# ... Celda de Estado (badge) ... #}
+                             <td>
+                                <span class="badge {% if reserva.status == 'Confirmed' %}bg-success{% elif reserva.status == 'Cancelled' %}bg-danger{% elif reserva.status == 'Completed' %}bg-secondary{% else %}bg-warning{% endif %}">
+                                    {{ reserva.get_status_display }}
+                                </span>
+                            </td>
+                            <td>{{ reserva.created_at|date:"d M Y H:i" }}</td>
+                             {# ... Celda de Acciones (Ver, Cancelar) ... #}
+                            <td>
+                                <a href="{% url 'daycare:detalle_reserva' reserva.pk %}" class="btn btn-info btn-sm me-2">Ver</a>
+                                {% if reserva.status == 'Pending' %}
+                                    <a href="{% url 'daycare:cancelar_reserva' reserva.pk %}" class="btn btn-danger btn-sm">Cancelar</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     {% else %}
-        <p>Aún no tienes reservas programadas.</p>
+        <p class="lead text-muted">Aún no has solicitado ninguna reserva.</p>
+        <p><a href="{% url 'daycare:solicitar_reserva' %}" class="btn btn-primary">Solicitar mi primera reserva</a></p>
     {% endif %}
-    {# --- Fin Sección Reservas --- #}
 
     <h2 class="mb-3">Mis Mascotas</h2>
 

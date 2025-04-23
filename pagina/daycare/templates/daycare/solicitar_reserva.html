@@ -4,13 +4,15 @@
 {% block title %}Solicitar Reserva{% endblock %}
 
 {% block content %}
+    <h1 class="mb-4">Solicitar Nueva Reserva</h1>
+
+    <p class="lead">Completa los detalles de tu reserva.</p>
+
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-6">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    <h1 class="card-title text-center mb-4">Solicitar Nueva Reserva</h1>
-
-                    {# Mostrar errores generales del formulario #}
+                     {# Mostrar errores generales del formulario #}
                     {% if form.non_field_errors %}
                         <div class="alert alert-danger">
                             {% for error in form.non_field_errors %}
@@ -22,46 +24,50 @@
                     <form method="post">
                         {% csrf_token %}
 
-                        {# Renderizar campos individualmente #}
+                        {# --- Renderizar los campos del formulario --- #}
 
-                        {# Campo Mascota (select filtrado) #}
+                        {# Campo Mascota (filtrado por la vista para mostrar solo las del dueño) #}
                         <div class="mb-3">
                             <label for="{{ form.pet.id_for_label }}" class="form-label">Mascota:</label>
-                            {{ form.pet }} {# Este campo se renderiza como un <select> #}
+                            {{ form.pet }}
                             {% for error in form.pet.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
-                            {% if not form.pet.field.queryset %} {# Mensaje si no hay mascotas disponibles #}
-                                <p class="text-warning mt-2">No tienes mascotas agregadas para reservar. Por favor, <a href="{% url 'daycare:agregar_mascota' %}">agrega una mascota primero</a>.</p>
-                            {% endif %}
                         </div>
 
-                         {# Campo Fecha #}
-                        <div class="mb-3">
-                            <label for="{{ form.date.id_for_label }}" class="form-label">Fecha de la Reserva:</label>
-                            {{ form.date }} {# Se renderiza como input type="date" gracias al widget #}
-                            {% for error in form.date.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
-                        </div>
-
-                         {# Campo Hora #}
+                         {# --- AÑADIR CAMPO SERVICIO --- #}
                          <div class="mb-3">
-                            <label for="{{ form.time.id_for_label }}" class="form-label">Hora de la Reserva:</label>
-                            {{ form.time }} {# Se renderiza como input type="time" gracias al widget #}
+                            <label for="{{ form.service.id_for_label }}" class="form-label">Servicio:</label>
+                            {{ form.service }} {# Renderiza el selector de servicios #}
+                            {% for error in form.service.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+                        </div>
+                         {# --- Fin AÑADIR CAMPO SERVICIO --- #}
+
+
+                        {# Campo Fecha #}
+                        <div class="mb-3">
+                            <label for="{{ form.date.id_for_label }}" class="form-label">Fecha:</label>
+                            {{ form.date }}
+                             {% for error in form.date.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+                        </div>
+
+                        {# Campo Hora #}
+                         <div class="mb-3">
+                            <label for="{{ form.time.id_for_label }}" class="form-label">Hora:</label>
+                            {{ form.time }}
                             {% for error in form.time.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
                         </div>
 
-                        {# Campo Notas #}
-                        <div class="mb-3">
-                            <label for="{{ form.notes.id_for_label }}" class="form-label">Notas Adicionales (Opcional):</label>
-                            {{ form.notes }} {# Se renderiza como textarea gracias al widget #}
+                         {# Campo Notas #}
+                         <div class="mb-3">
+                            <label for="{{ form.notes.id_for_label }}" class="form-label">Notas (Opcional):</label>
+                            {{ form.notes }}
+                             {% if form.notes.help_text %}<div class="form-text">{{ form.notes.help_text|safe }}</div>{% endif %} {# Texto de ayuda si lo hay #}
                             {% for error in form.notes.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
                         </div>
 
+                        {# --- Fin Renderizado de campos --- #}
 
-                        <button type="submit" class="btn btn-primary w-100 mt-3">Enviar Solicitud de Reserva</button>
+                        <button type="submit" class="btn btn-primary w-100 mt-3">Solicitar Reserva</button>
                     </form>
-                </div>
-                {# Opcional: Enlace para volver al perfil #}
-                <div class="card-footer text-center">
-                     <a href="{% url 'daycare:perfil_owner' %}">Volver al Perfil</a>
                 </div>
             </div>
         </div>

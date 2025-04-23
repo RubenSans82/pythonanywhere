@@ -1,73 +1,170 @@
 {# pagina/daycare/templates/daycare/staff_booking_list.html #}
 {% extends 'daycare/base.html' %}
 {% load static %}
+{% load i18n %} # Asegúrate de que i18n está cargado para pluralize
 
 {% block title %}Gestión de Reservas (Staff){% endblock %}
 
 {% block content %}
     <h1 class="mb-4 text-primary">Gestión de Reservas <small class="text-muted">(Staff)</small></h1>
 
-    <p class="lead">Listado completo de reservas.</p>
+    {# --- Formulario de Filtros --- #}
+    <form method="get" class="row g-3 align-items-end mb-4">
+        {# Campo para filtrar por Estado #}
+        <div class="col-md-auto">
+            <label for="status-filter" class="form-label">Filtrar por Estado:</label>
+            <select name="status" id="status-filter" class="form-select">
+                <option value="">-- Todos los Estados --</option>
+                {% for value, label in status_choices %}
+                    <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
 
-    {% if all_bookings %}
+         {# Campo para filtrar por Fecha de Inicio #}
+         <div class="col-md-auto">
+            <label for="start_date-filter" class="form-label">Fecha a partir de:</label>
+            <input type="date" name="start_date" id="start_date-filter" class="form-control" value="{{ start_date_filter_str|default:'' }}">
+        </div>
+
+         {# --- Opcional: Añadir filtro por Servicio --- #}
+         {# Para esto necesitarías pasar todos los servicios desde la vista al contexto #}
+         {# Por ahora, si no quieres añadir el filtro, no incluyas este div #}
+         {# Si lo incluyes, añade 'services': Service.objects.all() a tu contexto en la vista staff_booking_list #}
+         {# Y en la vista, lee request.GET.get('service') y filtra el queryset: all_bookings = all_bookings.filter(service=service_filter) #}
+         {# <div class="col-md-auto">
+             <label for="service-filter" class="form-label">Filtrar por Servicio:</label>
+             <select name="service" id="service-filter" class="form-select">
+                 <option value="">-- Todos los Servicios --</option>
+                 {% for service_obj in services %} {# Asume que pasaste 'services' al contexto #}
+                      <option value="{{ service_obj.pk }}" {% if service_filter|add:"0" == service_obj.pk|stringformat:"d" %}selected{% endif %}>{{ service_obj.name }}</option>
+                 {% endfor %}
+             </select>
+         </div> #}
+         {# --- Fin Opcional: Filtro por Servicio --- #}
+
+
+        {# Botón para aplicar los filtros #}
+        <div class="col-md-auto">
+            <button type="submit" class="btn btn-secondary">Aplicar Filtros</button>
+        </div>
+
+         {# Opcional: Botón para limpiar filtros #}
+         {% if status_filter or start_date_filter_str %} {# Puedes añadir service_filter aquí también si lo implementas #}
+             <div class="col-md-auto">
+                <a href="{% url 'daycare:staff_booking_list' %}" class="btn btn-outline-secondary">Limpiar Filtros</a>
+             </div>
+         {% endif %}
+
+    </form>
+    {# --- Fin Formulario de Filtros --- #}
+
+
+    {# Contar y mostrar cuántas reservas se encontraron después de filtrar y paginar #}
+    <p class="lead">
+        Mostrando {{ page_obj|length }} reserva{{ page_obj|length|pluralize:"s,es" }} en esta página.
+        Total: {{ page_obj.paginator.count }} reserva{{ page_obj.paginator.count|pluralize:"s,es" }}.
+    </p>
+
+
+    {% if page_obj.object_list.exists %}
         <div class="table-responsive">
             <table class="table table-striped table-hover">
                 <thead>
                     <tr>
                         <th>ID</th>
                         <th>Mascota</th>
+                         <th>Servicio</th> {# <-- AÑADIR COLUMNA #}
                         <th>Dueño</th>
                         <th>Fecha</th>
                         <th>Hora</th>
                         <th>Estado</th>
                         <th>Solicitada El</th>
-                        <th>Acciones</th> {# Columna para botones de acción #}
+                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for reserva in all_bookings %}
+                    {% for reserva in page_obj %}
                         <tr>
-                            <td>{{ reserva.pk }}</td>
-                            <td>
-                                {# Enlace al detalle de la mascota #}
-                                <a href="{% url 'daycare:detalle_mascota' reserva.pet.pk %}">{{ reserva.pet.nombre }}</a>
+                             <td>{{ reserva.pk }}</td>
+                             {# --- Celda con enlace al detalle de STAFF --- #}
+                             <td>
+                                {# El enlace en la lista de staff ahora va al DETALLE DE STAFF #}
+                                <a href="{% url 'daycare:staff_booking_detail' reserva.pk %}">
+                                    <strong>{{ reserva.pet.nombre }}</strong>
+                                </a>
                                 <small class="text-muted">({{ reserva.pet.raza|default:"N/A" }})</small>
                             </td>
+                            <td>{{ reserva.service.name }}</td> {# <-- MOSTRAR NOMBRE DEL SERVICIO #}
                             <td>
-                                {# Mostrar info del dueño #}
                                 {{ reserva.pet.owner.user.username }}
-                                <small class="text-muted">({{ reserva.pet.owner.user.first_name }} {{ reserva.pet.owner.user.last_name }})</small>
+                                <small class="text-muted">({{ reserva.pet.owner.user.first_name }})</small>
                             </td>
-                            <td>{{ reserva.date|date:"d M Y" }}</td> {# Fecha formateada #}
-                            <td>{{ reserva.time|time:"H:i" }}</td> {# Hora formateada #}
+                            <td>{{ reserva.date|date:"d M Y" }}</td>
+                            <td>{{ reserva.time|time:"H:i" }}</td>
                             <td>
-                                {# Mostrar el estado con la insignia de color #}
-                                <span class="badge {% if reserva.status == 'Confirmed' %}bg-success{% elif reserva.status == 'Cancelled' %}bg-danger{% elif reserva.status == 'Completed' %}bg-secondary{% else %}bg-warning{% endif %}">
+                                <span class="badge {% if reserva.status == 'Confirmed' %}bg-success{% elif reserva.status == 'Cancelled' %}bg-danger{% elif elif reserva.status == 'Completed' %}bg-secondary{% else %}bg-warning{% endif %}">
                                     {{ reserva.get_status_display }}
                                 </span>
                             </td>
-                             <td>{{ reserva.created_at|date:"d M Y H:i" }}</td> {# Fecha/hora de creación #}
+                             <td>{{ reserva.created_at|date:"d M Y H:i" }}</td>
                              <td>
-                                {# --- Formulario para cambiar el estado --- #}
-                                {# Este formulario envía un POST a la misma URL /staff/bookings/ #}
-                                <form method="post" class="form-inline"> {# form-inline ayuda con la alineación en línea #}
+                                {# Formulario de cambio de estado (Sigue igual) #}
+                                <form method="post" class="form-inline">
                                     {% csrf_token %}
-                                    {# Campo oculto para enviar el ID de la reserva que se va a modificar #}
                                     <input type="hidden" name="booking_id" value="{{ reserva.pk }}">
-                                    {# Selector de estado generado por el formulario de la vista #}
-                                    {{ form.new_status }}
-                                    {# Botón de envío del formulario #}
-                                    <button type="submit" class="btn btn-sm btn-primary mt-1 mt-sm-0">Cambiar</button> {# mt-1 y mt-sm-0 para ajuste de margen #}
+                                    {{ status_change_form.new_status }}
+                                    <button type="submit" class="btn btn-sm btn-primary mt-1 mt-sm-0">Cambiar</button>
                                 </form>
-                                {# --- Fin Formulario --- #}
                              </td>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
+
+        {# --- Controles de Paginación (Siguen igual, aseguran de preservar filtros) --- #}
+        {% if page_obj.has_other_pages %}
+        <nav aria-label="Navegación de Páginas de Reservas">
+            <ul class="pagination justify-content-center">
+                {# Enlace a la página anterior #}
+                {% if page_obj.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if start_date_filter_str %}&start_date={{ start_date_filter_str }}{% endif %}">Anterior</a></li> {# Añade otros filtros aquí si los implementas #}
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">Anterior</span></li>
+                {% endif %}
+
+                {# Opcional: Mostrar enlaces a las páginas individuales #}
+                {% for i in page_obj.paginator.page_range %}
+                    {% if page_obj.number == i %}
+                        <li class="page-item active" aria-current="page"><span class="page-link">{{ i }}</span></li>
+                    {% elif i > page_obj.number|add:'-3' and i < page_obj.number|add:'3' %}
+                        <li class="page-item"><a class="page-link" href="?page={{ i }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if start_date_filter_str %}&start_date={{ start_date_filter_str }}{% endif %}">{{ i }}</a></li> {# Añade otros filtros aquí si los implementas #}
+                    {% endif %}
+                {% endfor %}
+
+
+                {# Enlace a la página siguiente #}
+                {% if page_obj.has_next %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if start_date_filter_str %}&start_date={{ start_date_filter_str }}{% endif %}">Siguiente</a></li> {# Añade otros filtros aquí si los implementas #}
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">Siguiente</span></li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+        {# --- Fin Controles de Paginación --- #}
+
+
     {% else %}
-        <p class="lead text-muted">No hay reservas registradas en el sistema.</p>
+        {# Mensaje si no hay reservas (filtradas o en total) #}
+        {% if status_filter or start_date_filter_str %} {# Puedes añadir service_filter aquí también si lo implementas #}
+             <p class="lead text-muted">No se encontraron reservas con los filtros aplicados.</p>
+        {% else %}
+             <p class="lead text-muted">No hay reservas registradas en el sistema.</p>
+        {% endif %}
+
     {% endif %}
+
 
 {% endblock content %}

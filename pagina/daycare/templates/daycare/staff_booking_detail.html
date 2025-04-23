@@ -1,0 +1,83 @@
+{# pagina/daycare/templates/daycare/staff_booking_detail.html #}
+{% extends 'daycare/base.html' %}
+{% load static %}
+{% load i18n %} {# Para pluralize si lo usas #}
+
+
+{% block title %}Detalle Reserva Staff - {{ reserva.pk }}{% endblock %}
+
+{% block content %}
+    <p><a href="{% url 'daycare:staff_booking_list' %}" class="btn btn-outline-secondary btn-sm mb-3">← Volver al Listado de Reservas</a></p> {# Enlace para volver al listado de staff #}
+
+    <h1 class="mb-4 text-primary">Detalle de Reserva <small class="text-muted">(Staff)</small></h1>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header">
+            Reserva #{{ reserva.pk }} para <strong>{{ reserva.pet.nombre }}</strong> (Dueño: {{ reserva.pet.owner.user.username }})
+        </div>
+        <div class="card-body">
+            <p class="card-text"><strong>Mascota:</strong> <a href="{% url 'daycare:detalle_mascota' reserva.pet.pk %}">{{ reserva.pet.nombre }} ({{ reserva.pet.raza|default:"N/A" }})</a></p>
+            <p class="card-text"><strong>Dueño:</strong> {{ reserva.pet.owner.user.first_name }} {{ reserva.pet.owner.user.last_name }} ({{ reserva.pet.owner.user.username }})</p>
+             {# Muestra detalles de contacto del dueño si están disponibles #}
+             <p class="card-text"><strong>Contacto Dueño:</strong> Tel: {{ reserva.pet.owner.telefono|default:"N/A" }}, Dir: {{ reserva.pet.owner.direccion|default:"N/A"|linebreaksbr }}</p>
+
+
+             {# --- MOSTRAR DETALLE DEL SERVICIO --- #}
+            <p class="card-text"><strong>Servicio:</strong> {{ reserva.service.name }}</p> {# <-- MOSTRAR NOMBRE DEL SERVICIO #}
+             {# Opcional: Mostrar descripción o precio del servicio si es relevante para el staff aquí #}
+             {% if reserva.service.description %}<p class="card-text"><small class="text-muted">{{ reserva.service.description }}</small></p>{% endif %}
+             {% if reserva.service.price %}<p class="card-text"><small class="text-muted">Precio por defecto: {{ reserva.service.price }} €</small></p>{% endif %}
+
+             {# --- Fin MOSTRAR DETALLE DEL SERVICIO --- #}
+
+
+            <p class="card-text"><strong>Fecha:</strong> {{ reserva.date|date:"l, d \d\e F \d\e Y" }}</p>
+            <p class="card-text"><strong>Hora:</strong> {{ reserva.time|time:"H:i" }}</p>
+            <p class="card-text">
+                <strong>Estado:</strong>
+                <span class="badge {% if reserva.status == 'Confirmed' %}bg-success{% elif reserva.status == 'Cancelled' %}bg-danger{% elif elif reserva.status == 'Completed' %}bg-secondary{% else %}bg-warning{% endif %}">
+                    {{ reserva.get_status_display }}
+                </span>
+            </p>
+            <p class="card-text"><small class="text-muted">Solicitada el: {{ reserva.created_at|date:"d M Y H:i" }}</small></p>
+
+            <hr class="my-3"> {# Separador #}
+
+             {# --- Mostrar Notas del Dueño al Reservar --- #}
+            <h6 class="card-subtitle mt-4 mb-2">Notas del Dueño al Reservar:</h6>
+            {% if reserva.notes %}
+                {# style="white-space: pre-wrap;" para respetar saltos de línea #}
+                <p class="card-text border p-2 rounded bg-light" style="white-space: pre-wrap;">{{ reserva.notes }}</p>
+            {% else %}
+                <p class="card-text text-muted">No hay notas del dueño.</p>
+            {% endif %}
+            {# --- Fin Mostrar Notas del Dueño --- #}
+
+            <hr class="my-4"> {# Separador #}
+
+            {# --- Formulario para Notas Internas del Staff (Sigue igual) --- #}
+            <h5 class="mb-3">Notas Internas del Staff:</h5>
+             {# Mostrar errores generales del formulario #}
+             {% if staff_notes_form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {% for error in staff_notes_form.non_field_errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+                {# Renderizar el campo staff_notes del formulario #}
+                {{ staff_notes_form.staff_notes }}
+                {% if staff_notes_form.staff_notes.help_text %}<div class="form-text">{{ staff_notes_form.staff_notes.help_text|safe }}</div>{% endif %}
+                 {% for error in staff_notes_form.staff_notes.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+
+                <button type="submit" class="btn btn-primary mt-3">Guardar Notas Internas</button>
+            </form>
+            {# --- Fin Formulario Notas Internas --- #}
+
+        </div> {# Cierra card-body #}
+    </div> {# Cierra card #}
+
+{% endblock content %}
