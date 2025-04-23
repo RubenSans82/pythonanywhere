@@ -3,7 +3,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Pet, Owner, Booking # Asegúrate de importar Booking
+from .models import Pet, Owner, Booking, STATUS_CHOICES # Asegúrate de importar Booking
 
 # Nuestro formulario PetForm (ya lo teníamos)
 class PetForm(forms.ModelForm):
@@ -15,6 +15,7 @@ class PetForm(forms.ModelForm):
             'notas_medicas': forms.Textarea(attrs={'rows': 4}),
             'comportamiento_notas': forms.Textarea(attrs={'rows': 4}),
         }
+
 
 # Nuevo formulario para el registro de usuario (Dueño)
 class OwnerRegistrationForm(UserCreationForm): # Hereda de UserCreationForm
@@ -46,6 +47,84 @@ class OwnerRegistrationForm(UserCreationForm): # Hereda de UserCreationForm
         owner_profile.save() # Guarda el perfil Owner en la base de datos
 
         return user # Devuelve el objeto User creado (como hace el UserCreationForm original)
+    
+    
+# Nuevo formulario para editar el perfil del Dueño (teléfono y dirección)
+class OwnerProfileForm(forms.ModelForm):
+    class Meta:
+        model = Owner # Este formulario se basa en el modelo Owner
+        # Incluimos solo los campos que el usuario puede editar en su perfil
+        fields = ['telefono', 'direccion']
+        # No incluimos el campo 'user' ya que esa relación no debe cambiarse aquí
+
+        # Widgets opcionales para estilo Bootstrap
+        widgets = {
+            'telefono': forms.TextInput(attrs={'class': 'form-control'}), # Input de texto simple
+            'direccion': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}), # Área de texto
+        }
+
+# --- Nuevo formulario combinado para editar User y Owner profile juntos ---
+class UserOwnerProfileForm(forms.Form):
+    # Campos del modelo User que queremos editar
+    # Asegúrate de usar los mismos nombres de campo que en el modelo User
+    first_name = forms.CharField(max_length=150, required=False, label='Nombre') # Nombre de pila
+    last_name = forms.CharField(max_length=150, required=False, label='Apellido') # Apellido
+    # El email en el modelo User suele ser único. Lo marcamos como requerido.
+    email = forms.EmailField(required=True, label='Correo Electrónico')
+
+    # Campos del modelo Owner que queremos editar
+    telefono = forms.CharField(max_length=15, required=False, label='Teléfono')
+    direccion = forms.CharField(widget=forms.Textarea(attrs={'rows': 3}), required=False, label='Dirección')
+
+
+    # Método __init__ para pre-llenar el formulario con instancias existentes de User y Owner
+    def __init__(self, *args, **kwargs):
+        # Este formulario espera recibir las instancias 'user' y 'owner_profile' al ser creado
+        user_instance = kwargs.pop('user', None)
+        owner_profile_instance = kwargs.pop('owner_profile', None)
+
+        super().__init__(*args, **kwargs)
+
+        # Si recibimos instancias, inicializamos los campos del formulario con sus datos actuales
+        if user_instance:
+            self.fields['first_name'].initial = user_instance.first_name
+            self.fields['last_name'].initial = user_instance.last_name
+            self.fields['email'].initial = user_instance.email
+
+        if owner_profile_instance:
+             self.fields['telefono'].initial = owner_profile_instance.telefono
+             self.fields['direccion'].initial = owner_profile_instance.direccion
+
+        # Guardamos las instancias como atributos internos del formulario para usarlas en el método save()
+        self._user = user_instance
+        self._owner_profile = owner_profile_instance
+
+
+    # Método save() personalizado para guardar los datos en AMBAS instancias (User y OwnerProfile)
+    def save(self, commit=True):
+        # Asegurarse de que tenemos las instancias de User y OwnerProfile para actualizar
+        if not self._user or not self._owner_profile:
+            raise ValueError("Para guardar UserOwnerProfileForm, las instancias 'user' y 'owner_profile' deben pasarse al constructor.")
+
+        # Actualizar los campos del objeto User con los datos limpios del formulario
+        self._user.first_name = self.cleaned_data['first_name']
+        self._user.last_name = self.cleaned_data['last_name']
+        self._user.email = self.cleaned_data['email'] # Django validará el formato y unicidad si es requerido
+
+        # Actualizar los campos del objeto OwnerProfile con los datos limpios del formulario
+        self._owner_profile.telefono = self.cleaned_data['telefono']
+        self._owner_profile.direccion = self.cleaned_data['direccion']
+
+        # Guardar los objetos en la base de datos
+        if commit:
+            self._user.save() # Guarda los cambios en el objeto User
+            self._owner_profile.save() # Guarda los cambios en el objeto OwnerProfile
+
+        # Opcional: devolver las instancias actualizadas
+        return (self._user, self._owner_profile)
+
+    # Puedes añadir validaciones adicionales aquí si es necesario (ej: def clean_email(self):)
+
     
     # Nuevo formulario para crear una Reserva
 class BookingForm(forms.ModelForm):
@@ -84,4 +163,10 @@ class BookingForm(forms.ModelForm):
             # Si no hay usuario logueado o no está autenticado, dejamos el queryset vacío
             self.fields['pet'].queryset = Pet.objects.none()
             
-            
+    # Definir el formulario de cambio de estado (en línea)
+class ChangeBookingStatusForm(forms.Form):
+    new_status = forms.ChoiceField(
+        choices=STATUS_CHOICES,  # Usa las opciones de estado del modelo Booking
+        label='Nuevo Estado',
+        widget=forms.Select(attrs={'class': 'form-control'})  # Clase de Bootstrap para el estilo
+    )

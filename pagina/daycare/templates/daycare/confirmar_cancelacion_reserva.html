@@ -1,0 +1,31 @@
+{# pagina/daycare/templates/daycare/confirmar_cancelacion_reserva.html #}
+{% extends 'daycare/base.html' %}
+
+{% block title %}Confirmar Cancelación{% endblock %}
+
+{% block content %}
+    <h1 class="mb-4 text-danger">Confirmar Cancelación de Reserva</h1>
+
+    <p class="alert alert-warning">Estás a punto de cancelar la siguiente reserva:</p>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Reserva para {{ reserva.pet.nombre }}</h5>
+            <p class="card-text"><strong>Fecha:</strong> {{ reserva.date|date:"l, d \d\e F \d\e Y" }}</p>
+            <p class="card-text"><strong>Hora:</strong> {{ reserva.time|time:"H:i" }}</p>
+            <p class="card-text"><strong>Estado Actual:</strong> <span class="badge bg-warning">{{ reserva.get_status_display }}</span></p>
+        </div>
+    </div>
+
+    <p class="alert alert-danger">Esta acción no se puede deshacer. ¿Estás completamente seguro de que deseas cancelar esta reserva?</p>
+
+    {# Formulario simple para enviar la confirmación por POST #}
+    {# Este formulario enviará un POST a la misma URL de la vista de cancelación (/reserva/ID/cancelar/) #}
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger me-2">Sí, Cancelar Reserva Definitivamente</button> {# Botón de confirmar #}
+        <a href="{% url 'daycare:detalle_reserva' reserva.pk %}" class="btn btn-secondary">No, Volver a Detalles</a> {# Botón de cancelar #}
+    </form>
+
+
+{% endblock content %}

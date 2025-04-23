@@ -2,80 +2,99 @@
 {% load static %} {# Necesario para usar la etiqueta 'static' para cargar archivos estáticos #}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Mi Sitio Django{% endblock %}</title>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>{% block title %}Mi Sitio Django{% endblock %}</title>
 
-    {# Enlace al CSS de Bootstrap desde la CDN #}
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+   {# Enlace al CSS de Bootstrap desde la CDN #}
+   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 
-    {# Enlace a tu archivo CSS personalizado (lo crearemos en el siguiente punto) #}
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+   {# Enlace a tu archivo CSS personalizado (lo crearemos en el siguiente punto) #}
+   <link rel="stylesheet" href="{% static 'css/style.css' %}">
 
 </head>
+
 <body>
 
-    {# Opcional: Una barra de navegación simple. Adapta los enlaces a tus URLs #}
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary"> {# bg-primary usa el azul de Bootstrap #}
+   {# Opcional: Una barra de navegación simple. Adapta los enlaces a tus URLs #}
+   <nav class="navbar navbar-expand-lg navbar-dark bg-primary"> {# bg-primary usa el azul de Bootstrap #}
       <div class="container">
-        <a class="navbar-brand" href="{% url 'daycare:home' %}">Guardería Canina</a> {# Asume una URL 'home' en la app 'daycare' #}
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav">
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'daycare:agregar_mascota' %}">Agregar Mascota</a>
-            </li>
-             <li class="nav-item">
-                <a class="nav-link" href="{% url 'admin:index' %}">Admin</a>
-             </li>
-             {# Enlaces de autenticación - los configuraremos #}
-             {% if user.is_authenticated %}
-             <li class="nav-item">
-              {# Enlace a la página del perfil #}
-              <a class="nav-link" href="{% url 'daycare:perfil_owner' %}">Mi Perfil</a> {# <--- Añade este enlace #}
-           </li>
-           <li class="nav-item">
-              <a class="nav-link" href="{% url 'daycare:agregar_mascota' %}">Agregar Mascota</a> {# Enlace a agregar mascota #}
-           </li>
-           <li class="nav-item">
-              <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-           </li>
-           {# El enlace a "Mis Mascotas" en la barra de navegación puede ser ahora el enlace al perfil si el perfil muestra la lista #}
-           {# Si quieres un enlace directo solo a la lista de mascotas en una URL diferente a /perfil/, puedes mantenerlo y ajustar la URL en daycare/urls.py #}
+         <a class="navbar-brand" href="{% url 'daycare:home' %}">Guardería Canina</a>
+         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+         </button>
+         <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+               <li class="nav-item">
+                  <a class="nav-link" href="{% url 'admin:index' %}">Admin</a>
+               </li>
+               {# Enlaces de autenticación - los configuraremos #}
+               {% if user.is_authenticated %}
+               <li class="nav-item">
+                  {# Enlace a la página del perfil #}
+                  <a class="nav-link" href="{% url 'daycare:perfil_owner' %}">Mi Perfil</a>
+               </li>
+               <li class="nav-item">
+                  <a class="nav-link" href="{% url 'daycare:agregar_mascota' %}">Agregar Mascota</a>
+               </li>
+               {% if user.is_staff %}
+               <li class="nav-item">
+                  <a class="nav-link text-warning" href="{% url 'daycare:staff_booking_list' %}">Gestión Staff</a>
+               </li>
+                     {% endif %}
+               <li class="nav-item">
+                  <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: inline;">
+                     {% csrf_token %}
+                     {# --- Modifica esta línea del button --- #}
+                     {# Eliminamos py-0 si nav-link ya maneja el padding vertical #}
+                     <button type="submit" class="nav-link btn btn-link m-0 align-baseline"
+                        style="text-decoration: none; color: var(--bs-navbar-color);">
+                        Logout {# El texto que quieres que aparezca #}
+                     </button>
+                     {# --- Fin Modificación --- #}
+                  </form>
+               </li>
 
-       {% else %}
-           <li class="nav-item">
-              <a class="nav-link" href="{% url 'login' %}">Login</a>
-           </li>
-           <li class="nav-item">
-              <a class="nav-link" href="{% url 'daycare:registro_owner' %}">Registro</a>
-           </li>
-             {% endif %}
-          </ul>
-        </div>
+
+               {% else %}
+               <li class="nav-item">
+                  <a class="nav-link" href="{% url 'login' %}">Login</a>
+               </li>
+               <li class="nav-item">
+                  <a class="nav-link" href="{% url 'daycare:registro_owner' %}">Registro</a>
+               </li>
+               {% endif %}
+            </ul>
+         </div>
       </div>
-    </nav>
+   </nav>
 
 
-    <div class="container mt-4">
-        {# Mensajes de Django (ej: éxito al crear algo) #}
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
+   <div class="container mt-4">
+      {# Mensajes de Django (ej: éxito al crear algo) #}
+      {% if messages %}
+      {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+      {% endif %}
 
-        {% block content %}
-        {# El contenido específico de cada página irá aquí #}
-        {% endblock %}
-    </div>
+      {% block content %}
+      {# El contenido específico de cada página irá aquí #}
+      {% endblock %}
+   </div>
 
-    {# Scripts de Bootstrap (Popper.js y Bootstrap JS) desde la CDN #}
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4zQ+O20wKWlach6pXdUmqmk9EdJig#" crossorigin="anonymous"></script>
+   {# Scripts de Bootstrap (Popper.js y Bootstrap JS) desde la CDN #}
+   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+      integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+      crossorigin="anonymous"></script>
+   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
+      integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4zQ+O20wKWlach6pXdUmqmk9EdJig#"
+      crossorigin="anonymous"></script>
 
 </body>
+
 </html>

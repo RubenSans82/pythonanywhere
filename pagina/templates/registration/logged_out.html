@@ -1,0 +1,13 @@
+{# pagina/templates/registration/logged_out.html #}
+{% extends 'base.html' %} {# Hereda de la plantilla base a nivel de proyecto #}
+
+{% block title %}Sesión Cerrada{% endblock %}
+
+{% block content %}
+    <div class="row justify-content-center"> {# Centra el contenido #}
+        <div class="col-md-6 text-center">
+            <h2 class="mb-4">¡Has cerrado sesión correctamente!</h2>
+            <p><a href="{% url 'login' %}" class="btn btn-primary">Iniciar sesión de nuevo</a></p> {# Enlace para volver a iniciar sesión #}
+        </div>
+    </div>
+{% endblock content %}

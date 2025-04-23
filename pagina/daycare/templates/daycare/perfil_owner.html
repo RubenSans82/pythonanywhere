@@ -18,18 +18,40 @@
 
             {# Opcional: Enlaces para editar perfil o cambiar contraseña (los crearemos después) #}
             <div class="mt-3">
-                 {# <a href="{% url 'daycare:editar_perfil_owner' %}" class="btn btn-secondary btn-sm me-2">Editar Perfil</a> #}
-                 {# <a href="{% url 'password_change' %}" class="btn btn-secondary btn-sm">Cambiar Contraseña</a> #}
+                 <a href="{% url 'daycare:editar_perfil_owner' %}" class="btn btn-secondary btn-sm me-2">Editar Perfil</a>
+                 <a href="{% url 'password_change' %}" class="btn btn-secondary btn-sm">Cambiar Contraseña</a>
             </div>
         </div>
     </div>
+
+    {# --- Sección para mostrar Reservas --- #}
+    <h2 class="mb-3 mt-4">Mis Reservas</h2>
+
+     <p>
+        <a href="{% url 'daycare:solicitar_reserva' %}" class="btn btn-success">Solicitar Nueva Reserva</a>
+    </p>
+
+    {% if mis_reservas %}
+        <div class="list-group mb-4">
+        {% for reserva in mis_reservas %}
+            {# --- Modifica este enlace --- #}
+             <a href="{% url 'daycare:detalle_reserva' reserva.pk %}" class="list-group-item list-group-item-action"> {# Ahora usa la URL de detalle de reserva #}
+                Reserva para <strong>{{ reserva.pet.nombre }}</strong> el {{ reserva.date|date:"d M Y" }} a las {{ reserva.time|time:"H:i" }}
+                <span class="badge {% if reserva.status == 'Confirmed' %}bg-success{% elif reserva.status == 'Cancelled' %}bg-danger{% elif reserva.status == 'Completed' %}bg-secondary{% else %}bg-warning{% endif %} rounded-pill float-end">
+                    {{ reserva.get_status_display }}
+                </span>
+             </a>
+        {% endfor %}
+        </div>
+    {% else %}
+        <p>Aún no tienes reservas programadas.</p>
+    {% endif %}
+    {# --- Fin Sección Reservas --- #}
 
     <h2 class="mb-3">Mis Mascotas</h2>
 
     <p>
         <a href="{% url 'daycare:agregar_mascota' %}" class="btn btn-primary">Agregar Nueva Mascota</a>
-        <a href="{% url 'daycare:solicitar_reserva' %}" class="btn btn-success">Solicitar Nueva Reserva</a> {# <--- Añade este enlace #}
-
     </p>
 
     {% if mis_mascotas %}

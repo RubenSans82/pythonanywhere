@@ -4,10 +4,13 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
-from .models import Owner, Pet, Booking
-from .forms import PetForm, OwnerRegistrationForm, BookingForm
-# Importar reverse_lazy si lo necesitas para alguna redirección en clases, pero no aquí
-# from django.urls import reverse_lazy
+from .models import Owner, Pet, Booking # Asegúrate de importar Booking
+from .forms import PetForm, OwnerRegistrationForm, BookingForm, ChangeBookingStatusForm, OwnerProfileForm, UserOwnerProfileForm # Importar el nuevo formulario
+from django.http import HttpResponseForbidden
+# Importar timezone y Q si necesitas filtrar por fecha o estado combinado en la vista
+# from django.utils import timezone
+# from django.db.models import Q
+from django import forms  # Importar el módulo forms de Django
 
 # Nueva vista para agregar una mascota
 @login_required # Este decorador asegura que solo usuarios autenticados puedan acceder a esta vista
@@ -229,6 +232,58 @@ def perfil_owner(request):
          return redirect('login') # <--- Redirige al login
     # <--- FIN BLOQUE EXCEPT
 
+# Vista para EDITAR el perfil del Dueño logueado (ahora incluye campos de User y Owner)
+@login_required # Solo usuarios logueados pueden editar su perfil
+def editar_perfil_owner(request):
+    try:
+        # Intentamos obtener el perfil de Owner asociado al usuario logueado
+        # Necesitamos owner_profile para pasarlo al formulario y para el manejo de error
+        owner_profile = request.user.owner
+        # También necesitamos el objeto User directamente para pasarlo al formulario
+        user_instance = request.user
+    except Owner.DoesNotExist:
+         # Si el usuario logueado no tiene perfil Owner (esto no debería pasar si se registraron via frontend o se les creó en admin),
+         # redirigimos a una página segura.
+         messages.error(request, 'Tu cuenta de usuario no tiene un perfil de Dueño asociado. Por favor, usa una cuenta con perfil de dueño o contacta al administrador.')
+         return redirect('login') # Redirige al login o a la página principal
+
+
+    # Si el try fue exitoso, tenemos user_instance y owner_profile
+    if request.method == 'POST':
+        # Si la petición es POST, procesamos los datos del formulario enviado
+        # --- MODIFICAR INSTANCIACIÓN DEL FORMULARIO ---
+        # Instanciamos el nuevo formulario UserOwnerProfileForm
+        # Le pasamos los datos de la petición (request.POST)
+        # Y las instancias de user_instance y owner_profile para que las actualice
+        form = UserOwnerProfileForm(request.POST, user=user_instance, owner_profile=owner_profile) # Pasar user y owner_profile
+        # --- Fin MODIFICAR INSTANCIACIÓN ---
+
+        if form.is_valid():
+            # Si el formulario es válido, llamamos a su método save() personalizado
+            # Este método que definimos en el formulario guardará los cambios en AMBAS instancias (User y OwnerProfile)
+            user_instance, owner_profile = form.save() # Nuestro save() devuelve las instancias actualizadas (opcional usar el retorno aquí)
+
+            # Opcional: Mostrar un mensaje de éxito
+            messages.success(request, 'Tu perfil ha sido actualizado correctamente.')
+
+            # Redirigimos de vuelta a la página de perfil
+            return redirect('daycare:perfil_owner')
+
+    else: # GET request
+        # Si la petición es GET (el usuario visitó la página de edición)
+        # Mostramos el formulario pre-llenado con los datos actuales
+        # --- MODIFICAR INSTANCIACIÓN DEL FORMULARIO ---
+        # Instanciamos el nuevo formulario UserOwnerProfileForm
+        # Le pasamos las instancias de user_instance y owner_profile para pre-llenar los campos con los datos actuales
+        form = UserOwnerProfileForm(user=user_instance, owner_profile=owner_profile) # Pasar user y owner_profile
+        # --- Fin MODIFICAR INSTANCIACIÓN ---
+
+
+    # Renderizamos la plantilla de edición, pasando el formulario y las instancias
+    # Pasamos user y owner_profile para que la plantilla pueda acceder a ellos si es necesario
+    return render(request, 'daycare/editar_perfil_owner.html', {'form': form, 'owner_profile': owner_profile, 'user': user_instance}) # Pasamos user y owner_profile
+
+
 # Nueva vista para que un Dueño pueda solicitar una Reserva
 @login_required # Solo usuarios logueados pueden solicitar reservas
 def solicitar_reserva(request):
@@ -257,3 +312,145 @@ def solicitar_reserva(request):
 
     # Renderizamos la plantilla para solicitar la reserva
     return render(request, 'daycare/solicitar_reserva.html', {'form': form})
+
+# Vista para el perfil/panel del Dueño (Añadimos reservas)
+@login_required
+def perfil_owner(request):
+    try:
+        user = request.user
+        owner_profile = user.owner # Accedemos al perfil Owner asociado al usuario
+
+        # Obtenemos las mascotas asociadas a este Owner
+        mis_mascotas = owner_profile.pets.all().order_by('nombre')
+
+        # --- Nuevo: Obtenemos las reservas asociadas a las mascotas de este Owner ---
+        # Podemos filtrar las reservas donde la mascota pertenezca a este owner_profile
+        # Booking está relacionado con Pet, y Pet con Owner.
+        # Podemos usar la sintaxis de doble guion bajo '__' para "cruzar" relaciones en el filtro.
+        mis_reservas = Booking.objects.filter(pet__owner=owner_profile).order_by('date', 'time') # Ordenar por fecha y hora
+
+        # Puedes añadir filtrado adicional aquí si quieres, ej: .exclude(status='Completed') para no mostrar completadas
+
+
+        # Renderizamos la plantilla del perfil, pasando el usuario, el perfil Owner, sus mascotas Y sus reservas
+        return render(request, 'daycare/perfil_owner.html', {
+            'user': user,
+            'owner_profile': owner_profile,
+            'mis_mascotas': mis_mascotas,
+            'mis_reservas': mis_reservas, # <--- Pasar la lista de reservas a la plantilla
+        })
+
+    except Owner.DoesNotExist:
+         messages.error(request, 'Tu cuenta de usuario no tiene un perfil de Dueño asociado. Por favor, usa una cuenta con perfil de dueño o contacta al administrador.')
+         return redirect('login') # Redirige al login
+    
+    # Nueva vista para mostrar los detalles de una reserva específica
+@login_required # Solo usuarios logueados pueden ver detalles de reserva
+def detalle_reserva(request, pk): # Espera el ID (pk) de la reserva
+    # Intenta obtener la reserva por su ID, si no existe, muestra un 404
+    reserva = get_object_or_404(Booking, pk=pk)
+
+    # *** Implementar la verificación de dueño ***
+    # Es importante que solo el dueño de la mascota asociada a la reserva pueda verla
+    # Accedemos al usuario del dueño a través de la relación reserva -> mascota -> dueño -> usuario
+    if reserva.pet.owner.user != request.user:
+        # Si el usuario logueado NO es el dueño de la mascota de esta reserva
+        messages.error(request, 'No tienes permiso para ver los detalles de esta reserva.') # Mensaje de error
+        # Redirigir a una página segura, como la lista de sus reservas (perfil), o mostrar un 403
+        # return redirect('daycare:perfil_owner')
+        return HttpResponseForbidden("No tienes permiso para ver los detalles de esta reserva.") # Muestra un error 403
+
+
+    # Si el usuario es el dueño, renderizamos la plantilla de detalles de reserva
+    return render(request, 'daycare/detalle_reserva.html', {'reserva': reserva})
+
+# Nueva vista para CANCELAR una reserva (desde el lado del Dueño)
+@login_required # Solo usuarios logueados pueden cancelar reservas
+def cancelar_reserva(request, pk): # Espera el ID (pk) de la reserva a cancelar
+    # Intenta obtener la reserva por su ID, si no existe, muestra un 404
+    reserva = get_object_or_404(Booking, pk=pk)
+
+    # *** Implementar la verificación de dueño ***
+    # Es importante que solo el dueño pueda cancelar su propia reserva
+    if reserva.pet.owner.user != request.user:
+        messages.error(request, 'No tienes permiso para cancelar esta reserva.')
+        # Redirigir a una página segura, como la lista de sus reservas (perfil)
+        return redirect('daycare:perfil_owner') # Redirige al perfil del dueño
+
+    # *** Implementar la verificación de estado ***
+    # Solo se pueden cancelar reservas que están Pendientes
+    if reserva.status != 'Pending':
+        messages.error(request, f'La reserva para {reserva.pet.nombre} no se puede cancelar porque su estado actual es "{reserva.get_status_display}". Solo se pueden cancelar reservas Pendientes.')
+        # Redirigir de vuelta a los detalles de la reserva
+        return redirect('daycare:detalle_reserva', pk=reserva.pk)
+
+
+    # Si es el dueño y el estado es Pendiente, procesamos la acción
+    if request.method == 'POST':
+        # Si la petición es POST (el usuario confirmó la cancelación en la plantilla de confirmación)
+        reserva.status = 'Cancelled' # Cambiamos el estado a Cancelada
+        reserva.save() # Guardamos el cambio en la base de datos
+        
+        fecha_formateada = reserva.date.strftime('%d %b %Y')
+        messages.success(request, f'La reserva para {reserva.pet.nombre} el {fecha_formateada} ha sido cancelada correctamente.')
+
+        # Redirigimos a la lista de reservas del usuario (página de perfil)
+        return redirect('daycare:perfil_owner')
+
+    # Si la petición es GET, mostramos la página de confirmación
+    return render(request, 'daycare/confirmar_cancelacion_reserva.html', {'reserva': reserva})
+
+
+#---------------------------- Lado del Staff ----------------------------#
+
+
+# Nueva vista para el listado de Reservas para el Personal (Staff)
+# Esta vista solo es accesible para usuarios logueados Y que sean staff
+@login_required # Requiere que el usuario esté logueado
+def staff_booking_list(request):
+    # *** Implementar la verificación de Staff ***
+    # Si el usuario logueado NO es staff, le negamos el acceso
+    if not request.user.is_staff:
+        messages.error(request, 'No tienes permiso para acceder a esta página.')
+        return redirect('daycare:perfil_owner') # Redirige a una página segura para usuarios normales (ej: su perfil)
+
+    # Obtener todas las reservas para que el staff las vea
+    # Puedes filtrar aquí si prefieres (ej: solo pendientes, solo futuras, etc.)
+    # Para empezar, mostramos todas, ordenadas por fecha y hora
+    all_bookings = Booking.objects.all().order_by('date', 'time')
+
+    # Renderizar la plantilla del staff, pasando la lista de reservas
+    return render(request, 'daycare/staff_booking_list.html', {'all_bookings': all_bookings})
+
+# Nueva vista para el listado de Reservas para el Personal (Staff)
+# Esta vista solo es accesible para usuarios logueados Y que sean staff
+@login_required # Requiere que el usuario esté logueado
+def staff_booking_list(request):
+    # *** Implementar la verificación de Staff ***
+    # Si el usuario logueado NO es staff, le negamos el acceso
+    if not request.user.is_staff:
+        messages.error(request, 'No tienes permiso para acceder a esta página.')
+        return redirect('daycare:perfil_owner') # Redirige a una página segura para usuarios normales (ej: su perfil)
+
+    # Lógica para cambiar el estado de la reserva (si el formulario fue enviado)
+    if request.method == 'POST':
+        booking_id = request.POST.get('booking_id')  # Obtiene el ID de la reserva del formulario
+        new_status = request.POST.get('new_status')  # Obtiene el nuevo estado seleccionado
+        if booking_id and new_status:
+            reserva = get_object_or_404(Booking, pk=booking_id)  # Obtiene la reserva o devuelve 404
+            reserva.status = new_status  # Actualiza el estado
+            reserva.save()  # Guarda los cambios
+            messages.success(request, f'El estado de la reserva {reserva.pk} ha sido cambiado a {reserva.get_status_display()}.')  # Mensaje de éxito
+
+    # Obtener todas las reservas para que el staff las vea
+    # Puedes filtrar aquí si prefieres (ej: solo pendientes, solo futuras, etc.)
+    # Para empezar, mostramos todas, ordenadas por fecha y hora
+    all_bookings = Booking.objects.all().order_by('date', 'time')
+
+
+
+    # Crear una instancia del formulario para cada reserva
+    form = ChangeBookingStatusForm()
+
+    # Renderizar la plantilla del staff, pasando la lista de reservas Y el formulario
+    return render(request, 'daycare/staff_booking_list.html', {'all_bookings': all_bookings, 'form': form})
