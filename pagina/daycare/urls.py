@@ -22,7 +22,11 @@ urlpatterns = [
     path('perfil/', views.perfil_owner, name='perfil_owner'),
         # URL para editar el perfil del Dueño logueado
     path('perfil/editar/', views.editar_perfil_owner, name='editar_perfil_owner'),
-        # URL para solicitar una nueva reserva
+     # URL para la vista de la lista de reservas del dueño
+    # Esta es la nueva URL para la página 'Reservas'
+    path('reservas/', views.mis_reservas, name='mis_reservas'),
+    # Asegúrate de que la URL para solicitar una NUEVA reserva sigue apuntando a su vista/plantilla
+    # Si ya tenías algo como esto, déjalo como está:
     path('solicitar-reserva/', views.solicitar_reserva, name='solicitar_reserva'),
         # URL para ver el detalle de una reserva específica
     path('reserva/<int:pk>/', views.detalle_reserva, name='detalle_reserva'),

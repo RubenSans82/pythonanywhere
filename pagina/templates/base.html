@@ -65,9 +65,8 @@
                                 <a class="nav-link" href="{% url 'daycare:perfil_owner' %}">Mi Perfil</a>
                             </li>
                             <li class="nav-item">
-                                {# Enlace a la página de solicitud de reserva #}
-                                <a class="nav-link" href="{% url 'daycare:solicitar_reserva' %}">Solicitar Reserva</a>
-                            </li>
+                                <a class="nav-link" href="{% url 'daycare:mis_reservas' %}">Reservas</a>
+                           </li>
                         {% endif %}
 
                         {# Enlaces para usuarios tipo Staff (si SON staff) #}

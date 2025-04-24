@@ -131,6 +131,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 LOGIN_REDIRECT_URL = '/daycare/'
+LOGIN_URL = '/accounts/login/' # URL a la que se redirige a usuarios no autenticados que intentan acceder a páginas restringidas
+LOGIN_REDIRECT_URL_STAFF = '/daycare/staff/bookings/' # Redirigir staff a la lista de reservas
+
 LOGOUT_REDIRECT_URL = '/' # Redirige a la página de inicio después de cerrar sesión
 
 # Opcionalmente, si necesitas una página de login específica (Django ya proporciona una por defecto)

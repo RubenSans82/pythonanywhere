@@ -5,17 +5,17 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
 # Asegúrate de que Booking, STATUS_CHOICES Y Service están importados
-from .models import Owner, Pet, Booking, STATUS_CHOICES, Service
+from .models import Owner, Pet, Booking, STATUS_CHOICES, Service, OwnerProfile 
 # Asegúrate de que tus formularios necesarios están importados
 from .forms import PetForm, OwnerRegistrationForm, BookingForm, ChangeBookingStatusForm, UserOwnerProfileForm, StaffNotesForm
 from django.http import HttpResponseForbidden
 from datetime import date
+from django.contrib.auth.views import LoginView
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.conf import settings
+from django.urls import reverse_lazy
 
-# Importar os y settings si los usas para gestión de fotos (debes tenerlos ya)
-# import os
-# from django.conf import settings
 
 # --- NUEVA VISTA: Landing Page ---
 # Esta vista no tiene el decorador @login_required
@@ -298,6 +298,40 @@ def cancelar_reserva(request, pk):
     return render(request, 'daycare/confirmar_cancelacion_reserva.html', {'reserva': reserva})
 
 
+@login_required # Asegura que solo usuarios logueados puedan ver sus reservas
+def mis_reservas(request):
+    """
+    Vista para mostrar la lista de reservas del dueño autenticado.
+    """
+    # --- Obtener las reservas del usuario autenticado ---
+    # Necesitas filtrar las reservas para que solo pertenezcan al usuario logueado (request.user)
+    # ESTO ASUME que tu modelo 'Booking' tiene un campo ForeignKey
+    # llamado 'owner' (o similar) que apunta al modelo de usuario (settings.AUTH_USER_MODEL).
+    # Si tu modelo de reserva se relaciona con el usuario de otra manera (ej: a través de OwnerProfile),
+    # necesitarás ajustar la consulta.
+    try:
+        # Ejemplo de consulta: Filtra por el campo 'owner' en el modelo Booking
+        # Ordena por fecha de inicio de la reserva (o fecha de creación) descendente
+        mis_reservas_list = Booking.objects.filter(pet__owner__user=request.user).order_by('-date', '-time') # <-- Consulta corregida
+        # Si no tienes fecha_inicio_reserva, puedes ordenar por created_at si lo tienes:
+        # mis_reservas_list = Booking.objects.filter(owner=request.user).order_by('-created_at')
+
+
+    except Exception as e:
+        # Manejo de errores simple en caso de que la consulta falle
+        print(f"Error al obtener reservas para el usuario {request.user.username}: {e}")
+        mis_reservas_list = [] # Devuelve una lista vacía en caso de error
+
+
+    # --- Preparar el contexto y renderizar la plantilla ---
+    context = {
+        'mis_reservas': mis_reservas_list, # Pasa la lista de reservas a la plantilla
+        # No necesitas pasar 'owner_profile' aquí a menos que la plantilla 'mis_reservas.html' lo use
+        # No necesitas pasar 'mis_mascotas' aquí
+    }
+    return render(request, 'daycare/mis_reservas.html', context)
+
+
 #---------------------------- Lado del Staff ----------------------------#
 
 
@@ -446,3 +480,54 @@ def staff_booking_detail(request, pk): # Espera el ID (pk) de la reserva
         'staff_notes_form': form,
     }
     return render(request, 'daycare/staff_booking_detail.html', context)
+
+class CustomLoginView(LoginView):
+    """
+    Vista de login personalizada que redirige al staff a una URL diferente.
+    """
+    # template_name = 'registration/login.html' # Tu plantilla de login si tienes una
+
+
+    def setup(self, request, *args, **kwargs):
+         print("--- DEBUG: CustomLoginView setup ejecutado ---") # Añade esta línea
+         super().setup(request, *args, **kwargs)
+
+    # O también podrías añadirla en dispatch (el método que se ejecuta antes de setup)
+    # def dispatch(self, request, *args, **kwargs):
+    #     print("--- DEBUG: CustomLoginView dispatch ejecutado ---") # Añade esta línea
+    #     return super().dispatch(request, *args, **kwargs)
+
+
+    def get_redirect_url(self):
+        """
+        Sobrescribe este método para redirigir al staff a LOGIN_REDIRECT_URL_STAFF
+        y a otros usuarios a la URL por defecto (LOGIN_REDIRECT_URL o 'next').
+        """
+        print("--- DEBUG: get_redirect_url ejecutado ---") # Añade esta línea
+
+        url = super().get_redirect_url() # Obtiene URL por defecto
+
+        print(f"--- DEBUG: Usuario autenticado: {self.request.user.is_authenticated} ---") # Añade esta línea
+        if self.request.user.is_authenticated:
+             print(f"--- DEBUG: Usuario es staff: {self.request.user.is_staff} ---") # Añade esta línea
+             # Verifica si el usuario autenticado es staff
+             if self.request.user.is_staff:
+                 print("--- DEBUG: Usuario es staff. Intentando redirigir a staff URL. ---") # Añade esta línea
+                 # Si es staff, sobrescribe la URL de redirección con la URL específica para staff
+                 if hasattr(settings, 'LOGIN_REDIRECT_URL_STAFF'):
+                      staff_url = settings.LOGIN_REDIRECT_URL_STAFF
+                      print(f"--- DEBUG: Redirigiendo staff a (settings): {staff_url} ---") # Añade esta línea
+                      url = staff_url
+                 else:
+                      # Fallback si no se definió LOGIN_REDIRECT_URL_STAFF (no debería pasar si lo añadiste)
+                      fallback_url = reverse_lazy('daycare:staff_booking_list')
+                      print(f"--- DEBUG: LOGIN_REDIRECT_URL_STAFF no definida. Redirigiendo staff a (fallback): {fallback_url} ---") # Añade esta línea
+                      url = fallback_url
+             else:
+                  print(f"--- DEBUG: Usuario NO es staff. Redirigiendo a URL por defecto: {url} ---") # Añade esta línea
+        else:
+             print("--- DEBUG: Usuario NO está autenticado (inesperado después de login exitoso). ---") # Añade esta línea
+
+
+        print(f"--- DEBUG: get_redirect_url finaliza. URL devuelta: {url} ---") # Añade esta línea
+        return url
