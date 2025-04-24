@@ -26,6 +26,8 @@
 
     {# --- Mostrar las Reservas del Dueño --- #}
     <h3 class="mt-5 mb-3">Mis Reservas</h3>
+    <a href="{% url 'daycare:solicitar_reserva' %}" class="btn btn-primary">Solicitar Nueva Reserva</a>
+
 
     {% if mis_reservas %}
         <div class="table-responsive">
@@ -71,7 +73,6 @@
         </div>
     {% else %}
         <p class="lead text-muted">Aún no has solicitado ninguna reserva.</p>
-        <p><a href="{% url 'daycare:solicitar_reserva' %}" class="btn btn-primary">Solicitar mi primera reserva</a></p>
     {% endif %}
 
     <h2 class="mb-3">Mis Mascotas</h2>

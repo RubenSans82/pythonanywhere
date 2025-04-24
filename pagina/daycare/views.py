@@ -4,17 +4,36 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
-# Asegúrate de que Booking y STATUS_CHOICES están importados
-from .models import Owner, Pet, Booking, STATUS_CHOICES
-# Asegúrate de que StaffNotesForm está importado y ahora BookingForm también usa Service
+# Asegúrate de que Booking, STATUS_CHOICES Y Service están importados
+from .models import Owner, Pet, Booking, STATUS_CHOICES, Service
+# Asegúrate de que tus formularios necesarios están importados
 from .forms import PetForm, OwnerRegistrationForm, BookingForm, ChangeBookingStatusForm, UserOwnerProfileForm, StaffNotesForm
 from django.http import HttpResponseForbidden
 from datetime import date
-# ... otros imports ...
-
-# --- Importar clases de Paginator ---
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-# --- Fin Importar Paginator ---
+
+# Importar os y settings si los usas para gestión de fotos (debes tenerlos ya)
+# import os
+# from django.conf import settings
+
+# --- NUEVA VISTA: Landing Page ---
+# Esta vista no tiene el decorador @login_required
+def landing_page(request):
+    # Obtenemos la lista de servicios activos para mostrarlos en la landing page.
+    # Usamos .filter(is_active=True) para solo mostrar los que marcaste como activos en el admin.
+    services = Service.objects.filter(is_active=True).order_by('name')
+
+    # Preparamos el contexto con los datos que la plantilla necesita
+    context = {
+        'services': services, # Pasamos el queryset de servicios activos
+        # Puedes añadir otras variables aquí, como un título, etc.
+        # 'landing_title': "Tu Amigo Fiel: Cuidado Canino con Amor"
+    }
+
+    # Renderizamos la plantilla 'landing_page.html'.
+    # Asegúrate de crear este archivo en tu carpeta de templates.
+    return render(request, 'daycare/landing_page.html', context)
 
 # Nueva vista para agregar una mascota - MISMO CÓDIGO
 @login_required # Este decorador asegura que solo usuarios autenticados puedan acceder a esta vista
@@ -66,27 +85,65 @@ def detalle_mascota(request, pk):
 
     return render(request, 'daycare/detalle_mascota.html', {'mascota': mascota})
 
-# Nueva vista para editar una mascota existente - MISMO CÓDIGO
+# Vista para editar una mascota existente - MODIFICADA para manejo de fotos
 @login_required
-def editar_mascota(request, pk):
+def editar_mascota(request, pk): # Espera el ID (pk) de la mascota a editar
+    # Intenta obtener la mascota por su ID, si no existe, muestra un 404
     mascota = get_object_or_404(Pet, pk=pk)
 
     # *** Implementar la verificación de dueño ***
+    # Es importante que solo el dueño de la mascota pueda editarla
     if mascota.owner.user != request.user:
-        messages.error(request, 'No tienes permiso para editar esta mascota.')
-        return redirect('daycare:home')
+        messages.error(request, 'No tienes permiso para editar esta mascota.') # Añade un mensaje de error
+        return redirect('daycare:home') # Redirige a la lista de sus mascotas
 
     if request.method == 'POST':
+        # Si la petición es POST, procesamos los datos del formulario
+        # Instanciamos el formulario CON los datos de la petición (POST, FILES)
+        # Y le pasamos la instancia de la mascota que queremos editar (instance=mascota)
         form = PetForm(request.POST, request.FILES, instance=mascota)
+
         if form.is_valid():
+            # --- Lógica para manejar la eliminación de foto ---
+            # El widget ClearableFileInput añade un campo oculto de nombre 'campo_name-clear'
+            # Si ese campo está en request.POST y su valor es 'on' (o simplemente está presente),
+            # Y si el campo original (foto) no tiene un nuevo archivo adjunto en request.FILES,
+            # Django entiende que se marcó la casilla "Borrar".
+            # form.cleaned_data['foto'] será False en este caso.
+
+            # Verificamos si el campo 'foto' en los datos limpios del formulario es False.
+            # Esto ocurre cuando se marcó la casilla "Borrar" y NO se subió una nueva foto.
+            if form.cleaned_data.get('foto') is False: # Usar .get() para manejar el caso si el campo no está en el form
+                # Si hay una foto existente asociada a esta mascota
+                if mascota.foto: # Verifica si el campo foto de la instancia tiene un archivo
+                    # Opcional: Eliminar el archivo físico del sistema de archivos
+                    # Usa el método delete() del campo FileField/ImageField. Esto también pone el campo a null.
+                    try:
+                        mascota.foto.delete(save=False) # save=False para no guardar inmediatamente, lo guardará el form.save()
+                        messages.info(request, 'Foto anterior eliminada.')
+                    except Exception as e:
+                        messages.error(request, f'Error al eliminar la foto anterior: {e}')
+
+            # --- Fin Lógica para manejar la eliminación de foto ---
+
+            # form.save() actualizará el objeto mascota.
+            # Si se subió una nueva foto (request.FILES contiene 'foto'), form.save() se encargará de borrar la antigua
+            # y guardar la nueva.
+            # Si se marcó "Borrar" y NO se subió nueva, form.save() establecerá el campo foto a null/vacío
+             # (esto ya lo hizo mascota.foto.delete(save=False) si existía foto antes, pero form.save() lo finaliza)
             form.save()
+
             messages.success(request, f'Los datos de {mascota.nombre} se han actualizado correctamente.')
+
             # Redirigimos a la página de detalles de la mascota
             return redirect('daycare:detalle_mascota', pk=mascota.pk) # Redirigir a detalles
 
     else:
+        # Si la petición es GET, mostramos el formulario pre-llenado
         form = PetForm(instance=mascota)
 
+    # Renderizamos la plantilla de edición, pasando el formulario y la mascota
+    # La plantilla usará 'mascota.foto' para mostrar la imagen actual.
     return render(request, 'daycare/editar_mascota.html', {'form': form, 'mascota': mascota})
 
 # Nueva vista para confirmar y eliminar una mascota - MISMO CÓDIGO
@@ -244,7 +301,7 @@ def cancelar_reserva(request, pk):
 #---------------------------- Lado del Staff ----------------------------#
 
 
-# Vista para el listado de Reservas para el Personal (Staff) - CON FILTROS Y PAGINACIÓN - MISMO CÓDIGO (PENDIENTE ACTUALIZAR PLANTILLA)
+# Vista para el listado de Reservas para el Personal (Staff) - CON FILTROS (incluido por Servicio) Y PAGINACIÓN
 @login_required
 def staff_booking_list(request):
     # *** Implementar la verificación de Staff ***
@@ -269,31 +326,64 @@ def staff_booking_list(request):
         return redirect('daycare:staff_booking_list')
 
 
-    # --- Lógica para obtener y aplicar FILTROS (en peticiones GET) --- - MISMA LÓGICA
-    all_bookings = Booking.objects.all()
+    # --- Lógica para obtener y aplicar FILTROS (en peticiones GET) ---
+    all_bookings = Booking.objects.all() # Iniciar con todas las reservas
     status_filter = request.GET.get('status')
     start_date_filter_str = request.GET.get('start_date')
+    # --- Nuevo: Obtener filtro de Servicio ---
+    service_filter_id_str = request.GET.get('service') # Obtener el ID del servicio como string de la URL
+    service_filter_id = None # Variable para almacenar el ID entero del servicio seleccionado, si es válido
 
-    # --- Filtrar por Estado ---
+    # --- 1. Filtrar por Estado ---
     if status_filter and status_filter != '':
         valid_statuses = [choice[0] for choice in STATUS_CHOICES]
         if status_filter in valid_statuses:
              all_bookings = all_bookings.filter(status=status_filter)
+             # messages.info(request, f'Filtrando por estado: {dict(STATUS_CHOICES).get(status_filter)}')
         else:
              messages.error(request, f'Estado de reserva "{status_filter}" no válido para filtrar.')
-             status_filter = ''
+             status_filter = '' # Limpiar el filtro inválido para que el selector no muestre una opción incorrecta
 
-    # --- Filtrar por Fecha de Inicio ---
+
+    # --- 2. Filtrar por Fecha de Inicio ---
     if start_date_filter_str:
         try:
             start_date_filter = date.fromisoformat(start_date_filter_str)
             all_bookings = all_bookings.filter(date__gte=start_date_filter)
+            # messages.info(request, f'Filtrando a partir de la fecha: {start_date_filter_str}')
         except ValueError:
             messages.error(request, f'Formato de fecha de inicio inválido: "{start_date_filter_str}". Usa el formato AAAA-MM-DD.')
-            start_date_filter_str = ''
+            start_date_filter_str = '' # Limpiar el filtro inválido para que el input no muestre el valor incorrecto
 
-    # --- Aplicar Ordenamiento Final --- - MISMA LÓGICA
+    # --- 3. Filtrar por Servicio ---
+    if service_filter_id_str and service_filter_id_str != '': # Si se proporcionó un ID de servicio (y no está vacío)
+        try:
+            # Intentar convertir el string del ID a un entero
+            service_filter_id = int(service_filter_id_str)
+            # Verificar si existe un servicio con ese ID en la base de datos.
+            # Esto es importante para evitar un error de base de datos si el ID no existe.
+            # Si Service.objects.get(pk=...) no encuentra el objeto, lanzará ObjectDoesNotExist.
+            # Alternativa: all_bookings = all_bookings.filter(service_id=service_filter_id) y manejar ObjectDoesNotExist de la consulta.
+            # Verificar antes da un mensaje de error más claro si el ID es válido pero no existe.
+            Service.objects.get(pk=service_filter_id) # Lanzará excepción si no existe
+
+            # Si el ID es válido y el servicio existe, aplicar el filtro
+            all_bookings = all_bookings.filter(service_id=service_filter_id) # service_id filtra por la clave foránea
+            # Opcional: messages.info(request, f'Filtrando por servicio: {Service.objects.get(pk=service_filter_id).name}')
+
+        except ValueError:
+            # Si el string del ID no se puede convertir a un entero (ej: service=abc)
+            messages.error(request, f'ID de servicio "{service_filter_id_str}" no válido (debe ser un número).')
+            service_filter_id = None # Limpiar filtro inválido
+        except ObjectDoesNotExist:
+            # Si el ID entero no corresponde a ningún servicio existente (ej: service=9999)
+            messages.error(request, f'No existe un servicio con ID "{service_filter_id_str}".')
+            service_filter_id = None # Limpiar filtro inválido
+
+
+    # --- Aplicar Ordenamiento Final ---
     all_bookings = all_bookings.order_by('date', 'time')
+
 
     # --- Lógica de PAGINACIÓN ---
     items_per_page = 10
@@ -307,18 +397,22 @@ def staff_booking_list(request):
     except EmptyPage:
         page_obj = paginator.page(paginator.num_pages)
 
+
     # --- Preparar el contexto para la plantilla ---
     context = {
-        'page_obj': page_obj,
-        # Pasamos los valores de los filtros aplicados
+        'page_obj': page_obj, # Contiene los elementos de la página actual y la info de paginación
+        # Pasamos los valores de los filtros aplicados para pre-llenar el formulario de filtro en la plantilla
         'status_filter': status_filter,
         'start_date_filter_str': start_date_filter_str,
-        'status_choices': STATUS_CHOICES,
+        'service_filter_id': service_filter_id, # <-- Pasar el ID entero del filtro de servicio aplicado (o None)
+        'status_choices': STATUS_CHOICES, # Las opciones de estado del modelo para el selector de filtro
+        # --- Nuevo: Pasar todos los Servicios para el selector de filtro ---
+        'services': Service.objects.all().order_by('name'), # <-- Pasar TODOS los objetos Service para popular el selector
+        # --- Fin Nuevo ---
 
-        # Pasamos la instancia vacía del formulario de cambio de estado
-        'status_change_form': ChangeBookingStatusForm(),
-
+        'status_change_form': ChangeBookingStatusForm(), # Instancia vacía del form de cambio de estado (para cada fila)
     }
+
 
     return render(request, 'daycare/staff_booking_list.html', context)
 

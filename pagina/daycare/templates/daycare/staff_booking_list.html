@@ -1,7 +1,8 @@
 {# pagina/daycare/templates/daycare/staff_booking_list.html #}
 {% extends 'daycare/base.html' %}
 {% load static %}
-{% load i18n %} # Asegúrate de que i18n está cargado para pluralize
+{% load i18n %}
+
 
 {% block title %}Gestión de Reservas (Staff){% endblock %}
 
@@ -27,21 +28,22 @@
             <input type="date" name="start_date" id="start_date-filter" class="form-control" value="{{ start_date_filter_str|default:'' }}">
         </div>
 
-         {# --- Opcional: Añadir filtro por Servicio --- #}
-         {# Para esto necesitarías pasar todos los servicios desde la vista al contexto #}
-         {# Por ahora, si no quieres añadir el filtro, no incluyas este div #}
-         {# Si lo incluyes, añade 'services': Service.objects.all() a tu contexto en la vista staff_booking_list #}
-         {# Y en la vista, lee request.GET.get('service') y filtra el queryset: all_bookings = all_bookings.filter(service=service_filter) #}
-         {# <div class="col-md-auto">
+         {# --- Filtro por Servicio --- #}
+         {# Descomentamos y usamos este bloque #}
+         <div class="col-md-auto">
              <label for="service-filter" class="form-label">Filtrar por Servicio:</label>
+             {# El nombre 'service' coincide con el parámetro GET que leemos en la vista #}
              <select name="service" id="service-filter" class="form-select">
-                 <option value="">-- Todos los Servicios --</option>
-                 {% for service_obj in services %} {# Asume que pasaste 'services' al contexto #}
-                      <option value="{{ service_obj.pk }}" {% if service_filter|add:"0" == service_obj.pk|stringformat:"d" %}selected{% endif %}>{{ service_obj.name }}</option>
+                 <option value="">-- Todos los Servicios --</option> {# Opción para mostrar todos (valor vacío) #}
+                 {# Iterar sobre todos los objetos Service pasados desde la vista en la variable 'services' #}
+                 {% for service_obj in services %}
+                      {# Comparamos el ID del servicio con el ID del filtro aplicado (service_filter_id) #}
+                      {# Usamos |add:"0" y |stringformat:"d" para asegurar una comparación numérica correcta si service_filter_id es None o un string #}
+                      <option value="{{ service_obj.pk }}" {% if service_filter_id|add:"0" == service_obj.pk|stringformat:"d" %}selected{% endif %}>{{ service_obj.name }}</option>
                  {% endfor %}
              </select>
-         </div> #}
-         {# --- Fin Opcional: Filtro por Servicio --- #}
+         </div>
+         {# --- Fin Filtro por Servicio --- #}
 
 
         {# Botón para aplicar los filtros #}
@@ -50,8 +52,11 @@
         </div>
 
          {# Opcional: Botón para limpiar filtros #}
-         {% if status_filter or start_date_filter_str %} {# Puedes añadir service_filter aquí también si lo implementas #}
+         {# Mostramos este botón si hay algún filtro aplicado (estado, fecha, O servicio) #}
+         {# Añadimos la comprobación para service_filter_id #}
+         {% if status_filter or start_date_filter_str or service_filter_id %}
              <div class="col-md-auto">
+                {# Enlace a la misma URL base de la página, sin ningún parámetro GET #}
                 <a href="{% url 'daycare:staff_booking_list' %}" class="btn btn-outline-secondary">Limpiar Filtros</a>
              </div>
          {% endif %}
@@ -74,7 +79,7 @@
                     <tr>
                         <th>ID</th>
                         <th>Mascota</th>
-                         <th>Servicio</th> {# <-- AÑADIR COLUMNA #}
+                         <th>Servicio</th> {# Columna ya añadida #}
                         <th>Dueño</th>
                         <th>Fecha</th>
                         <th>Hora</th>
@@ -84,18 +89,18 @@
                     </tr>
                 </thead>
                 <tbody>
+                    {# Iterar sobre los elementos de la página actual #}
                     {% for reserva in page_obj %}
                         <tr>
                              <td>{{ reserva.pk }}</td>
-                             {# --- Celda con enlace al detalle de STAFF --- #}
+                             {# Celda con enlace al detalle de STAFF #}
                              <td>
-                                {# El enlace en la lista de staff ahora va al DETALLE DE STAFF #}
                                 <a href="{% url 'daycare:staff_booking_detail' reserva.pk %}">
                                     <strong>{{ reserva.pet.nombre }}</strong>
                                 </a>
                                 <small class="text-muted">({{ reserva.pet.raza|default:"N/A" }})</small>
                             </td>
-                            <td>{{ reserva.service.name }}</td> {# <-- MOSTRAR NOMBRE DEL SERVICIO #}
+                            <td>{{ reserva.service.name }}</td> {# Mostrar nombre del servicio #}
                             <td>
                                 {{ reserva.pet.owner.user.username }}
                                 <small class="text-muted">({{ reserva.pet.owner.user.first_name }})</small>
@@ -103,13 +108,13 @@
                             <td>{{ reserva.date|date:"d M Y" }}</td>
                             <td>{{ reserva.time|time:"H:i" }}</td>
                             <td>
-                                <span class="badge {% if reserva.status == 'Confirmed' %}bg-success{% elif reserva.status == 'Cancelled' %}bg-danger{% elif elif reserva.status == 'Completed' %}bg-secondary{% else %}bg-warning{% endif %}">
+                                <span class="badge {% if reserva.status == 'Confirmed' %}bg-success{% elif reserva.status == 'Cancelled' %}bg-danger{% elif reserva.status == 'Completed' %}bg-secondary{% else %}bg-warning{% endif %}">
                                     {{ reserva.get_status_display }}
                                 </span>
                             </td>
                              <td>{{ reserva.created_at|date:"d M Y H:i" }}</td>
                              <td>
-                                {# Formulario de cambio de estado (Sigue igual) #}
+                                {# Formulario de cambio de estado #}
                                 <form method="post" class="form-inline">
                                     {% csrf_token %}
                                     <input type="hidden" name="booking_id" value="{{ reserva.pk }}">
@@ -123,30 +128,33 @@
             </table>
         </div>
 
-        {# --- Controles de Paginación (Siguen igual, aseguran de preservar filtros) --- #}
+        {# --- Controles de Paginación --- #}
         {% if page_obj.has_other_pages %}
         <nav aria-label="Navegación de Páginas de Reservas">
             <ul class="pagination justify-content-center">
                 {# Enlace a la página anterior #}
                 {% if page_obj.has_previous %}
-                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if start_date_filter_str %}&start_date={{ start_date_filter_str }}{% endif %}">Anterior</a></li> {# Añade otros filtros aquí si los implementas #}
+                    {# Añadimos TODOS los parámetros de filtro actuales a la URL para preservar los filtros #}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if start_date_filter_str %}&start_date={{ start_date_filter_str }}{% endif %}{% if service_filter_id %}&service={{ service_filter_id }}{% endif %}">Anterior</a></li> {# <-- Añade service_filter_id #}
                 {% else %}
                     <li class="page-item disabled"><span class="page-link">Anterior</span></li>
                 {% endif %}
 
-                {# Opcional: Mostrar enlaces a las páginas individuales #}
+                {# Opcional: Mostrar enlaces a las páginas individuales (asegura que preservan filtros) #}
                 {% for i in page_obj.paginator.page_range %}
                     {% if page_obj.number == i %}
                         <li class="page-item active" aria-current="page"><span class="page-link">{{ i }}</span></li>
                     {% elif i > page_obj.number|add:'-3' and i < page_obj.number|add:'3' %}
-                        <li class="page-item"><a class="page-link" href="?page={{ i }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if start_date_filter_str %}&start_date={{ start_date_filter_str }}{% endif %}">{{ i }}</a></li> {# Añade otros filtros aquí si los implementas #}
+                        {# Añadimos TODOS los parámetros de filtro actuales a la URL para preservar los filtros #}
+                        <li class="page-item"><a class="page-link" href="?page={{ i }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if start_date_filter_str %}&start_date={{ start_date_filter_str }}{% endif %}{% if service_filter_id %}&service={{ service_filter_id }}{% endif %}">{{ i }}</a></li> {# <-- Añade service_filter_id #}
                     {% endif %}
                 {% endfor %}
 
 
                 {# Enlace a la página siguiente #}
                 {% if page_obj.has_next %}
-                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if start_date_filter_str %}&start_date={{ start_date_filter_str }}{% endif %}">Siguiente</a></li> {# Añade otros filtros aquí si los implementas #}
+                    {# Añadimos TODOS los parámetros de filtro actuales a la URL para preservar los filtros #}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if start_date_filter_str %}&start_date={{ start_date_filter_str }}{% endif %}{% if service_filter_id %}&service={{ service_filter_id }}{% endif %}">Siguiente</a></li> {# <-- Añade service_filter_id #}
                 {% else %}
                     <li class="page-item disabled"><span class="page-link">Siguiente</span></li>
                 {% endif %}
@@ -157,8 +165,8 @@
 
 
     {% else %}
-        {# Mensaje si no hay reservas (filtradas o en total) #}
-        {% if status_filter or start_date_filter_str %} {# Puedes añadir service_filter aquí también si lo implementas #}
+        {# Mensaje si no hay reservas (filtradas o en total). Añade la comprobación para service_filter_id #}
+        {% if status_filter or start_date_filter_str or service_filter_id %}
              <p class="lead text-muted">No se encontraron reservas con los filtros aplicados.</p>
         {% else %}
              <p class="lead text-muted">No hay reservas registradas en el sistema.</p>

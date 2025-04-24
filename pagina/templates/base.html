@@ -1,100 +1,178 @@
-{# mysite/templates/base.html #}
-{% load static %} {# Necesario para usar la etiqueta 'static' para cargar archivos estáticos #}
+{# pagina/daycare/templates/daycare/base.html #}
+{% load static %} {# Necesario para {% static %} #}
+
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-   <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>{% block title %}Mi Sitio Django{% endblock %}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Guardería Canina{% endblock %}</title> {# Bloque para el título específico de la página #}
 
-   {# Enlace al CSS de Bootstrap desde la CDN #}
-   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
-      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    {# Enlace al CSS de Bootstrap desde CDN (versión 5.3) #}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-   {# Enlace a tu archivo CSS personalizado (lo crearemos en el siguiente punto) #}
-   <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {# Opcional: Si tienes un archivo CSS global para tu aplicación (no solo la landing), añádelo aquí #}
+    {# Por ejemplo, en static/daycare/css/style.css #}
+    {# <link rel="stylesheet" href="{% static 'daycare/css/style.css' %}"> #}
 
+    {% block extra_css %}{% endblock %} {# Bloque para CSS adicional específico de una página #}
+
+    <style>
+        /* Asegura que el contenido principal no quede oculto por la barra fija */
+        body {
+             padding-top: 56px; /* Espacio necesario si la nav bar es fixed-top y mide 56px por defecto */
+        }
+        /* Puedes añadir aquí o en un archivo CSS externo estilos globales a la app */
+         .messages { /* Estilo básico para los mensajes de Django */
+             list-style: none;
+             padding: 0;
+             margin: 1rem 0;
+         }
+    </style>
 </head>
-
 <body>
 
-   {# Opcional: Una barra de navegación simple. Adapta los enlaces a tus URLs #}
-   <nav class="navbar navbar-expand-lg navbar-dark bg-primary"> {# bg-primary usa el azul de Bootstrap #}
-      <div class="container">
-         <a class="navbar-brand" href="{% url 'daycare:home' %}">Guardería Canina</a>
-         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-         </button>
-         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
-               <li class="nav-item">
-                  <a class="nav-link" href="{% url 'admin:index' %}">Admin</a>
-               </li>
-               {# Enlaces de autenticación - los configuraremos #}
-               {% if user.is_authenticated %}
-               <li class="nav-item">
-                  {# Enlace a la página del perfil #}
-                  <a class="nav-link" href="{% url 'daycare:perfil_owner' %}">Mi Perfil</a>
-               </li>
-               <li class="nav-item">
-                  <a class="nav-link" href="{% url 'daycare:agregar_mascota' %}">Agregar Mascota</a>
-               </li>
-               {% if user.is_staff %}
-               <li class="nav-item">
-                  <a class="nav-link text-warning" href="{% url 'daycare:staff_booking_list' %}">Gestión Staff</a>
-               </li>
-                     {% endif %}
-               <li class="nav-item">
-                  <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: inline;">
-                     {% csrf_token %}
-                     {# --- Modifica esta línea del button --- #}
-                     {# Eliminamos py-0 si nav-link ya maneja el padding vertical #}
-                     <button type="submit" class="nav-link btn btn-link m-0 align-baseline"
-                        style="text-decoration: none; color: var(--bs-navbar-color);">
-                        Logout {# El texto que quieres que aparezca #}
-                     </button>
-                     {# --- Fin Modificación --- #}
-                  </form>
-               </li>
+    {# --- Barra de Navegación Unificada (Bootstrap Navbar) --- #}
+    {# navbar-expand-lg: La barra se expande en pantallas grandes. navbar-dark bg-dark: Estilo oscuro. fixed-top: Fija la barra en la parte superior #}
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+            {# Brand/Logo - Enlace a la Landing Page (Inicio para no logueados) #}
+            <a class="navbar-brand" href="{% url 'landing_page' %}">🐶 Tu Amigo Fiel</a>
 
+            {# Botón Toggler para la vista móvil (aparece en pantallas pequeñas para colapsar el menú) #}
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-               {% else %}
-               <li class="nav-item">
-                  <a class="nav-link" href="{% url 'login' %}">Login</a>
-               </li>
-               <li class="nav-item">
-                  <a class="nav-link" href="{% url 'daycare:registro_owner' %}">Registro</a>
-               </li>
-               {% endif %}
+            {# Contenido colapsable de la barra de navegación #}
+            <div class="collapse navbar-collapse" id="navbarNav">
+                {# ml-auto / ms-auto en Bootstrap 5: Empuja los elementos a la derecha #}
+                <ul class="navbar-nav ms-auto">
+
+                    {# --- Enlaces Condicionales --- #}
+
+                    {# --- Enlaces visbles SOLO si el usuario está autenticado --- #}
+                    {% if user.is_authenticated %}
+
+                        {# Enlaces para usuarios tipo Dueño (si NO son staff) #}
+                        {% if not user.is_staff %}
+                            <li class="nav-item">
+                                {# Enlace a la página principal del dueño (lista de mascotas en este caso) #}
+                                <a class="nav-link" href="{% url 'daycare:home' %}">Mis Mascotas</a>
+                            </li>
+                             <li class="nav-item">
+                                {# Enlace a la página de perfil del dueño #}
+                                <a class="nav-link" href="{% url 'daycare:perfil_owner' %}">Mi Perfil</a>
+                            </li>
+                            <li class="nav-item">
+                                {# Enlace a la página de solicitud de reserva #}
+                                <a class="nav-link" href="{% url 'daycare:solicitar_reserva' %}">Solicitar Reserva</a>
+                            </li>
+                        {% endif %}
+
+                        {# Enlaces para usuarios tipo Staff (si SON staff) #}
+                        {% if user.is_staff %}
+                            <li class="nav-item">
+                                {# Enlace al listado de reservas para staff #}
+                                <a class="nav-link" href="{% url 'daycare:staff_booking_list' %}">Gestión Reservas (Staff)</a>
+                            </li>
+                            <li class="nav-item">
+                                {# Enlace al panel de administración de Django #}
+                                <a class="nav-link" href="{% url 'admin:index' %}">Admin</a>
+                            </li>
+                        {% endif %}
+
+                        {# Enlace de Logout (visible para CUALQUIER usuario autenticado, sea dueño o staff) #}
+                         <li class="nav-item">
+                            {# {% url 'logout' %} asume que has incluido las URLs de auth de Django y se llaman 'logout' #}
+                            <form action="{% url 'logout' %}" method="post" style="display: inline;">
+                              {% csrf_token %} {# ¡Crucial para seguridad! Añade el token CSRF #}
+                              {# Usamos un botón <button type="submit"> que se ve como un enlace #}
+                              {# btn btn-link lo hace parecer un enlace. text-light para que se vea en fondo oscuro. #}
+                              {# text-decoration: none; opcional si btn-link le añade subrayado que no quieres #}
+                              <button type="submit" class="nav-link btn btn-link text-light" style="text-decoration: none;">
+                                  Logout
+                              </button>
+                          </form>                         </li>
+
+                    {# --- Enlaces visbles SOLO si el usuario NO está autenticado --- #}
+                    {% else %}
+                        {# Enlaces para visitantes en la Landing Page #}
+                        {# Estos pueden ser enlaces a secciones dentro de la landing page (ej: /#services) #}
+                        {# O enlaces a páginas dedicadas si decides separarlas después #}
+                        <li class="nav-item">
+                             {# Enlace a la sección Servicios de la Landing. Asegúrate de que la sección en landing.html tiene id="services" #}
+                             <a class="nav-link" href="{% url 'landing_page' %}#services">Servicios</a>
+                        </li>
+                        <li class="nav-item">
+                            {# Enlace a la sección Sobre Nosotros de la Landing. Asegúrate de que la sección en landing.html tiene id="about" #}
+                            <a class="nav-link" href="{% url 'landing_page' %}#about">Sobre Nosotros</a>
+                        </li>
+                         <li class="nav-item">
+                             {# Enlace a la sección Contacto de la Landing. Asegúrate de que la sección en landing.html tiene id="contact" #}
+                            <a class="nav-link" href="{% url 'landing_page' %}#contact">Contacto</a>
+                        </li>
+
+                        {# Enlace de Login (a la página de login de Django auth) #}
+                        <li class="nav-item">
+                            {# {% url 'login' %} asume que has incluido las URLs de auth de Django y se llaman 'login' #}
+                            <a class="nav-link" href="{% url 'login' %}">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            {# Enlace a tu página de registro de dueño #}
+                            {# Usamos clases de Bootstrap para darle estilo de botón y un poco de margen a la izquierda (ms-2) #}
+                            <a class="btn btn-primary ms-2" href="{% url 'daycare:registro_owner' %}">Regístrate</a>
+                        </li>
+                    {% endif %}
+                    {# --- Fin Enlaces Condicionales --- #}
+
+                </ul>
+            </div>
+        </div>
+    </nav>
+    {# --- Fin Barra de Navegación Unificada --- #}
+
+    {# Contenedor principal para el contenido de la página, con margen superior para no chocar con la nav fija #}
+    <div class="container mt-4">
+
+        {# Mostrar mensajes de Django (success, error, info, warning) con estilos de Bootstrap #}
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    {# message.tags contendrá las clases de mensaje de Django (ej: 'success', 'error', 'info', 'warning') #}
+                    {# Usamos message.tags directamente como clase de alerta de Bootstrap (success, danger, info, warning) #}
+                    <div class="alert alert-{{ message.tags }}" role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
             </ul>
-         </div>
-      </div>
-   </nav>
+        {% endif %}
 
 
-   <div class="container mt-4">
-      {# Mensajes de Django (ej: éxito al crear algo) #}
-      {% if messages %}
-      {% for message in messages %}
-      <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-      {% endfor %}
-      {% endif %}
+        {% block content %}
+        {# El contenido específico de cada plantilla hija irá aquí #}
+        {% endblock %}
+    </div>
 
-      {% block content %}
-      {# El contenido específico de cada página irá aquí #}
-      {% endblock %}
-   </div>
+    {# --- Footer (Opcional en base, pero da consistencia) --- #}
+    {# bg-light py-4: Fondo claro, padding vertical. mt-auto: Si el contenido es corto, el footer se pega al final #}
+    <footer class="footer bg-light py-4 mt-auto">
+        <div class="container text-center">
+            <p class="mb-0">&copy; {% now "Y" %} Guardería Canina "Tu Amigo Fiel".</p>
+            {# Opcional: Enlaces a redes sociales, política de privacidad, etc. #}
+        </div>
+    </footer>
+    {# --- Fin Footer --- #}
 
-   {# Scripts de Bootstrap (Popper.js y Bootstrap JS) desde la CDN #}
-   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
-      integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
-      crossorigin="anonymous"></script>
-   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
-      integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4zQ+O20wKWlach6pXdUmqmk9EdJig#"
-      crossorigin="anonymous"></script>
+
+    {# Scripts de Bootstrap (requieren Popper.js) - Incluir al final del body para no bloquear el renderizado inicial #}
+    {# Estos scripts son necesarios para funcionalidades de Bootstrap como el colapso de la navbar en móvil, tooltips, popovers, etc. #}
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+
+    {# Bloque para Scripts JS adicionales específicos de una página #}
+    {# Tus scripts de inicialización de datepicker, etc., irán aquí #}
+    {% block extra_js %}{% endblock %}
 
 </body>
-
 </html>

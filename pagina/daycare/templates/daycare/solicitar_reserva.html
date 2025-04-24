@@ -1,5 +1,6 @@
 {# pagina/daycare/templates/daycare/solicitar_reserva.html #}
 {% extends 'daycare/base.html' %}
+{% load static %}
 
 {% block title %}Solicitar Reserva{% endblock %}
 
@@ -74,3 +75,24 @@
     </div>
 
 {% endblock content %}
+
+{# --- Añadir CSS de Flatpickr usando CDN --- #}
+{% block extra_css %}
+    <link rel="stylesheet" href="https://unpkg.com/flatpickr@4.6.13/dist/flatpickr.min.css"> {# Enlace CDN al CSS #}
+    {# Si necesitas un tema específico, busca su CDN también #}
+{% endblock %}
+
+{# --- Añadir JS de Flatpickr y tu JS de inicialización usando CDN/Static --- #}
+{% block extra_js %}
+    {# Primero la librería principal de Flatpickr desde CDN #}
+    <script src="https://unpkg.com/flatpickr@4.6.13/dist/flatpickr.min.js"></script> {# Enlace CDN al JS #}
+
+    {# Opcional: Si quieres la localización en español, usa su CDN. Inclúyela DESPUÉS del JS principal de Flatpickr #}
+    <script src="https://unpkg.com/flatpickr@4.6.13/dist/l10n/es.js"></script> {# Enlace CDN a la localización en español #}
+
+
+    {# Segundo, tu script personalizado para inicializarlo (este sí está en tu static) #}
+    <script src="{% static 'daycare/js/date_picker_init.js' %}"></script> {# Tu archivo JS local #}
+{% endblock %}
+
+{# Asegúrate de que tu base.html tiene definidos los bloques extra_css y extra_js #}

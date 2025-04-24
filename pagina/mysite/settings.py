@@ -130,7 +130,7 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-LOGIN_REDIRECT_URL = '/' # Redirige a la página de inicio después de iniciar sesión
+LOGIN_REDIRECT_URL = '/daycare/'
 LOGOUT_REDIRECT_URL = '/' # Redirige a la página de inicio después de cerrar sesión
 
 # Opcionalmente, si necesitas una página de login específica (Django ya proporciona una por defecto)
