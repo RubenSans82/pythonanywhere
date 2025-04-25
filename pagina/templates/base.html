@@ -8,14 +8,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Guardería Canina{% endblock %}</title> {# Bloque para el título específico de la página #}
 
-    {# Enlace al CSS de Bootstrap desde CDN (versión 5.3) #}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-    {# Opcional: Si tienes un archivo CSS global para tu aplicación (no solo la landing), añádelo aquí #}
-    {# Por ejemplo, en static/daycare/css/style.css #}
-    {# <link rel="stylesheet" href="{% static 'daycare/css/style.css' %}"> #}
+    {# --- Icono de la pestaña del navegador (favicon) --- #}
 
-    {% block extra_css %}{% endblock %} {# Bloque para CSS adicional específico de una página #}
+    <link rel="stylesheet" href="{% static 'daycare/css/style.css' %}">
+
+    {% block extra_css %}
+
+    {% endblock %} {# Bloque para CSS adicional específico de una página #}
 
     <style>
         /* Asegura que el contenido principal no quede oculto por la barra fija */
@@ -56,21 +58,23 @@
 
                         {# Enlaces para usuarios tipo Dueño (si NO son staff) #}
                         {% if not user.is_staff %}
-                            <li class="nav-item">
-                                {# Enlace a la página principal del dueño (lista de mascotas en este caso) #}
-                                <a class="nav-link" href="{% url 'daycare:home' %}">Mis Mascotas</a>
-                            </li>
-                             <li class="nav-item">
-                                {# Enlace a la página de perfil del dueño #}
-                                <a class="nav-link" href="{% url 'daycare:perfil_owner' %}">Mi Perfil</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'daycare:mis_reservas' %}">Reservas</a>
-                           </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'daycare:home' %}">Mis Mascotas</a>
+                       </li>
+                       <li class="nav-item"> {# Elemento 'Reservas' (ahora ANTES) #}
+                            <a class="nav-link" href="{% url 'daycare:mis_reservas' %}">Reservas</a>
+                       </li>
+                       <li class="nav-item"> {# Elemento 'Mi Perfil' (ahora DESPUÉS) #}
+                            <a class="nav-link" href="{% url 'daycare:perfil_owner' %}">Mi Perfil</a>
+                       </li>
                         {% endif %}
 
                         {# Enlaces para usuarios tipo Staff (si SON staff) #}
                         {% if user.is_staff %}
+                            <li class="nav-item">
+                                {# Usamos la etiqueta {% url %} para generar la URL basada en el name='staff_calendar' en daycare/urls.py #}
+                                <a class="nav-link" href="{% url 'daycare:staff_calendar' %}">Calendario</a>
+                            </li>
                             <li class="nav-item">
                                 {# Enlace al listado de reservas para staff #}
                                 <a class="nav-link" href="{% url 'daycare:staff_booking_list' %}">Gestión Reservas (Staff)</a>
@@ -171,7 +175,8 @@
 
     {# Bloque para Scripts JS adicionales específicos de una página #}
     {# Tus scripts de inicialización de datepicker, etc., irán aquí #}
-    {% block extra_js %}{% endblock %}
+    {% block extra_js %}
+    {% endblock %}
 
 </body>
 </html>

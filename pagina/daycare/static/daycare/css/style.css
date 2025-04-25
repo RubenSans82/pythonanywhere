@@ -1,0 +1,83 @@
+/* pagina/daycare/static/daycare/css/style.css */
+
+/* --- Estilos para la Galería de Fotos --- */
+
+/* Contenedor de cada imagen en la galería */
+.gallery-item {
+    /* Asegura que la imagen no se desborde del contenedor */
+    overflow: hidden;
+    /* Opcional: Añadir un borde o sombra para destacar cada foto */
+    border-radius: 8px; /* Bordes redondeados */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra suave */
+    /* Asegura que la columna (col-md-4) actúa como el contenedor flexible si es necesario */
+    display: flex;
+    justify-content: center; /* Centra la imagen horizontalmente */
+    align-items: center; /* Centra la imagen verticalmente */
+}
+
+/* Estilos para las imágenes dentro de la galería */
+.gallery-item img {
+    /* Esto es clave para que las imágenes se adapten y se muestren bien en la cuadrícula */
+    display: block; /* Elimina espacio extra debajo de la imagen */
+    width: 100%; /* La imagen ocupa todo el ancho del contenedor (.gallery-item o la columna) */
+    height: 200px; /* Opcional: Establece una altura fija para todas las imágenes de la galería */
+    object-fit: cover; /* Asegura que la imagen cubra el área sin distorsionarse (recorta si es necesario) */
+    /* object-position: center; /* Asegura que el centro de la imagen es visible */
+
+    /* Opcional: Efecto hover al pasar el ratón por encima */
+    transition: transform 0.3s ease; /* Transición suave para el zoom */
+}
+
+/* Efecto al pasar el ratón por encima de la imagen */
+.gallery-item img:hover {
+    transform: scale(1.05); /* Ligeramente más grande */
+}
+
+/* Opcional: Añadir un poco de padding a la sección de la galería */
+#photo-gallery { /* Usa el ID de la sección de la galería */
+    padding: 60px 0; /* 60px de padding arriba y abajo, 0 a los lados */
+    background-color: #f8f9fa; /* Un color de fondo suave para la sección */
+}
+
+#photo-gallery h2 { /* Estilo para el título de la sección */
+    text-align: center; /* Centra el título */
+    margin-bottom: 40px; /* Espacio debajo del título */
+    color: #333; /* Color de texto oscuro */
+}
+
+
+/* Si quieres que el div con col-md-4 mb-4 sea el que tenga el borde/sombra/overflow,
+   mueve las reglas de .gallery-item a .col-md-4. Por ahora, asumo que añades
+   una clase 'gallery-item' a un div que envuelve solo la imagen si no quieres
+   que toda la columna tenga el estilo. Pero si cada imagen ya está en su propia columna,
+   puedes aplicar los estilos directamente a la columna o a la imagen y su contenedor inmediato.
+   Basado en tu HTML, parece que puedes aplicar estilos directamente a la columna y la imagen:
+*/
+
+/* Alternativa: Aplicar estilos directamente a la columna y la imagen */
+/* (Si no quieres añadir una clase 'gallery-item' adicional en el HTML) */
+#photo-gallery .col-md-4 {
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex; /* Usar flex en la columna para centrar si es necesario */
+    justify-content: center;
+    align-items: center;
+}
+
+#photo-gallery .col-md-4 img {
+     display: block;
+     width: 100%;
+     height: 200px; /* Altura fija */
+     object-fit: cover;
+     transition: transform 0.3s ease;
+}
+
+#photo-gallery .col-md-4 img:hover {
+    transform: scale(1.05);
+}
+/* Decide si prefieres la primera opción (añadir clase gallery-item) o esta segunda (usar la clase col-md-4 existente).
+   La segunda es más directa si solo estilizarás las columnas de la galería.
+   Vamos a usar la segunda opción por ahora, ya que es más sencilla con tu HTML actual.
+   BORRA la primera sección de reglas CSS (.gallery-item) si usas la segunda.
+*/

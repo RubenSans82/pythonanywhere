@@ -4,17 +4,20 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
-# Asegúrate de que Booking, STATUS_CHOICES Y Service están importados
-from .models import Owner, Pet, Booking, STATUS_CHOICES, Service, OwnerProfile 
+from django.contrib.admin.views.decorators import staff_member_required
+from .models import Owner, Pet, Booking, STATUS_CHOICES, Service 
 # Asegúrate de que tus formularios necesarios están importados
 from .forms import PetForm, OwnerRegistrationForm, BookingForm, ChangeBookingStatusForm, UserOwnerProfileForm, StaffNotesForm
-from django.http import HttpResponseForbidden
-from datetime import date
+from django.http import HttpResponseForbidden, JsonResponse
+from datetime import date, datetime
 from django.contrib.auth.views import LoginView
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.conf import settings
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
+from django.utils import timezone
+from django.utils.timezone import make_aware, is_aware, is_naive
+from django.views.decorators.http import require_POST
 
 
 # --- NUEVA VISTA: Landing Page ---
@@ -244,7 +247,7 @@ def solicitar_reserva(request):
             messages.success(request, f'Solicitud de reserva para {booking.pet.nombre} - {booking.service.name} el {booking.date} a las {booking.time} enviada. Está Pendiente de confirmación.')
 
             # Redirigir a la página de perfil del usuario o a una página de confirmación de reserva
-            return redirect('daycare:perfil_owner') # Redirigir a la página de perfil
+            return redirect('daycare:mis_reservas') # Redirigir a la página de perfil
 
     else: # GET request
         # Creamos un formulario vacío para mostrar, pasando el usuario para filtrar las mascotas
@@ -276,7 +279,7 @@ def cancelar_reserva(request, pk):
     reserva = get_object_or_404(Booking, pk=pk)
     if reserva.pet.owner.user != request.user:
         messages.error(request, 'No tienes permiso para cancelar esta reserva.')
-        return redirect('daycare:perfil_owner')
+        return redirect('daycare:mis_reservas')
 
     # *** Implementar la verificación de estado (Solo Pendientes) ***
     if reserva.status != 'Pending':
@@ -292,42 +295,30 @@ def cancelar_reserva(request, pk):
         # Mensaje de éxito - Opcional: añadir el servicio aquí también
         messages.success(request, f'La reserva para {reserva.pet.nombre} el {fecha_formateada} ha sido cancelada correctamente.')
 
-        return redirect('daycare:perfil_owner')
+        return redirect('daycare:mis_reservas')
 
     # Si la petición es GET, mostramos la página de confirmación
     return render(request, 'daycare/confirmar_cancelacion_reserva.html', {'reserva': reserva})
 
 
-@login_required # Asegura que solo usuarios logueados puedan ver sus reservas
+@login_required
 def mis_reservas(request):
     """
     Vista para mostrar la lista de reservas del dueño autenticado.
     """
-    # --- Obtener las reservas del usuario autenticado ---
-    # Necesitas filtrar las reservas para que solo pertenezcan al usuario logueado (request.user)
-    # ESTO ASUME que tu modelo 'Booking' tiene un campo ForeignKey
-    # llamado 'owner' (o similar) que apunta al modelo de usuario (settings.AUTH_USER_MODEL).
-    # Si tu modelo de reserva se relaciona con el usuario de otra manera (ej: a través de OwnerProfile),
-    # necesitarás ajustar la consulta.
     try:
-        # Ejemplo de consulta: Filtra por el campo 'owner' en el modelo Booking
-        # Ordena por fecha de inicio de la reserva (o fecha de creación) descendente
-        mis_reservas_list = Booking.objects.filter(pet__owner__user=request.user).order_by('-date', '-time') # <-- Consulta corregida
-        # Si no tienes fecha_inicio_reserva, puedes ordenar por created_at si lo tienes:
-        # mis_reservas_list = Booking.objects.filter(owner=request.user).order_by('-created_at')
+        # La consulta es correcta para tu modelo: Booking -> Pet -> Owner -> User
+        mis_reservas_list = Booking.objects.filter(pet__owner__user=request.user).order_by('-date', '-time') # <-- Verifica que sea EXACTAMENTE esta línea
 
 
     except Exception as e:
-        # Manejo de errores simple en caso de que la consulta falle
+        # Manejo de errores simple
         print(f"Error al obtener reservas para el usuario {request.user.username}: {e}")
-        mis_reservas_list = [] # Devuelve una lista vacía en caso de error
+        mis_reservas_list = []
 
-
-    # --- Preparar el contexto y renderizar la plantilla ---
     context = {
-        'mis_reservas': mis_reservas_list, # Pasa la lista de reservas a la plantilla
-        # No necesitas pasar 'owner_profile' aquí a menos que la plantilla 'mis_reservas.html' lo use
-        # No necesitas pasar 'mis_mascotas' aquí
+        'mis_reservas': mis_reservas_list,
+        'now_date': timezone.now().date(),
     }
     return render(request, 'daycare/mis_reservas.html', context)
 
@@ -450,35 +441,65 @@ def staff_booking_list(request):
 
     return render(request, 'daycare/staff_booking_list.html', context)
 
-# Vista para ver y editar detalles de Reserva para el Personal (Staff) - MISMO CÓDIGO (PENDIENTE ACTUALIZAR PLANTILLA)
+# Vista para ver y editar detalles de Reserva para el Personal (Staff)
 @login_required # Solo usuarios logueados
 def staff_booking_detail(request, pk): # Espera el ID (pk) de la reserva
-    # *** Implementar la verificación de Staff ***
+    # Implementar la verificación de Staff
     if not request.user.is_staff:
         messages.error(request, 'No tienes permiso para acceder a esta página.')
-        return redirect('daycare:perfil_owner')
+        return redirect('daycare:perfil_owner') # Redirige a una página adecuada para no-staff
 
     # Obtener la reserva específica o devolver 404
     reserva = get_object_or_404(Booking, pk=pk)
 
-    # Manejar el envío del formulario de notas internas (si es POST)
+    # --- NUEVO: Manejar cambio de estado (si es POST y viene de un formulario de estado) ---
+    # Distinguimos entre POST de notas y POST de estado verificando un campo oculto o el nombre del botón/campo.
+    # Una forma sencilla es verificar si el campo 'new_status' está en la petición POST.
     if request.method == 'POST':
+        if 'new_status' in request.POST: # Detecta si la petición POST es para cambiar estado
+            new_status = request.POST.get('new_status')
+            valid_statuses = [choice[0] for choice in STATUS_CHOICES]
+
+            if new_status in valid_statuses:
+                # Guardar el estado solo si es diferente para evitar triggers innecesarios si los tienes
+                if reserva.status != new_status:
+                     reserva.status = new_status
+                     reserva.save()
+                     messages.success(request, f'El estado de la reserva {reserva.pk} ({reserva.pet.nombre}) ha sido cambiado a {reserva.get_status_display()}.')
+                else:
+                     messages.info(request, 'El estado de la reserva ya era el seleccionado.')
+            else:
+                messages.error(request, f'Estado de reserva "{new_status}" no válido.')
+
+            # Redirigir de vuelta a la misma página de detalles después de POST para evitar reenvío del formulario
+            return redirect('daycare:staff_booking_detail', pk=reserva.pk)
+
+        # --- NUEVO: Manejar envío del formulario de notas internas (código existente adaptado) ---
+        # Si no es un POST para cambio de estado, asumimos que es para actualizar notas internas.
         form = StaffNotesForm(request.POST, instance=reserva)
         if form.is_valid():
             form.save()
             messages.success(request, 'Notas internas actualizadas correctamente.')
+            # Redirigir de vuelta a la misma página de detalles
             return redirect('daycare:staff_booking_detail', pk=reserva.pk)
+        else:
+             # Si el formulario de notas no es válido, mostrar errores en la plantilla (GET logic will handle this)
+             messages.error(request, 'Error al actualizar las notas internas.')
 
-    # Manejar petición GET (mostrar detalles y formulario pre-llenado)
-    else:
-        form = StaffNotesForm(instance=reserva)
 
+    # --- Manejar petición GET (mostrar detalles y formularios) ---
+    # Si la petición es GET (o POST falló en validación), mostramos la página.
+    # Instanciamos el formulario de notas internas con los datos existentes de la reserva
+    form = StaffNotesForm(instance=reserva)
 
-    # Renderizar la plantilla de detalles de staff (necesita actualizar para mostrar el servicio y notas del dueño)
+    # Preparamos el contexto
     context = {
         'reserva': reserva,
-        'staff_notes_form': form,
+        'staff_notes_form': form, # Formulario para notas internas
+        'status_choices': STATUS_CHOICES, # <-- NUEVO: Pasar las opciones de estado
     }
+
+    # Renderizar la plantilla de detalles de staff
     return render(request, 'daycare/staff_booking_detail.html', context)
 
 class CustomLoginView(LoginView):
@@ -531,3 +552,216 @@ class CustomLoginView(LoginView):
 
         print(f"--- DEBUG: get_redirect_url finaliza. URL devuelta: {url} ---") # Añade esta línea
         return url
+    
+@staff_member_required # Restringe el acceso solo a usuarios con estado 'staff'
+def staff_calendar_view(request):
+    """
+    Vista que renderiza la plantilla base para el calendario del staff,
+    pasando datos necesarios para los controles de filtro.
+    """
+    # Obtener opciones de estado directamente del modelo/choices
+    status_choices = STATUS_CHOICES
+    # Obtener todos los servicios para el filtro, ordenados por nombre
+    services = Service.objects.all().order_by('name')
+
+    # Opcional: Si quieres que los filtros se mantengan si la página se recarga
+    # (menos común para un calendario dinámico, pero posible), puedes leer
+    # los parámetros de filtro de la URL aquí y pasarlos al contexto.
+    # status_filter = request.GET.get('status')
+    # service_filter_id_str = request.GET.get('service')
+    # service_filter_id = int(service_filter_id_str) if service_filter_id_str else None
+
+
+    context = {
+        'status_choices': status_choices, # Pasar las opciones de estado (lista de tuplas)
+        'services': services, # Pasar el QuerySet de objetos Service
+        # 'status_filter': status_filter, # Descomentar si lees filtros de GET arriba
+        # 'service_filter_id': service_filter_id, # Descomentar si lees filtros de GET arriba
+    }
+    return render(request, 'daycare/staff_calendar.html', context)
+
+@staff_member_required # Restringe el acceso solo a usuarios staff
+def staff_calendar_feed(request):
+    """
+    Vista API que retorna datos de reservas en formato JSON para FullCalendar.
+    Filtra las reservas por el rango de fechas que FullCalendar solicita,
+    por estado y servicio si se proporcionan filtros, y añade la URL de detalle.
+    """
+    # FullCalendar envía los parámetros de rango de fechas
+    start_param = request.GET.get('start') # ISO 8601 date or datetime string
+    end_param = request.GET.get('end')     # ISO 8601 date or datetime string
+
+    # Obtener parámetros de filtro adicionales del frontend
+    status_filter = request.GET.get('status') # Valor del selector de estado
+    service_filter_id_str = request.GET.get('service_id') # Valor del selector de servicio (string del ID)
+
+    # Consulta inicial: obtener todas las reservas
+    bookings = Booking.objects.all()
+
+    # --- Aplicar filtro por rango de fechas (existente) ---
+    if start_param and end_param:
+        try:
+            start_datetime_filter = datetime.fromisoformat(start_param)
+            end_datetime_filter = datetime.fromisoformat(end_param)
+            bookings = bookings.filter(date__gte=start_datetime_filter.date(), date__lt=end_datetime_filter.date())
+        except ValueError:
+            return JsonResponse({'error': 'Invalid date format received from calendar'}, status=400)
+        except Exception as e:
+            print(f"Error filtering calendar feed dates: {e}")
+            return JsonResponse({'error': 'An error occurred while filtering dates'}, status=500)
+
+    # --- Aplicar filtros adicionales (Estado y Servicio) ---
+    if status_filter:
+        bookings = bookings.filter(status=status_filter)
+
+    if service_filter_id_str:
+        try:
+            service_filter_id = int(service_filter_id_str)
+            bookings = bookings.filter(service_id=service_filter_id)
+        except ValueError:
+             # Si el service_id no es un número válido
+             return JsonResponse({'error': 'Invalid service ID format'}, status=400)
+
+
+    # --- Preparar los datos de los eventos ---
+    events = []
+    for booking in bookings:
+        owner_name = booking.pet.owner.user.get_full_name() or booking.pet.owner.user.get_username()
+        event_title = f'{booking.pet.nombre} - {booking.service.name} ({owner_name})'
+
+        start_datetime_naive = datetime.combine(booking.date, booking.time)
+
+        # Convertir a datetime aware si USE_TZ es True
+        # Esto es necesario para que FullCalendar maneje correctamente las horas
+        try:
+            # Si USE_TZ = True, make_aware funciona.
+            start_datetime_aware = make_aware(start_datetime_naive)
+        except Exception as e:
+             # Este except debería ser específico para el error si make_aware no es necesario/posible
+             # Pero si USE_TZ es True, make_aware es la forma correcta.
+             # Si USE_TZ es False, make_aware dará error.
+             # Una forma más robusta es verificar settings.USE_TZ
+             if settings.USE_TZ:
+                 print(f"Error making datetime aware: {e}. Check TIME_ZONE in settings.")
+                 # Si USE_TZ es True y make_aware falla, hay un problema de configuración o datos.
+                 # Deberías investigar la causa si este print aparece en consola.
+                 pass # Continuar con el naive por ahora, pero esto indica un problema potencial.
+             else:
+                  # Si USE_TZ es False, make_aware NO debe usarse.
+                  pass # No hacer nada, start_datetime_naive es correcto.
+
+             start_datetime_aware = start_datetime_naive # Usar el naive como fallback
+
+        event_start_iso = start_datetime_aware.isoformat()
+        event_end_iso = event_start_iso # Evento puntual
+
+        status_colors = {
+            'Pending': '#ffc107', 'Confirmed': '#28a745',
+            'Cancelled': '#dc3545', 'Completed': '#6c757d',
+        }
+        event_color = status_colors.get(booking.status, '#3788d8')
+
+        # --- Restaurar la generación y adición de la URL de detalles ---
+        # Asegúrate de tener 'from django.urls import reverse' importado
+        event_url = reverse('daycare:staff_booking_detail', args=[booking.pk]) # Genera la URL
+        # --- Fin Restauración ---
+
+        event = {
+            'id': booking.pk, 'title': event_title,
+            'start': event_start_iso, 'end': event_end_iso,
+            'color': event_color,
+            'url': event_url, # <-- ¡Asegúrate de que esta línea está presente y NO comentada!
+            'extendedProps': {
+                'status': booking.status, 'owner_id': booking.pet.owner.pk, 'owner_name': owner_name,
+                'pet_id': booking.pet.pk, 'pet_name': booking.pet.nombre,
+                'service_id': booking.service.pk, 'service_name': booking.service.name,
+                'notes': booking.notes, 'staff_notes': booking.staff_notes,
+            }
+        }
+        events.append(event)
+
+    return JsonResponse(events, safe=False)
+
+@staff_member_required # Restringe el acceso solo a usuarios staff
+@require_POST # Solo permite peticiones POST a esta vista
+def staff_update_booking_api(request):
+    """
+    Vista API para actualizar la fecha y hora de una reserva
+    basada en datos recibidos (ej: al arrastrar un evento en el calendario).
+    """
+    # Obtener los datos del cuerpo de la petición POST.
+    # Asumiremos que el frontend envía 'id' (ID de la reserva)
+    # y 'start' (la nueva fecha/hora de inicio en formato ISO 8601 string)
+    # dentro de los datos del formulario POST o como JSON (si envías JSON, necesitarías json.loads(request.body)).
+    # Para simplificar con fetch API y FormData, asumiremos datos de formulario POST.
+    booking_id = request.POST.get('id')
+    new_start_str = request.POST.get('start') # ISO 8601 string de la nueva fecha/hora
+
+    # Validar que los datos necesarios fueron recibidos
+    if not booking_id or not new_start_str:
+        return JsonResponse({'status': 'error', 'message': 'Missing booking ID or new start time in request data'}, status=400)
+
+    try:
+        # Obtener el objeto Booking por su ID o devolver 404 si no existe
+        booking = get_object_or_404(Booking, pk=booking_id)
+
+        # --- Procesar la nueva fecha/hora de inicio ---
+        # La cadena new_start_str viene en formato ISO 8601 desde FullCalendar.
+        # Necesitamos convertirla a un objeto datetime de Python.
+        # datetime.fromisoformat() puede manejar cadenas con o sin información de zona horaria.
+        new_start_datetime = datetime.fromisoformat(new_start_str)
+
+        # --- Manejo de Zona Horaria (CRUCIAL si USE_TZ es True en settings.py) ---
+        # FullCalendar a menudo envía datetimes con zona horaria (ej: '2025-04-25T10:00:00+02:00').
+        # Tus campos Booking.date y Booking.time son naive (sin zona horaria).
+        # Si USE_TZ es True, Django espera datetimes aware en la base de datos.
+        # Debemos asegurarnos de que el datetime que usamos para actualizar la reserva esté
+        # en la zona horaria correcta del servidor o de UTC antes de extraer la fecha y hora naive.
+
+        if settings.USE_TZ:
+            # Si USE_TZ es True, el datetime recibido (new_start_datetime) puede ser aware o naive.
+            # Si es aware, conviértelo a la zona horaria por defecto del servidor antes de extraer date/time.
+            # Si es naive (lo cual sería inesperado si FullCalendar maneja zonas), asume que es en la zona
+            # horaria por defecto y hazlo aware.
+            if is_naive(new_start_datetime):
+                # Si la fecha/hora es naive, asume que está en la zona horaria por defecto del servidor y hazla aware.
+                # Esto puede no ser correcto si el navegador está en una zona diferente.
+                # La forma más segura es que FullCalendar siempre envíe datetimes aware.
+                new_start_datetime_aware = make_aware(new_start_datetime)
+            else:
+                # Si la fecha/hora es aware, conviértela a la zona horaria por defecto del servidor.
+                new_start_datetime_aware = new_start_datetime.astimezone(timezone.get_default_timezone())
+
+            # Actualiza los campos date y time del modelo usando la fecha y hora naive del datetime aware
+            # (Django se encargará de convertir a UTC si el campo fuera DateTimeField aware)
+            # PERO tus campos son DateField y TimeField, que son siempre naive.
+            # Extraemos la fecha y hora naive del datetime convertido a la zona horaria del servidor.
+            booking.date = new_start_datetime_aware.date()
+            booking.time = new_start_datetime_aware.time()
+
+
+        else: # settings.USE_TZ es False
+            # Si USE_TZ es False, tus campos son naive.
+            # Simplemente usa la fecha y hora del datetime recibido, asumiendo que es naive local.
+            # Si el datetime recibido era aware, su zona horaria se ignorará aquí.
+            booking.date = new_start_datetime.date()
+            booking.time = new_start_datetime.time()
+
+        # --- Fin Manejo de Zona Horaria ---
+
+        # Guardar los cambios en la base de datos
+        booking.save()
+
+        # Retornar una respuesta JSON de éxito
+        return JsonResponse({'status': 'success', 'message': 'Booking updated successfully'})
+
+    except Booking.DoesNotExist:
+        # Si la reserva no se encuentra por el ID proporcionado
+        return JsonResponse({'status': 'error', 'message': 'Booking not found'}, status=404)
+    except ValueError:
+        # Si el formato de la fecha/hora recibida no es válido y fromisoformat falla
+        return JsonResponse({'status': 'error', 'message': 'Invalid date/time format received'}, status=400)
+    except Exception as e:
+        # Capturar cualquier otro error inesperado durante el proceso
+        print(f"Error updating booking {booking_id}: {e}") # Imprimir error en la consola del servidor para depuración
+        return JsonResponse({'status': 'error', 'message': 'An error occurred while updating booking'}, status=500)

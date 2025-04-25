@@ -1,83 +1,119 @@
 {# pagina/daycare/templates/daycare/staff_booking_detail.html #}
-{% extends 'daycare/base.html' %}
+{% extends 'base.html' %}
 {% load static %}
-{% load i18n %} {# Para pluralize si lo usas #}
 
-
-{% block title %}Detalle Reserva Staff - {{ reserva.pk }}{% endblock %}
+{% block title %}Detalles Reserva #{{ reserva.pk }} (Staff){% endblock %}
 
 {% block content %}
-    <p><a href="{% url 'daycare:staff_booking_list' %}" class="btn btn-outline-secondary btn-sm mb-3">← Volver al Listado de Reservas</a></p> {# Enlace para volver al listado de staff #}
+    <div class="container mt-4">
+        <h1 class="mb-4">Detalles de Reserva <small class="text-muted">#{{ reserva.pk }}</small></h1>
 
-    <h1 class="mb-4 text-primary">Detalle de Reserva <small class="text-muted">(Staff)</small></h1>
-
-    <div class="card shadow-sm mb-4">
-        <div class="card-header">
-            Reserva #{{ reserva.pk }} para <strong>{{ reserva.pet.nombre }}</strong> (Dueño: {{ reserva.pet.owner.user.username }})
-        </div>
-        <div class="card-body">
-            <p class="card-text"><strong>Mascota:</strong> <a href="{% url 'daycare:detalle_mascota' reserva.pet.pk %}">{{ reserva.pet.nombre }} ({{ reserva.pet.raza|default:"N/A" }})</a></p>
-            <p class="card-text"><strong>Dueño:</strong> {{ reserva.pet.owner.user.first_name }} {{ reserva.pet.owner.user.last_name }} ({{ reserva.pet.owner.user.username }})</p>
-             {# Muestra detalles de contacto del dueño si están disponibles #}
-             <p class="card-text"><strong>Contacto Dueño:</strong> Tel: {{ reserva.pet.owner.telefono|default:"N/A" }}, Dir: {{ reserva.pet.owner.direccion|default:"N/A"|linebreaksbr }}</p>
+        {# --- NUEVO: Botón Volver dinámico --- #}
+        <button onclick="history.back()" class="btn btn-secondary mb-4">Volver</button>
+        {# --- Fin NUEVO --- #}
 
 
-             {# --- MOSTRAR DETALLE DEL SERVICIO --- #}
-            <p class="card-text"><strong>Servicio:</strong> {{ reserva.service.name }}</p> {# <-- MOSTRAR NOMBRE DEL SERVICIO #}
-             {# Opcional: Mostrar descripción o precio del servicio si es relevante para el staff aquí #}
-             {% if reserva.service.description %}<p class="card-text"><small class="text-muted">{{ reserva.service.description }}</small></p>{% endif %}
-             {% if reserva.service.price %}<p class="card-text"><small class="text-muted">Precio por defecto: {{ reserva.service.price }} €</small></p>{% endif %}
-
-             {# --- Fin MOSTRAR DETALLE DEL SERVICIO --- #}
-
-
-            <p class="card-text"><strong>Fecha:</strong> {{ reserva.date|date:"l, d \d\e F \d\e Y" }}</p>
-            <p class="card-text"><strong>Hora:</strong> {{ reserva.time|time:"H:i" }}</p>
-            <p class="card-text">
-                <strong>Estado:</strong>
-                <span class="badge {% if reserva.status == 'Confirmed' %}bg-success{% elif reserva.status == 'Cancelled' %}bg-danger{% elif elif reserva.status == 'Completed' %}bg-secondary{% else %}bg-warning{% endif %}">
-                    {{ reserva.get_status_display }}
-                </span>
-            </p>
-            <p class="card-text"><small class="text-muted">Solicitada el: {{ reserva.created_at|date:"d M Y H:i" }}</small></p>
-
-            <hr class="my-3"> {# Separador #}
-
-             {# --- Mostrar Notas del Dueño al Reservar --- #}
-            <h6 class="card-subtitle mt-4 mb-2">Notas del Dueño al Reservar:</h6>
-            {% if reserva.notes %}
-                {# style="white-space: pre-wrap;" para respetar saltos de línea #}
-                <p class="card-text border p-2 rounded bg-light" style="white-space: pre-wrap;">{{ reserva.notes }}</p>
-            {% else %}
-                <p class="card-text text-muted">No hay notas del dueño.</p>
-            {% endif %}
-            {# --- Fin Mostrar Notas del Dueño --- #}
-
-            <hr class="my-4"> {# Separador #}
-
-            {# --- Formulario para Notas Internas del Staff (Sigue igual) --- #}
-            <h5 class="mb-3">Notas Internas del Staff:</h5>
-             {# Mostrar errores generales del formulario #}
-             {% if staff_notes_form.non_field_errors %}
-                    <div class="alert alert-danger">
-                        {% for error in staff_notes_form.non_field_errors %}
-                            <p>{{ error }}</p>
-                        {% endfor %}
+        {# Mostrar mensajes de Django (success, error, info, warning) #}
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}" role="alert">
+                        {{ message }}
                     </div>
-                {% endif %}
+                {% endfor %}
+            </ul>
+        {% endif %}
 
-            <form method="post">
-                {% csrf_token %}
-                {# Renderizar el campo staff_notes del formulario #}
-                {{ staff_notes_form.staff_notes }}
-                {% if staff_notes_form.staff_notes.help_text %}<div class="form-text">{{ staff_notes_form.staff_notes.help_text|safe }}</div>{% endif %}
-                 {% for error in staff_notes_form.staff_notes.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
 
-                <button type="submit" class="btn btn-primary mt-3">Guardar Notas Internas</button>
-            </form>
-            {# --- Fin Formulario Notas Internas --- #}
+        <div class="card">
+            <div class="card-header">
+                Reserva para {{ reserva.pet.nombre }} (Dueño: {{ reserva.pet.owner.user.get_full_name|default:reserva.pet.owner.user.username }})
+            </div>
+            <div class="card-body">
+                {# ... código existente que muestra detalles de Mascota y Dueño ... #}
 
-        </div> {# Cierra card-body #}
-    </div> {# Cierra card #}
+                {# --- Mostrar Detalles del Servicio --- #}
+                <h5 class="card-title mt-3">{{ reserva.service.name }}</h5> {# Nombre del servicio #}
+                {% if reserva.service.description %}<p class="card-text"><small class="text-muted">{{ reserva.service.description }}</small></p>{% endif %}
+                {% if reserva.service.price %}<p class="card-text"><small class="text-muted">Precio por defecto: {{ reserva.service.price }} €</small></p>{% endif %}
+                {# --- Fin MOSTRAR DETALLE DEL SERVICIO --- #}
 
+
+                <p class="card-text"><strong>Fecha:</strong> {{ reserva.date|date:"l, d \d\e F \d\e Y" }}</p>
+                <p class="card-text"><strong>Hora:</strong> {{ reserva.time|time:"H:i" }}</p>
+
+                {# --- Sección de Estado Actual y Formulario de Cambio de Estado --- #}
+                <div class="mb-3"> {# Añadir un poco de margen #}
+                    <p class="card-text d-inline-block me-2"><strong>Estado Actual:</strong></p> {# d-inline-block y me-2 para alinear con el badge #}
+                    {# Badge de estado actual (código existente) #}
+                    <span class="badge {% if reserva.status == 'Confirmed' %} bg-success{% elif reserva.status == 'Cancelled' %}bg-danger{% elif reserva.status == 'Completed' %}bg-secondary{% else %}bg-warning{% endif %}">
+                        {{ reserva.get_status_display }}
+                    </span>
+                </div>
+
+                {# --- NUEVO: Formulario para cambiar el estado --- #}
+                {# Este formulario enviará una petición POST a la misma URL de la página de detalles #}
+                {# La vista staff_booking_detail procesará esta petición #}
+                <div class="card p-3 mb-3"> {# Opcional: Un pequeño recuadro para el formulario de estado #}
+                     <h6>Cambiar Estado de la Reserva:</h6>
+                     <form method="post" action="."> {# action="." envía a la misma URL #}
+                         {% csrf_token %} {# Token CSRF para seguridad #}
+                         {# Selector de estado #}
+                         <div class="row g-2 align-items-center"> {# Usar row y g-2 para alinear select y button #}
+                              <div class="col-auto"> {# col-auto para que ocupe solo el espacio necesario #}
+                                   <select name="new_status" id="id_new_status" class="form-select form-select-sm"> {# form-select y form-select-sm de Bootstrap #}
+                                       {# Itera sobre las opciones de estado pasadas desde la vista #}
+                                       {% for status_code, status_display in status_choices %}
+                                           {# value es el código ('Pending', 'Confirmed', etc.), texto es el display ('Pendiente', 'Confirmada') #}
+                                           {# Marca la opción actual como seleccionada #}
+                                           <option value="{{ status_code }}" {% if reserva.status == status_code %} selected{% endif %}>
+                                               {{ status_display }}
+                                           </option>
+                                       {% endfor %}
+                                   </select>
+                              </div>
+                              <div class="col-auto">
+                                   {# Botón para enviar el formulario de cambio de estado #}
+                                   <button type="submit" class="btn btn-primary btn-sm">Guardar Estado</button> {# btn y btn-sm de Bootstrap #}
+                              </div>
+                         </div>
+                     </form>
+                </div>
+                {# --- Fin Formulario de Cambio de Estado --- #}
+
+
+                <p class="card-text"><small class="text-muted">Solicitada el: {{ reserva.created_at|date:"d M Y H:i" }}</small></p>
+
+                <hr class="my-3"> {# Separador #}
+
+                {# --- Mostrar Notas del Dueño al Reservar --- #}
+                <h6 class="card-subtitle mt-4 mb-2">Notas del Dueño al Reservar:</h6>
+                <p class="card-text">{{ reserva.notes|default:"Sin notas del dueño." }}</p> {# Mostrar notas del dueño o un mensaje por defecto #}
+
+
+                <hr class="my-3"> {# Separador #}
+
+                {# --- Mostrar y Editar Notas Internas del Staff --- #}
+                <h6 class="card-subtitle mt-4 mb-2">Notas Internas (Staff):</h6>
+                {# Renderiza el formulario de notas internas pasado desde la vista #}
+                {# Este formulario ya maneja su propia petición POST en la vista #}
+                <form method="post" action="."> {# action="." envía a la misma URL #}
+                     {% csrf_token %}
+                     {# form.as_p o renderizar campos manualmente #}
+                     {{ staff_notes_form.as_p }} {# Esto renderiza el campo de notas internas y cualquier campo oculto del formulario #}
+                     <button type="submit" class="btn btn-primary btn-sm mt-2">Guardar Notas Internas</button>
+                </form>
+                 {# --- Fin Mostrar y Editar Notas Internas del Staff --- #}
+
+
+            </div> {# Fin card-body #}
+        </div> {# Fin card #}
+
+
+    </div> {# Fin container #}
 {% endblock content %}
+
+{% block extra_js %}
+     {{ block.super }}
+     {# Scripts específicos de esta página si los hay #}
+{% endblock %}

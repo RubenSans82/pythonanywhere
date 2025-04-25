@@ -86,17 +86,28 @@
         {# --- Fin Sección Sobre Nosotros --- #}
 
         {# --- Sección Galería (Placeholder) --- #}
-         {# Asegúrate de que el ID="gallery" está aquí si quieres enlazar desde la nav bar (aunque no lo incluimos en la nav por defecto) #}
-         {# Asegúrate de que los estilos para .gallery-section están en base.html o un CSS global #}
-         <section id="gallery" class="gallery-section bg-light">
-             <div class="container">
-                  <h2 class="text-center mb-5 text-primary">Momentos de Felicidad</h2>
-                   <p class="text-center text-muted"><i>Galería de fotos placeholder</i></p>
-                    <div class="text-center">
-                        <img src="{% static 'daycare/images/gallery-placeholder.jpg' %}" alt="Perros jugando" class="img-fluid rounded shadow-sm" style="max-height: 300px; object-fit: cover;">
+        <section id="photo-gallery" class="py-5"> {# O py-5 si quieres más padding vertical #}
+            <div class="container">
+                <h2 class="text-center mb-4">Galería de Fotos</h2> {# mb-4 de Bootstrap añade margen inferior #}
+                <div class="row"> {# Fila de Bootstrap para la cuadrícula #}
+        
+                    {# Ejemplo de una columna con una imagen. ¡Necesitas VARIAS de estas! #}
+                    <div class="col-md-4 col-sm-6 mb-4"> {# col-sm-6 para dos por fila en tablets, mb-4 margen inferior #}
+                        <img src="{% static 'daycare/images/images.jpg' %}" class="img-fluid" alt="Descripción de la foto 1">
                     </div>
-             </div>
-         </section>
+        
+                    {# --- Añade más bloques como este para cada foto que quieras en la galería --- #}
+                    <div class="col-md-4 col-sm-6 mb-4">
+                        <img src="{% static 'daycare/images/istockphoto-1178352376-612x612.jpg' %}" class="img-fluid" alt="Descripción de la foto 2">
+                    </div>
+        
+
+        
+                    {# ... añade más columnas con imágenes ... #}
+        
+                </div> {# Fin row #}
+            </div> {# Fin container #}
+        </section>
         {# --- Fin Sección Galería --- #}
 
 

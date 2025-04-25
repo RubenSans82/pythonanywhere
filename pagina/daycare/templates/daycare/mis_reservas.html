@@ -35,29 +35,60 @@
                 </thead>
                 <tbody>
                     {% for reserva in mis_reservas %}
-                        <tr>
-                            {# --- Celdas de datos AJUSTADAS a tu modelo Booking --- #}
-    
-                            {# Columna Mascota -> Accede al nombre de la mascota relacionada #}
+                        {# Comprueba si la fecha de la reserva es estrictamente anterior a la fecha actual #}
+                        {# ELIMINA LA LÍNEA: {% set is_past = reserva.date < now_date %} #}
+
+                        {# Aplica clases a la fila si la reserva es pasada (fecha anterior a hoy) #}
+                        {# Usamos la comparación directamente aquí: reserva.date < now_date #}
+                        <tr class="{% if reserva.date < now_date %}table-secondary text-muted{% endif %}">
+                            {# --- Celdas de datos (AJUSTADAS a tu modelo Booking) --- #}
+
+                            {# Columna Mascota #}
                             <td>{{ reserva.pet.nombre }}</td> {# Asume que tu modelo Pet tiene un campo 'nombre' #}
-    
-                            {# Columna Servicio -> Accede al objeto Service (se mostrará su __str__) #}
-                            <td>{{ reserva.service }}</td>
-    
-                            {# Columna Fecha -> Accede al campo 'date' #}
+
+                            {# Columna Servicio #}
+                            <td>{{ reserva.service }}</td> {# Accede al objeto Service (se mostrará su __str__) #}
+
+                            {# Columna Fecha #}
                             <td>{{ reserva.date|date:"Y-m-d" }}</td> {# Formatea la fecha #}
-    
-                            {# Columna Hora -> Accede al campo 'time' #}
+
+                            {# Columna Hora #}
                              <td>{{ reserva.time|time:"H:i" }}</td> {# Formatea la hora #}
-    
-                            {# Columna Estado -> Accede al campo 'status' (mostrará el valor legible por los choices) #}
-                            <td>{{ reserva.status }}</td>
-    
-                            {# Columna Acciones -> Sin cambios, depende de funcionalidades futuras #}
+
+                            {# Columna Estado - Muestra el estado y una etiqueta 'Pasada' si aplica #}
+                            <td class="
+                                {# Aplica color de estado SOLO si NO es una reserva pasada #}
+                                {% if not reserva.date < now_date %}
+                                    {% if reserva.status == 'Pending' %}table-warning text-dark
+                                    {% elif reserva.status == 'Confirmed' %}table-success text-white
+                                    {% elif reserva.status == 'Cancelled' %}table-danger text-white
+                                    {% elif reserva.status == 'Completed' %}table-secondary text-white
+                                    {% else %} {# Estado desconocido o por defecto #}
+                                        table-light text-dark
+                                    {% endif %}
+                                {% else %} {# Si es una reserva pasada, usamos el estilo de fila #}
+                                     table-secondary
+                                {% endif %}
+                                ">
+                                {{ reserva.status }}
+                                 {# Añade la etiqueta 'Pasada' si la fecha de la reserva es anterior a hoy #}
+                                 {% if reserva.date < now_date %}
+                                    <span class="badge bg-dark ms-1">Pasada</span>
+                                {% endif %}
+                            </td>
+
+                            {# Columna Acciones - Deshabilita o cambia acciones para reservas pasadas #}
                             <td>
-                                {# Puedes añadir enlaces/botones aquí si creas vistas para ver detalles o cancelar #}
-                                {# Ejemplo: <a href="{% url 'daycare:detalle_reserva' reserva.pk %}" class="btn btn-sm btn-outline-info">Ver</a> #}
-                                - {# Placeholder si no hay acciones definidas aún #}
+                                {# Botón para Ver Detalles (deshabilitado si la fecha es pasada) #}
+                                {# Usamos la comparación directamente: reserva.date < now_date #}
+                                <a href="{% url 'daycare:detalle_reserva' reserva.pk %}" class="btn btn-sm btn-outline-info {% if reserva.date < now_date %}disabled{% endif %}" {% if reserva.date < now_date %}aria-disabled="true"{% endif %}>Ver</a>
+
+                                {# Botón de cancelar (solo si está pendiente y NO es pasada) #}
+                                 {# Usamos la comparación directamente: reserva.date < now_date #}
+                                 {% if reserva.status == 'Pending' and not reserva.date < now_date %}
+                                     <a href="{% url 'daycare:cancelar_reserva' reserva.pk %}" class="btn btn-sm btn-outline-danger">Cancelar</a>
+                                 {% endif %}
+                                 {# Puedes añadir otros botones para acciones específicas de reservas pasadas si las necesitas #}
                             </td>
                         </tr>
                     {% endfor %}

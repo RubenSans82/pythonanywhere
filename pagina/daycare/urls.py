@@ -39,6 +39,13 @@ urlpatterns = [
     path('staff/bookings/', views.staff_booking_list, name='staff_booking_list'),
         # URL para ver y editar el detalle de una reserva específica para Staff
     path('staff/bookings/<int:pk>/', views.staff_booking_detail, name='staff_booking_detail'),
+        # URL para la página principal del calendario del staff
+    path('staff/calendar/', views.staff_calendar_view, name='staff_calendar'),
+        # URL para la vista API que sirve los datos de reservas a FullCalendar (en JSON)
+    path('api/staff_calendar/', views.staff_calendar_feed, name='staff_calendar_feed'),
+        # URL para la vista API de actualización de reservas
+    # El frontend hará peticiones POST a esta URL para actualizar la reserva arrastrada
+    path('api/staff_update_booking/', views.staff_update_booking_api, name='staff_update_booking_api'),
 
     # ... otras URLs futuras ...
 ]
