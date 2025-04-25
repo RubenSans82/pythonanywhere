@@ -5,95 +5,155 @@
 {% block title %}Registro de Dueño{% endblock %}
 
 {% block content %}
-    <div class="row justify-content-center"> {# Centra el contenido en la fila #}
-        <div class="col-md-8 col-lg-6"> {# Columna para limitar el ancho del formulario #}
-            <div class="card shadow-sm"> {# Usa una tarjeta para el formulario #}
-                <div class="card-body">
-                    <h1 class="card-title text-center mb-4">Registro de Nuevo Dueño</h1>
+    {# Contenedor principal del formulario de registro - Fila centrada y ancho limitado #}
+    {# mt-5 añade margen superior para separarlo de la navbar #}
+    <div class="row justify-content-center mt-5 mb-5"> {# Añadido mt-5 y mb-5 para margen superior/inferior #}
+        {# Columna que contiene el formulario - Usa Bootstrap card clases para estilo, padding y sombra #}
+        {# col-md-8 y col-lg-6 de tu código original #}
+        {# p-4 padding interno, card y shadow-sm para el estilo de tarjeta #}
+        <div class="col-md-8 col-lg-6 p-4 shadow-sm card">
 
-                    {# Mostrar errores generales del formulario si los hay #}
-                    {% if form.non_field_errors %}
-                        <div class="alert alert-danger">
-                            {% for error in form.non_field_errors %}
-                                <p>{{ error }}</p>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
+            {# Título del Formulario - Centrado y con margen inferior #}
+            {# card-title, text-center, mb-4 de tu código original #}
+            <h1 class="card-title text-center mb-4">Registro de Nuevo Dueño</h1>
 
-                    <form method="post">
-                        {% csrf_token %}
-
-                        {# Renderizar los campos individualmente para más control #}
-
-                        {# Campos del modelo User (manejo por UserCreationForm) #}
-                        <div class="mb-3">
-                            <label for="{{ form.username.id_for_label }}" class="form-label">Nombre de Usuario:</label>
-                            {{ form.username }}
-                            {% for error in form.username.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="{{ form.email.id_for_label }}" class="form-label">Correo Electrónico:</label>
-                            {{ form.email }}
-                            {% for error in form.email.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
-                        </div>
-
-                         <div class="mb-3">
-                            <label for="{{ form.first_name.id_for_label }}" class="form-label">Nombre:</label>
-                            {{ form.first_name }}
-                            {% for error in form.first_name.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
-                        </div>
-
-                         <div class="mb-3">
-                            <label for="{{ form.last_name.id_for_label }}" class="form-label">Apellido:</label>
-                            {{ form.last_name }}
-                            {% for error in form.last_name.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
-                        </div>
-
-
-                        {# Campos de Contraseña (manejados por UserCreationForm) #}
-                        {# UserCreationForm automáticamente añade validación y texto de ayuda para contraseñas #}
-                        <div class="mb-3">
-                            <label for="{{ form.password1.id_for_label }}" class="form-label">Contraseña:</label>
-                            {{ form.password1 }}
-                            {% if form.password1.help_text %}<div class="form-text">{{ form.password1.help_text|safe }}</div>{% endif %}
-                            {% for error in form.password1.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="{{ form.password2.id_for_label }}" class="form-label">Confirmar Contraseña:</label>
-                            {{ form.password2 }}
-                             {% if form.password2.help_text %}<div class="form-text">{{ form.password2.help_text|safe }}</div>{% endif %} {# UserCreationForm proporciona este help text #}
-                            {% for error in form.password2.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
-                        </div>
-
-
-                        <hr> {# Separador entre campos de usuario y dueño #}
-
-                        {# Campos de nuestro modelo Owner #}
-                        <div class="mb-3">
-                            <label for="{{ form.telefono.id_for_label }}" class="form-label">Teléfono:</label>
-                            {{ form.telefono }}
-                             {% if form.telefono.help_text %}<div class="form-text">{{ form.telefono.help_text|safe }}</div>{% endif %}
-                             {% for error in form.telefono.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="{{ form.direccion.id_for_label }}" class="form-label">Dirección:</label>
-                            {{ form.direccion }}
-                             {% if form.direccion.help_text %}<div class="form-text">{{ form.direccion.help_text|safe }}</div>{% endif %}
-                            {% for error in form.direccion.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
-                        </div>
-
-
-                        <button type="submit" class="btn btn-primary w-100 mt-3">Registrarse</button> {# Botón de envío ancho completo #}
-                    </form>
+            {# Mostrar errores generales del formulario si los hay #}
+            {% if form.non_field_errors %}
+                {# alert y alert-danger de Bootstrap para mensajes de error, mb-3 margen inferior #}
+                <div class="alert alert-danger mb-3">
+                    {% for error in form.non_field_errors %}
+                        {# mb-0 para que los errores no tengan margen inferior entre sí #}
+                        <p class="mb-0">{{ error }}</p>
+                    {% endfor %}
                 </div>
-                 <div class="card-footer text-center"> {# Pie de tarjeta #}
-                    ¿Ya tienes una cuenta? <a href="{% url 'login' %}">Iniciar Sesión</a>
+            {% endif %}
+
+            {# Formulario de Registro #}
+            <form method="post">
+                {% csrf_token %} {# Token CSRF para seguridad en POST #}
+
+                {# --- Renderizado Manual de Campos con Clases Bootstrap --- #}
+                {# Campos del modelo User (manejados por UserCreationForm) #}
+
+                {# Campo Nombre de Usuario #}
+                <div class="mb-3"> {# Margen inferior #}
+                    <label for="{{ form.username.id_for_label }}" class="form-label">Nombre de Usuario:</label> {# form-label #}
+                    {# Input real del campo, con clase form-control y validación #}
+                    <input type="text"
+                           name="{{ form.username.name }}"
+                           id="{{ form.username.id_for_label }}"
+                           class="form-control {% if form.username.errors %}is-invalid{% endif %}" {# form-control, is-invalid si hay errores #}
+                           value="{{ form.username.value|default:'' }}" {# Mantiene valor en caso de error #}
+                           {% if form.username.field.required %}required{% endif %}> {# atributo required #}
+                    {# Mostrar errores específicos del campo #}
+                    {% for error in form.username.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %} {# invalid-feedback, d-block #}
                 </div>
-            </div>
-        </div>
-    </div>
+
+                {# Campo Correo Electrónico #}
+                <div class="mb-3">
+                    <label for="{{ form.email.id_for_label }}" class="form-label">Correo Electrónico:</label>
+                    <input type="email" {# type="email" #}
+                           name="{{ form.email.name }}"
+                           id="{{ form.email.id_for_label }}"
+                           class="form-control {% if form.email.errors %}is-invalid{% endif %}"
+                           value="{{ form.email.value|default:'' }}"
+                           {% if form.email.field.required %}required{% endif %}>
+                    {% for error in form.email.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                </div>
+
+                 {# Campo Nombre #h}
+                 <div class="mb-3">
+                    <label for="{{ form.first_name.id_for_label }}" class="form-label">Nombre:</label>
+                    <input type="text"
+                           name="{{ form.first_name.name }}"
+                           id="{{ form.first_name.id_for_label }}"
+                           class="form-control {% if form.first_name.errors %}is-invalid{% endif %}"
+                           value="{{ form.first_name.value|default:'' }}">
+                    {% for error in form.first_name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                </div>
+
+                 {# Campo Apellido #}
+                 <div class="mb-3">
+                    <label for="{{ form.last_name.id_for_label }}" class="form-label">Apellido:</label>
+                    <input type="text"
+                           name="{{ form.last_name.name }}"
+                           id="{{ form.last_name.id_for_label }}"
+                           class="form-control {% if form.last_name.errors %}is-invalid{% endif %}"
+                           value="{{ form.last_name.value|default:'' }}">
+                    {% for error in form.last_name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                </div>
+
+                {# Campo Contraseña #}
+                <div class="mb-3">
+                    <label for="{{ form.password1.id_for_label }}" class="form-label">Contraseña:</label>
+                    <input type="password"
+                           name="{{ form.password1.name }}"
+                           id="{{ form.password1.id_for_label }}"
+                           class="form-control {% if form.password1.errors %}is-invalid{% endif %}"
+                           {% if form.password1.field.required %}required{% endif %}>
+                    {# Texto de ayuda para la contraseña #}
+                    {% if form.password1.help_text %}<div class="form-text">{{ form.password1.help_text|safe }}</div>{% endif %} {# form-text #}
+                    {% for error in form.password1.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                </div>
+
+                {# Campo Confirmar Contraseña #}
+                <div class="mb-3">
+                    <label for="{{ form.password2.id_for_label }}" class="form-label">Confirmar Contraseña:</label>
+                    <input type="password"
+                           name="{{ form.password2.name }}"
+                           id="{{ form.password2.id_for_label }}"
+                           class="form-control {% if form.password2.errors %}is-invalid{% endif %}"
+                           {% if form.password2.field.required %}required{% endif %}>
+                     {# Texto de ayuda para confirmar contraseña #}
+                     {% if form.password2.help_text %}<div class="form-text">{{ form.password2.help_text|safe }}</div>{% endif %}
+                    {% for error in form.password2.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                </div>
+
+                <hr> {# Separador horizontal #}
+
+                {# Campos del modelo Owner (Teléfono, Dirección) #}
+
+                {# Campo Teléfono #}
+                <div class="mb-3">
+                    <label for="{{ form.telefono.id_for_label }}" class="form-label">Teléfono:</label>
+                    <input type="tel" {# type="tel" #}
+                           name="{{ form.telefono.name }}"
+                           id="{{ form.telefono.id_for_label }}"
+                           class="form-control {% if form.telefono.errors %}is-invalid{% endif %}"
+                           value="{{ form.telefono.value|default:'' }}"
+                           {% if form.telefono.field.required %}required{% endif %}>
+                     {# Texto de ayuda #}
+                     {% if form.telefono.help_text %}<div class="form-text">{{ form.telefono.help_text|safe }}</div>{% endif %}
+                     {% for error in form.telefono.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                </div>
+
+                {# Campo Dirección #}
+                <div class="mb-3">
+                    <label for="{{ form.direccion.id_for_label }}" class="form-label">Dirección:</label>
+                    {# Usar textarea si el campo es para múltiples líneas #}
+                    <textarea name="{{ form.direccion.name }}"
+                              id="{{ form.direccion.id_for_label }}"
+                              class="form-control {% if form.direccion.errors %}is-invalid{% endif %}"
+                              {% if form.direccion.field.required %}required{% endif %}>{{ form.direccion.value|default:'' }}</textarea>
+                     {# Texto de ayuda #}
+                    {% if form.direccion.help_text %}<div class="form-text">{{ form.direccion.help_text|safe }}</div>{% endif %}
+                    {% for error in form.direccion.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                </div>
+                {# --- Fin Renderizado Manual --- #}
+
+
+                {# Botón de Envío - ya estilizado en style.css con btn btn-primary #}
+                {# w-100 ancho completo, mt-3 margen superior #}
+                <button type="submit" class="btn btn-primary w-100 mt-3">Registrarse</button>
+            </form>
+
+            {# Pie de Tarjeta - Enlace a Iniciar Sesión #}
+            {# text-center centra contenido, pt-3 padding superior #}
+             <div class="card-footer text-center pt-3">
+                ¿Ya tienes una cuenta? <a href="{% url 'login' %}">Iniciar Sesión</a>
+            </div>{# Fin card-footer #}
+
+        </div> {# Fin col #}
+    </div> {# Fin row #}
 
 {% endblock content %}

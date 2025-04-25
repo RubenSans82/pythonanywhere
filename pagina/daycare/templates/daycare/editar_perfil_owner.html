@@ -1,86 +1,131 @@
-{# pagina/daycare/templates/daycare/editar_perfil_owner.html #}
+{# pagina/daycare/templates/daycare/editar_perfil_owner.html - Modified for Bootstrap form styling #}
 {% extends 'daycare/base.html' %}
 
 {% block title %}Editar Perfil{% endblock %}
 
 {% block content %}
-    <p><a href="{% url 'daycare:perfil_owner' %}" class="btn btn-outline-secondary btn-sm mb-3">← Volver a Mi Perfil</a></p> {# Enlace para volver al perfil #}
+    {# Botón "Volver" - ya tiene btn btn-primary mb-4 #}
+    <button onclick="history.back()" class="btn btn-primary mb-4">Volver</button>
 
-    <h1 class="mb-4">Editar Mi Perfil</h1>
+    {# --- El envoltorio de Fila y Columna ya existe en tu código proporcionado --- #}
+    {# Añadimos margen superior/inferior a la fila principal para dar espacio #}
+    <div class="row justify-content-center mt-4 mb-4">
+        <div class="col-md-8 col-lg-6"> {# Columna que limita el ancho y centra el contenido #}
 
-    <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
+            {# Título de la página - H1 #}
+            {# Puedes añadir el icono de pata aquí si quieres, similar a otras páginas #}
+            <h1 class="mb-4">Editar Mi Perfil</h1>
+
+            {# --- Tu Tarjeta (Card) que envuelve el formulario ya existe --- #}
             <div class="card shadow-sm">
-                <div class="card-body">
+                {# Añadimos padding interno al card-body #}
+                <div class="card-body p-4">
                      {# Opcional: Mostrar nombre de usuario (no editable aquí) #}
-                     {# El objeto 'user' está disponible en la plantilla porque lo pasamos desde la vista #}
-                     <p class="card-text"><strong>Nombre de Usuario:</strong> {{ user.username }}</p>
-                     <hr> {# Separador #}
+                     {# Añadimos mb-3 para margen inferior #}
+                     <p class="card-text mb-3"><strong>Nombre de Usuario:</strong> {{ user.username }}</p>
+                     <hr class="mb-3"> {# Separador con margen inferior #}
 
 
                     {# Mostrar errores generales del formulario si los hay #}
                     {% if form.non_field_errors %}
-                        <div class="alert alert-danger">
+                        <div class="alert alert-danger mb-3"> {# Añadido mb-3 #}
                             {% for error in form.non_field_errors %}
-                                <p>{{ error }}</p>
+                                <p class="mb-0">{{ error }}</p> {# Añadido mb-0 #}
                             {% endfor %}
                         </div>
                     {% endif %}
 
+
                     <form method="post">
                         {% csrf_token %}
 
-                        {# --- Renderizar los campos del formulario UserOwnerProfileForm --- #}
+                        {# --- Renderizar los campos del formulario con Clases Bootstrap --- #}
 
                         {# Campo Nombre (del modelo User) #}
-                        <div class="mb-3">
-                            <label for="{{ form.first_name.id_for_label }}" class="form-label">Nombre:</label>
-                            {{ form.first_name }}
-                            {% for error in form.first_name.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+                        <div class="mb-3"> {# Margen inferior del grupo de campo #}
+                            <label for="{{ form.first_name.id_for_label }}" class="form-label">{{ form.first_name.label }}:</label> {# form-label para la etiqueta #}
+                            {# --- AÑADIDO: form-control y validación --- #}
+                            <input type="text"
+                                   name="{{ form.first_name.name }}"
+                                   id="{{ form.first_name.id_for_label }}"
+                                   class="form-control {% if form.first_name.errors %}is-invalid{% endif %}" {# form-control, is-invalid si hay errores #}
+                                   value="{{ form.first_name.value|default:'' }}"> {# Mantiene el valor ingresado en caso de error #}
+                            {# Errores de campo - Usar invalid-feedback #}
+                            {% for error in form.first_name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %} {# invalid-feedback d-block #}
                         </div>
 
                          {# Campo Apellido (del modelo User) #}
                          <div class="mb-3">
-                            <label for="{{ form.last_name.id_for_label }}" class="form-label">Apellido:</label>
-                            {{ form.last_name }}
-                            {% for error in form.last_name.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+                            <label for="{{ form.last_name.id_for_label }}" class="form-label">{{ form.last_name.label }}:</label>
+                             {# --- AÑADIDO: form-control y validación --- #}
+                            <input type="text"
+                                   name="{{ form.last_name.name }}"
+                                   id="{{ form.last_name.id_for_label }}"
+                                   class="form-control {% if form.last_name.errors %}is-invalid{% endif %}"
+                                   value="{{ form.last_name.value|default:'' }}">
+                             {# --- Fin AÑADIDO --- #}
+                            {% for error in form.last_name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
                         </div>
 
                         {# Campo Correo Electrónico (del modelo User) #}
                          <div class="mb-3">
-                            <label for="{{ form.email.id_for_label }}" class="form-label">Correo Electrónico:</label>
-                            {{ form.email }}
-                            {% for error in form.email.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+                            <label for="{{ form.email.id_for_label }}" class="form-label">{{ form.email.label }}:</label>
+                            {# --- AÑADIDO: form-control y validación --- #}
+                            <input type="email" {# Usar type="email" para validación básica del navegador #}
+                                   name="{{ form.email.name }}"
+                                   id="{{ form.email.id_for_label }}"
+                                   class="form-control {% if form.email.errors %}is-invalid{% endif %}"
+                                   value="{{ form.email.value|default:'' }}"
+                                   {% if form.email.field.required %}required{% endif %}> {# Correo suele ser obligatorio #}
+                             {# --- Fin AÑADIDO --- #}
+                            {% for error in form.email.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
                         </div>
 
-                        <hr> {# Separador entre campos de User y Owner #}
+                        <hr class="mb-3"> {# Separador entre campos de User y Owner con margen inferior #}
 
 
                         {# Campo Teléfono (del modelo Owner) #}
                         <div class="mb-3">
-                            <label for="{{ form.telefono.id_for_label }}" class="form-label">Teléfono:</label>
-                            {{ form.telefono }}
-                            {% if form.telefono.help_text %}<div class="form-text">{{ form.telefono.help_text|safe }}</div>{% endif %}
-                            {% for error in form.telefono.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+                            <label for="{{ form.telefono.id_for_label }}" class="form-label">{{ form.telefono.label }}:</label>
+                            {# --- AÑADIDO: form-control y validación --- #}
+                            <input type="text" {# Usar type="text" o "tel" #}
+                                   name="{{ form.telefono.name }}"
+                                   id="{{ form.telefono.id_for_label }}"
+                                   class="form-control {% if form.telefono.errors %}is-invalid{% endif %}"
+                                   value="{{ form.telefono.value|default:'' }}">
+                             {# --- Fin AÑADIDO --- #}
+                             {% if form.telefono.help_text %}<div class="form-text">{{ form.telefono.help_text|safe }}</div>{% endif %} {# form-text para ayuda #}
+                            {% for error in form.telefono.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
                         </div>
 
                          {# Campo Dirección (del modelo Owner) #}
                          <div class="mb-3">
-                            <label for="{{ form.direccion.id_for_label }}" class="form-label">Dirección:</label>
-                            {{ form.direccion }}
-                            {% if form.direccion.help_text %}<div class="form-text">{{ form.direccion.help_text|safe }}</div>{% endif %}
-                            {% for error in form.direccion.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+                            <label for="{{ form.direccion.id_for_label }}" class="form-label">{{ form.direccion.label }}:</label>
+                            {# --- AÑADIDO: form-control y validación --- #}
+                            <textarea name="{{ form.direccion.name }}"
+                                      id="{{ form.direccion.id_for_label }}"
+                                      class="form-control {% if form.direccion.errors %}is-invalid{% endif %}">{% if form.direccion.value %}{{ form.direccion.value }}{% endif %}</textarea> {# Mantiene valor #}
+                             {# --- Fin AÑADIDO --- #}
+                             {% if form.direccion.help_text %}<div class="form-text">{{ form.direccion.help_text|safe }}</div>{% endif %}
+                            {% for error in form.direccion.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
                         </div>
 
-                        {# --- Fin Renderizado de campos --- #}
+                        {# --- Fin Renderizado de campos con Clases Bootstrap --- #}
 
 
+                        {# Botón para Guardar Cambios - Ya usa btn btn-primary w-100 mt-3 #}
                         <button type="submit" class="btn btn-primary w-100 mt-3">Guardar Cambios</button>
                     </form>
-                </div>
-            </div>
-        </div>
-    </div>
+                    {# Fin Formulario #}
+                </div> {# Fin card-body #}
+            </div> {# Fin card #}
+        </div> {# Fin col #}
+    </div> {# Fin row #}
 
 
 {% endblock content %}
+
+{# Scripts JS (si necesitas alguno específico para esta página) #}
+{# Asegúrate de que este bloque extra_js esté justo antes del cierre de </body> en tu base.html #}
+{% block extra_js %}
+{% endblock %}

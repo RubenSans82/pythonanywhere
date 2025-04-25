@@ -9,8 +9,12 @@
 {# {% block extra_js %}{% endblock %} #}
 
 {% block content %}
-    <h1 class="mb-4">Mis Reservas</h1> {# Encabezado de la página #}
-
+<div class="paw"> {# Añadido d-flex y align-items-center para alinear el icono y el título #}
+    {# Icono de pata - imagen estática #}
+    {# Cambiado a una clase de Bootstrap para alineación vertical #}
+    <img src="{% static 'daycare/images/paw.png' %}" alt="Icono de Pata" class="title-icon me-2 align-middle">
+    <h1 class="mb-4 d-inline-block align-middle">Mis Reservas</h1> {# Añadido d-inline-block y align-middle para alinear el título con el icono #}
+    </div>
     {# --- Botón para solicitar una nueva reserva --- #}
     {# Este botón redirigirá al formulario de solicitud de reserva #}
     <div class="mb-4"> {# Añade algo de margen inferior al botón #}
@@ -70,7 +74,7 @@
                                      table-secondary
                                 {% endif %}
                                 ">
-                                {{ reserva.status }}
+                                {{ reserva.get_status_display }} 
                                  {# Añade la etiqueta 'Pasada' si la fecha de la reserva es anterior a hoy #}
                                  {% if reserva.date < now_date %}
                                     <span class="badge bg-dark ms-1">Pasada</span>

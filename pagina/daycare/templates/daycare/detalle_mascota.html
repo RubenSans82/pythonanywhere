@@ -1,56 +1,85 @@
 {# pagina/daycare/templates/daycare/detalle_mascota.html #}
 {% extends 'daycare/base.html' %}
-{% load static %} {# Necesario para usar la etiqueta static para la imagen placeholder #}
+{% load static %} {# Necesario para usar la etiqueta static #}
 
 {% block title %}Detalles de {{ mascota.nombre }}{% endblock %}
 
 {% block content %}
-    <p><a href="{% url 'daycare:home' %}" class="btn btn-outline-secondary btn-sm mb-3">← Volver a Mis Mascotas</a></p> {# Enlace para volver al listado #}
+    {# --- NUEVO: Envuelve todo el contenido principal en una Fila y Columna para limitar ancho y centrar --- #}
+    {# row justify-content-center centra la columna; mt-4 mb-4 añaden margen arriba/abajo #}
+    {# col-md-10 col-lg-8 limita el ancho (ajusta los números si quieres que sea más estrecho o ancho) #}
+    <div class="row justify-content-center mt-4 mb-4">
+        <div class="col-md-10 col-lg-8"> {# Columna para limitar el ancho total del contenido #}
 
-    <h1 class="mb-4">Detalles de {{ mascota.nombre }}</h1>
+            {# --- Tu contenido original de la página "Detalles de Mascota" va AQUÍ dentro de esta columna --- #}
 
-    <div class="row"> {# Usamos una fila para la imagen y los detalles #}
-        <div class="col-md-4"> {# Columna para la imagen #}
-            <div class="card shadow-sm">
-                 {% if mascota.foto %}
-                    <img src="{{ mascota.foto.url }}" class="card-img-top" alt="Foto de {{ mascota.nombre }}" style="width: 100%; height: auto; object-fit: cover;"> {# Imagen de la mascota #}
-                {% else %}
-                     <img src="{% static 'img/placeholder_pet.png' %}" class="card-img-top" alt="Sin foto" style="width: 100%; height: auto; object-fit: cover;"> {# Imagen de placeholder #}
-                {% endif %}
-            </div>
-        </div>
+            {# Botón "Volver" - ya tiene btn btn-primary mb-4 #}
+            <button onclick="history.back()" class="btn btn-primary mb-4">Volver</button>
 
-        <div class="col-md-8"> {# Columna para los detalles #}
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">Información Básica</h5>
-                    <p class="card-text"><strong>Nombre:</strong> {{ mascota.nombre }}</p>
-                    <p class="card-text"><strong>Raza:</strong> {{ mascota.raza|default:"No especificada" }}</p>
-                    {% if mascota.fecha_nacimiento %}
-                         <p class="card-text"><strong>Fecha de Nacimiento:</strong> {{ mascota.fecha_nacimiento }}</p>
-                         {# Opcional: Calcular edad aproximada si quieres #}
-                        <p class="card-text"><strong>Edad:</strong> {{ mascota.fecha_nacimiento|timesince }}</p>
-                    {% endif %}
-
-                    {% if mascota.notas_medicas %}
-                        <h5 class="card-title mt-4">Notas Médicas:</h5>
-                        <p class="card-text" style="white-space: pre-wrap;">{{ mascota.notas_medicas }}</p>
-                    {% endif %}
-
-                     {% if mascota.comportamiento_notas %}
-                        <h5 class="card-title mt-4">Notas de Comportamiento:</h5>
-                        <p class="card-text" style="white-space: pre-wrap;">{{ mascota.comportamiento_notas }}</p>
-                    {% endif %}
-
-                    <div class="mt-4">
-                    <a href="{% url 'daycare:editar_mascota' mascota.pk %}" class="btn btn-warning btn-sm">Editar</a>
-                    <a href="{% url 'daycare:eliminar_mascota' mascota.pk %}" class="btn btn-danger btn-sm">Eliminar</a>
-                    </div>
-
+            {# Título de la página - H1 con mb-4 #}
+            {# Opcional: Añadir icono de pata aquí si lo deseas, similar a otras páginas #}
+            <div class="paw"> {# Añadido d-flex y align-items-center para alinear el icono y el título #}
+                {# Icono de pata - imagen estática #}
+                {# Cambiado a una clase de Bootstrap para alineación vertical #}
+                <img src="{% static 'daycare/images/paw.png' %}" alt="Icono de Pata" class="title-icon me-2 align-middle">
+                <h1 class="mb-4 d-inline-block align-middle">Detalles de {{ mascota.nombre }}</h1> {# Añadido d-inline-block y align-middle para alinear el título con el icono #}
                 </div>
-            </div>
-        </div>
-    </div>
+            {# Fila para la Imagen y los Detalles #}
+            {# g-4 añade espacio (gutter) entre las columnas de imagen y detalles #}
+            <div class="row g-4">
+                <div class="col-md-4"> {# Columna para la imagen (4 de 12 columnas en md y superiores) #}
+                    {# Tarjeta alrededor de la imagen #}
+                    <div class="card shadow-sm">
+                         {% if mascota.foto %}
+                            {# --- Modificado: Quitar estilos en línea, usar clase para la imagen --- #}
+                            <img src="{{ mascota.foto.url }}" class="card-img-top pet-detail-img" alt="Foto de {{ mascota.nombre }}"> {# Añadida clase pet-detail-img #}
+                        {% else %}
+                             {# Imagen de placeholder - quitar estilos en línea, usar clase #}
+                            <img src="{% static 'img/placeholder_pet.png' %}" class="card-img-top pet-detail-img" alt="Sin foto"> {# Añadida clase pet-detail-img #}
+                        {% endif %}
+                    </div> {# Fin card #}
+                </div> {# Fin col-md-4 #}
 
+                <div class="col-md-8"> {# Columna para los detalles (8 de 12 columnas en md y superiores) #}
+                    {# Tarjeta alrededor de los detalles #}
+                    {# Añadido h-100 para intentar igualar la altura de la tarjeta de detalles con la de la imagen #}
+                    <div class="card shadow-sm h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Información Básica</h5>
+                            <p class="card-text"><strong>Nombre:</strong> {{ mascota.nombre }}</p>
+                            <p class="card-text"><strong>Raza:</strong> {{ mascota.raza|default:"No especificada" }}</p>
+                            {% if mascota.fecha_nacimiento %}
+                                 <p class="card-text"><strong>Fecha de Nacimiento:</strong> {{ mascota.fecha_nacimiento }}</p>
+                                {# Opcional: Calcular edad aproximada si quieres #}
+                                <p class="card-text"><strong>Edad:</strong> {{ mascota.fecha_nacimiento|timesince }}</p>
+                            {% endif %}
+
+                            {% if mascota.notas_medicas %}
+                                <h5 class="card-title mt-4">Notas Médicas:</h5>
+                                {# --- Modificado: Quitar estilo en línea white-space, usar clase --- #}
+                                <p class="card-text pet-notes">{{ mascota.notas_medicas }}</p> {# Añadida clase pet-notes #}
+                            {% endif %}
+
+                             {% if mascota.comportamiento_notas %}
+                                <h5 class="card-title mt-4">Notas de Comportamiento:</h5>
+                                {# --- Modificado: Quitar estilo en línea white-space, usar clase --- #}
+                                <p class="card-text pet-notes">{{ mascota.comportamiento_notas }}</p> {# Añadida clase pet-notes #}
+                            {% endif %}
+
+                            {# Botones Editar/Eliminar - ya tienen clases btn btn-sm btn-outline-info/danger #}
+                            <div class="mt-4"> {# Margen superior para separar los botones de las notas #}
+                            <a href="{% url 'daycare:editar_mascota' mascota.pk %}" class="btn btn-sm btn-outline-primary me-2">Editar</a> {# Cambiado btn-outline-info a btn-outline-primary por consistencia #}
+                            <a href="{% url 'daycare:eliminar_mascota' mascota.pk %}" class="btn btn-sm btn-outline-danger">Eliminar</a>
+                            </div>
+
+                        </div> {# Fin card-body #}
+                    </div> {# Fin card #}
+                </div> {# Fin col-md-8 #}
+            </div> {# Fin row con imagen y detalles #}
+            {# --- Fin de tu contenido original --- #}
+
+        </div> {# Fin col (envoltorio principal) #}
+    </div> {# Fin row (envoltorio principal) #}
+    {# --- Fin NUEVO Envoltorio --- #}
 
 {% endblock content %}

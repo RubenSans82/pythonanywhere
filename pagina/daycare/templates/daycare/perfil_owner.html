@@ -1,27 +1,46 @@
 {# pagina/daycare/templates/daycare/perfil_owner.html #}
 {% extends 'daycare/base.html' %}
-{% load static %} 
+{% load static %}
 
 {% block title %}Mi Perfil{% endblock %}
 
 {% block content %}
-    <h1 class="mb-4">Mi Perfil</h1>
+    {# --- NUEVO: Envuelve el contenido en una Fila y Columna de Bootstrap para limitar ancho y centrar --- #}
+    {# row justify-content-center centra la columna en la fila #}
+    {# col-md-8 col-lg-6 limita el ancho a 8 columnas en pantallas medianas, 6 en grandes (ajusta estos números) #}
+    <div class="row justify-content-center mt-4 mb-4"> {# Añadimos mt-4 y mb-4 para margen superior/inferior a la fila #}
+        <div class="col-md-8 col-lg-6"> {# Columna para limitar el ancho del contenido #}
 
-    <div class="card shadow-sm mb-4"> {# Tarjeta para la información del usuario y dueño #}
-        <div class="card-body">
-            <h5 class="card-title">Información de la Cuenta y Contacto</h5>
-            <p class="card-text"><strong>Nombre de Usuario:</strong> {{ user.username }}</p>
-            <p class="card-text"><strong>Nombre Completo:</strong> {{ user.first_name }} {{ user.last_name }}</p>
-            <p class="card-text"><strong>Correo Electrónico:</strong> {{ user.email }}</p>
-            <p class="card-text"><strong>Teléfono:</strong> {{ owner_profile.telefono|default:"No especificado" }}</p> {# Muestra teléfono del Owner #}
-            <p class="card-text"><strong>Dirección:</strong> {{ owner_profile.direccion|default:"No especificada" }}</p> {# Muestra dirección del Owner #}
+            {# --- Tu contenido original de la página "Mi Perfil" va AQUÍ dentro de esta columna --- #}
 
-            {# Opcional: Enlaces para editar perfil o cambiar contraseña (los crearemos después) #}
-            <div class="mt-3">
-                 <a href="{% url 'daycare:editar_perfil_owner' %}" class="btn btn-secondary btn-sm me-2">Editar Perfil</a>
-                 <a href="{% url 'password_change' %}" class="btn btn-secondary btn-sm">Cambiar Contraseña</a>
+            {# Icono de Pata y Título - ya tienen clases de alineación #}
+            <div class="paw">
+                <img src="{% static 'daycare/images/paw.png' %}" alt="Icono de Pata" class="title-icon me-2 align-middle">
+                <h1 class="mb-4 d-inline-block align-middle">Mi Perfil</h1>
             </div>
-        </div>
-    </div>
+            {# Fin Icono y Título #}
+
+            {# Tarjeta con información del usuario - ya tiene clases de tarjeta y sombra #}
+            <div class="card shadow-sm mb-4"> {# Añadido mb-4 para margen bajo la tarjeta #}
+                <div class="card-body">
+                    <h5 class="card-title">Información de la Cuenta y Contacto</h5>
+                    <p class="card-text"><strong>Nombre de Usuario:</strong> {{ user.username }}</p>
+                    <p class="card-text"><strong>Nombre Completo:</strong> {{ user.first_name }} {{ user.last_name }}</p>
+                    <p class="card-text"><strong>Correo Electrónico:</strong> {{ user.email }}</p>
+                    <p class="card-text"><strong>Teléfono:</strong> {{ owner_profile.telefono|default:"No especificado" }}</p>
+                    <p class="card-text"><strong>Dirección:</strong> {{ owner_profile.direccion|default:"No especificada" }}</p>
+
+                    {# Enlaces para editar perfil o cambiar contraseña #}
+                    <div class="mt-3">
+                         <a href="{% url 'daycare:editar_perfil_owner' %}" class="btn btn-primary btn-sm me-2">Editar Perfil</a>
+                         <a href="{% url 'password_change' %}" class="btn btn-primary btn-sm">Cambiar Contraseña</a>
+                    </div>
+                </div> {# Fin card-body #}
+            </div> {# Fin card #}
+            {# --- Fin de tu contenido original --- #}
+
+        </div> {# Fin col #}
+    </div> {# Fin row #}
+    {# --- Fin NUEVO Envoltorio --- #}
 
 {% endblock content %}

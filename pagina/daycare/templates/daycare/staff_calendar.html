@@ -1,73 +1,99 @@
-{# pagina/daycare/templates/daycare/staff_calendar.html #}
+{# pagina/daycare/templates/daycare/staff_calendar.html - Modified for layout and styling #}
 {% extends 'base.html' %}
 {% load static %}
 
 {% block title %}Calendario de Reservas (Staff){% endblock %}
 
 {% block content %}
-    <h1 class="mb-4">Calendario de Reservas (Staff)</h1>
+    {# --- NUEVO: Envuelve todo el contenido principal en una Fila y Columna para limitar ancho y centrar --- #}
+    {# row justify-content-center centra la columna; mt-4 mb-4 añaden margen arriba/abajo #}
+    {# col-md-12 col-lg-10 limita el ancho (ajusta los números si quieres que sea más estrecho o ancho) #}
+    {# Usamos un ancho mayor que en los formularios ya que el calendario necesita más espacio #}
+    <div class="row justify-content-center mt-4 mb-4">
+        <div class="col-md-12 col-lg-10"> {# Columna para limitar el ancho total del contenido #}
 
-    {# --- NUEVO: Controles de Filtro --- #}
-    {# Usaremos una forma simple, sin un <form> que se envíe por POST #}
-    {# Estos selectores serán leídos por el JavaScript del calendario #}
-    <div class="row mb-4"> {# Usar row y col para mejor layout con Bootstrap #}
-        <div class="col-md-4 mb-3">
-            <label for="status-filter" class="form-label">Filtrar por Estado:</label>
-            <select class="form-select" id="status-filter" name="status-filter">
-                <option value="">Todos los Estados</option> {# Opción para no filtrar por estado #}
-                {# Itera sobre las opciones de estado pasadas desde la vista #}
-                {% for choice in status_choices %}
-                    {# value es el código interno del estado (ej: 'Pending'), el texto es el display (ej: 'Pendiente') #}
-                    {# Puedes añadir 'selected' si lees filtros de request.GET en la vista y los pasas al contexto #}
-                    <option value="{{ choice.0 }}">{{ choice.1 }}</option>
-                {% endfor %}
-            </select>
-        </div>
+            {# --- Tu contenido original del calendario va AQUÍ dentro de esta columna --- #}
 
-        <div class="col-md-4 mb-3">
-            <label for="service-filter" class="form-label">Filtrar por Servicio:</label>
-            <select class="form-select" id="service-filter" name="service-filter">
-                <option value="">Todos los Servicios</option> {# Opción para no filtrar por servicio #}
-                {# Itera sobre los objetos Service pasados desde la vista #}
-                {% for service in services %}
-                    {# value es el ID del servicio, el texto es el nombre #}
-                    {# Puedes añadir 'selected' si lees filtros de request.GET en la vista y los pasas al contexto #}
-                    <option value="{{ service.pk }}">{{ service.name }}</option>
-                {% endfor %}
-            </select>
-        </div>
+            {# Título de la página - H1 #}
+            {# Puedes añadir el icono de pata aquí si quieres, similar a otras páginas #}
+            <h1 class="mb-4">Calendario de Reservas (Staff)</h1>
 
-        {# Opcional: Un botón para aplicar los filtros, o hacer que el JS reaccione al cambio en los selectores #}
-        {# Si el JS reacciona al cambio, no necesitas un botón 'Aplicar' #}
-        {# <div class="col-md-4 d-flex align-items-end mb-3"> #}
-        {#    <button type="button" id="apply-filters-btn" class="btn btn-primary">Aplicar Filtros</button> #}
-        {# </div> #}
-    </div>
-    {# --- Fin Controles de Filtro --- #}
+            {# Controles de Filtro - ya usan Bootstrap row y col #}
+            {# Añadimos margen inferior a la fila si no lo tiene #}
+            <div class="row mb-4">
+                <div class="col-md-4 mb-3">
+                    <label for="status-filter" class="form-label">Filtrar por Estado:</label>
+                    <select class="form-select" id="status-filter" name="status-filter">
+                        <option value="">Todos los Estados</option>
+                        {% for choice in status_choices %}
+                            <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
 
-    {# Este es el div donde FullCalendar dibujará el calendario #}
-    <div id='calendar'></div>
+                <div class="col-md-4 mb-3">
+                    <label for="service-filter" class="form-label">Filtrar por Servicio:</label>
+                    <select class="form-select" id="service-filter" name="service-filter">
+                        <option value="">Todos los Servicios</option>
+                        {% for service in services %}
+                            <option value="{{ service.pk }}">{{ service.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {# Opcional: Botón Aplicar Filtros si no usas listeners de cambio #}
+            </div>
+            {# --- Fin Controles de Filtro --- #}
+
+            {# Este es el div donde FullCalendar dibujará el calendario #}
+            {# Añadimos sombra y borde opcional para que destaque en la página #}
+            <div id='calendar' class="shadow-sm card p-3"> {# Añadido shadow-sm, card, p-3 (o solo p-3) #}
+                 {# FullCalendar renderizará su contenido aquí #}
+            </div>
+            {# --- Fin del contenido del calendario --- #}
+
+        </div> {# Fin col (envoltorio principal) #}
+    </div> {# Fin row (envoltorio principal) #}
+    {# --- Fin NUEVO Envoltorio --- #}
 
 {% endblock content %}
 
 {% block extra_js %}
 
-{{ block.super }} {# Include JS from base.html #}
+{# Esto asegura que se incluyan los scripts JS definidos en el bloque extra_js de base.html #}
+{{ block.super }}
 
-{# Script del Plugin de Interacción (Necesario para eventDrop) #}
+{# Scripts de FullCalendar desde CDN - Asegúrate de que estas líneas estén presentes #}
 <script src='https://cdn.jsdelivr.net/npm/@fullcalendar/interaction@6.1.17/index.global.min.js'></script>
-
-{# Script principal de FullCalendar #}
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js'></script>
-
 {# Carga todos los idiomas. Necesario para que locale: 'es' funcione completamente. #}
-{# Debe cargarse DESPUÉS de los scripts principales de FullCalendar pero ANTES de tu script de inicialización. #}
 <script src='https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.17/locales-all.global.min.js'></script>
 
 {# Tu script de inicialización y manejo de eventos del calendario #}
+{# MANTEN ESTE SCRIPT TAL CUAL ESTÁ EN TU ARCHIVO, incluyendo la lógica de fetch y eventDrop #}
+{# Solo nos aseguraremos de que la función getCookie y la variable csrftoken están accesibles #}
 <script>
+    // Helper function to get CSRF token from cookie (needed for POST requests in Django)
+    // MANTEN ESTA FUNCIÓN tal cual si la tienes
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    // Get the CSRF token when the script loads
+    var csrftoken = getCookie('csrftoken');
+
+
     document.addEventListener('DOMContentLoaded', function() {
-        // ... código existente para obtener selectores de filtro y getFilterParams function ...
+        // ... Tu código existente para obtener selectores de filtro y getFilterParams function ...
         var calendarEl = document.getElementById('calendar');
         var statusFilterEl = document.getElementById('status-filter');
         var serviceFilterEl = document.getElementById('service-filter');
@@ -81,32 +107,14 @@
             return params;
         }
 
-        // --- Helper function to get CSRF token from cookie ---
-        function getCookie(name) {
-            var cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                var cookies = document.cookie.split(';');
-                for (var i = 0; i < cookies.length; i++) {
-                    var cookie = cookies[i].trim();
-                    // Does this cookie string begin with the name we want?
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
-        var csrftoken = getCookie('csrftoken');
-        // --- End Helper function ---
-
-
+        // ... Tu código existente para inicializar FullCalendar (new FullCalendar.Calendar(calendarEl, { ... }));
         var calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
             locale: 'es',
             headerToolbar: {
                 left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay'
             },
+            // Asegúrate de que la función 'events' esté presente y use getFilterParams
             events: function(fetchInfo, successCallback, failureCallback) {
                 var filterParams = getFilterParams();
                 var params = { start: fetchInfo.startStr, end: fetchInfo.endStr, ...filterParams };
@@ -125,111 +133,68 @@
             editable: true, // Habilita el arrastre
             selectable: true,
             selectHelper: true,
-            eventLimit: true,
+            eventLimit: true, // Limita el número de eventos mostrados por día si hay muchos
 
             // --- NUEVO: Manejador del evento eventDrop ---
-            // Se activa cuando un evento es arrastrado y soltado en una nueva posición
+            // MANTEN ESTE MANEJADOR tal cual está, incluyendo la lógica de fetch POST y csrftoken
             eventDrop: function(info) {
-                // info.event contiene el objeto evento con la nueva fecha/hora
-                // info.oldEvent contiene el objeto evento con la fecha/hora original
-                // info.delta contiene la diferencia de tiempo (Duration object)
-                // info.revert() se llama para revertir el evento a su posición original
-
-                var bookingId = info.event.id; // El ID de la reserva (que usamos como ID del evento)
-                var newStart = info.event.start; // La nueva fecha y hora de inicio (objeto Date)
-
-                // Convertir el objeto Date a un string en formato ISO 8601 para enviar al backend
-                // toISOString() devuelve en UTC, slice(0, 19) quita la parte Z y milisegundos
-                // Si necesitas mantener la zona horaria local, la conversión es más compleja.
-                // Para simplicidad, enviemos el string ISO con zona horaria si es posible, o solo fecha/hora.
-                // El backend está esperando YYYY-MM-DDTHH:MM:SS
-                // toISOString() is generally reliable for this.
+                var bookingId = info.event.id;
+                var newStart = info.event.start;
                 var newStartISOString = newStart.toISOString();
 
-
-                // --- Enviar los datos actualizados al backend vía AJAX (fetch POST) ---
                 var updateUrl = '{% url "daycare:staff_update_booking_api" %}';
 
-                // Datos a enviar al backend. Usaremos FormData para simular un formulario POST.
                 var formData = new FormData();
-                formData.append('id', bookingId); // El ID de la reserva
-                formData.append('start', newStartISOString); // La nueva fecha/hora de inicio en ISO 8601
+                formData.append('id', bookingId);
+                formData.append('start', newStartISOString);
 
                 fetch(updateUrl, {
                     method: 'POST',
                     headers: {
-                         // Añadir la cabecera X-CSRFToken para seguridad con POST en Django
-                         'X-CSRFToken': csrftoken
+                         'X-CSRFToken': csrftoken // Usa la variable csrftoken global
                     },
-                    body: formData // Enviar los datos como formulario
+                    body: formData
                 })
                 .then(response => {
                      if (!response.ok) {
-                         // Si la respuesta del backend no es OK (ej: 400, 404, 500)
-                         // Mostrar un mensaje de error y revertir el evento en el calendario
-                         alert('Error updating booking: ' + response.statusText); // Usar alert simple por ahora
+                         alert('Error updating booking: ' + response.statusText);
                          console.error('Update failed', response);
-                         info.revert(); // Mueve el evento de vuelta a su posición original
-                         return response.json(); // Intenta leer JSON de error si lo hay
+                         info.revert();
+                         return response.json();
                      }
-                     // Si la respuesta es OK (ej: 200, 204)
-                     return response.json(); // Leer la respuesta JSON (esperamos {'status': 'success'})
+                     return response.json();
                 })
                 .then(data => {
                      if (data.status === 'success') {
-                         // Si el backend confirma el éxito
                          console.log('Booking updated successfully', data);
-                         // Opcional: mostrar un mensaje de éxito más amigable
-                         // alert('Reserva actualizada correctamente.');
                      } else {
-                         // Si el backend devuelve 200 pero con status: error en el JSON
-                         alert('Error updating booking: ' + data.message); // Mostrar mensaje de error del backend
+                         alert('Error updating booking: ' + data.message);
                          console.error('Update failed with backend message:', data.message);
-                         info.revert(); // Revertir el evento
+                         info.revert();
                      }
                 })
                 .catch(error => {
-                    // Capturar errores de red u otros errores de fetch
                     console.error('Error sending update request:', error);
-                    alert('An error occurred while sending the update request.'); // Mensaje de error genérico
-                    info.revert(); // Revertir el evento
+                    alert('An error occurred while sending the update request.');
+                    info.revert();
                 });
-
             }, // Fin eventDrop handler
             // --- Fin NUEVO Manejador ---
 
 
-            // ... otras opciones ...
+            // ... otras opciones de FullCalendar (eventClick, dateClick, etc.) ...
+            // Asegúrate de que cualquier otra opción que tuvieras aquí se mantenga
         });
 
+        // Renderiza el calendario
         calendar.render();
 
         // Listeners para recargar el calendario cuando los filtros cambien
+        // MANTEN ESTOS LISTENERS tal cual están
         statusFilterEl.addEventListener('change', function() { calendar.refetchEvents(); });
         serviceFilterEl.addEventListener('change', function() { calendar.refetchEvents(); });
 
-    }); // Fin DOMContentLoaded
-
-
-/*     {# Helper function to get CSRF token from cookie (needed for POST requests in Django) #}
-    {# Put this outside the DOMContentLoaded listener but within the <script> block #} */
-    function getCookie(name) {
-        var cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            var cookies = document.cookie.split(';');
-            for (var i = 0; i < cookies.length; i++) {
-                var cookie = cookies[i].trim();
-                // Does this cookie string begin with the name we want?
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-    // Get the CSRF token when the script loads
-    var csrftoken = getCookie('csrftoken');
+    }); // Fin DOMContentLoaded listener
 
 
 </script>

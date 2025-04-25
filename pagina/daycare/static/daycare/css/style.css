@@ -1,70 +1,156 @@
 /* pagina/daycare/static/daycare/css/style.css */
 
-/* --- Estilos para la Galería de Fotos --- */
+/* --- Paleta de Colores: Tonos Marrones Inspirados en Pelaje de Perro --- */
+:root {
+    /* Tonos de marrón (ejemplos - puedes ajustarlos) */
+    --color-brown-lightest: #f5f5dc; /* Beige claro */
+    --color-brown-light: #d2b48c;    /* Marrón claro / Canela */
+    --color-brown-medium: #a0522d;   /* Marrón medio / Sienna */
+    --color-brown-dark: #8b4513;     /* Marrón oscuro / SaddleBrown */
+    --color-brown-darkest: #5a2d0c;  /* Marrón muy oscuro */
 
-/* Contenedor de cada imagen en la galería */
+    /* Tonos de gris/neutros que combinen (opcional) */
+    --color-neutral-light: #f8f9fa; /* Gris muy claro (como bg-light de Bootstrap) */
+    --color-neutral-dark: #343a40;  /* Gris muy oscuro (como bg-dark de Bootstrap) */
+
+    /* Colores de texto y fondo generales */
+    --color-text-primary: var(--color-neutral-dark); /* Texto principal oscuro */
+    --color-background-body: var(--color-brown-lightest); /* Fondo del cuerpo muy claro */
+
+    /* Puedes definir variables para RGB si necesitas para box-shadow con rgba */
+    /* --color-brown-medium-rgb: 160, 82, 45; */
+}
+
+/* --- Estilos Generales del Cuerpo para usar la paleta --- */
+body {
+    font-family: 'Arial', sans-serif;
+    color: var(--color-text-primary);
+    background-color: var(--color-background-body);
+    line-height: 1.6;
+    padding-top: 56px; /* Espacio para la navbar fija */
+
+    /* --- Estilos para el Sticky Footer (Flexbox) --- */
+    display: flex; /* Habilita Flexbox en el body */
+    flex-direction: column; /* Apila los elementos hijos (navbar, content-wrapper, footer) verticalmente */
+    min-height: 100vh; /* Asegura que el body tenga al menos el alto de la ventana */
+    /* --- Fin Estilos Sticky Footer --- */
+
+
+}
+
+/* --- Pseudo-elemento para el fondo con opacidad (si lo estás usando) --- */
+/* Si usas body::before para el fondo, asegúrate de que sus estilos están aquí */
+    body::before {
+        content: ""; /* Necesario para que el pseudo-elemento aparezca */
+        position: fixed; /* Fijo para que cubra toda la ventana */
+        top: 0; /* Alineado al borde superior */
+        left: 0; /* Alineado al borde izquierdo */
+        width: 100vw; /* Ancho completo de la ventana */
+        height: 100vh; /* Alto completo de la ventana */
+        z-index: -1; /* Detrás de todo el contenido */
+        background-image: url('/static/daycare/images/your-pattern-image.png'); /* O la URL de tu imagen */
+        background-size: cover; /* Cubre todo el área */
+        background-position: center center; /* Centra la imagen */
+        background-repeat: no-repeat; /* O 'repeat' si es un patrón */
+        background-attachment: fixed; /* Fijo con respecto a la ventana */
+        opacity: 0.4; /* Ajusta este valor (0.0 a 1.0) para la opacidad deseada */
+    }
+/* --- Fin estilos pseudo-elemento --- */
+
+
+/* Estilo básico para los mensajes de Django */
+ .messages { /* Estilo básico para los mensajes de Django */
+     list-style: none;
+     padding: 0;
+     margin: 1rem 0;
+ }
+
+
+/* --- NUEVO: Estilo para el contenedor principal del contenido --- */
+/* Esta clase se aplica al div que envuelve el block content en base.html */
+.content-wrapper {
+    flex-grow: 1; /* ¡CLAVE! Permite que este contenedor crezca y empuje el footer hacia abajo */
+    padding-left: 15px; /* Espacio a la izquierda */
+    padding-right: 15px; /* Espacio a la derecha */
+    padding-top: 20px; /* Espacio superior (ajusta según sea necesario) */
+    padding-bottom: 20px; /* Espacio inferior (ajusta según sea necesario) */
+    /* Puedes añadir padding si quieres espacio entre el contenido y el footer */
+    /* padding-bottom: 20px; /* Ejemplo */
+    /* padding-top: 20px; /* Ejemplo */
+}
+
+/* Ajuste opcional para el .container dentro de content-wrapper si usas mt-* en plantillas hijas */
+/* .content-wrapper .container {
+    margin-top: 0 !important; /* Anula el margin-top de Bootstrap en plantillas hijas */
+    /* padding-top: 1.5rem; /* Añade padding superior si eliminaste el margin-top en plantillas hijas */
+    /* padding-bottom: 1.5rem; /* Añade padding inferior */
+/* } */
+/* --- Fin NUEVO Contenedor Principal --- */
+
+/* Estilo básico para los mensajes de Django */
+.messages {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0;
+}
+
+
+/* --- Estilos para la Galería de Fotos (combinando tus reglas existentes) --- */
+
+/* Contenedor de cada imagen en la galería (.gallery-item) */
 .gallery-item {
-    /* Asegura que la imagen no se desborde del contenedor */
-    overflow: hidden;
-    /* Opcional: Añadir un borde o sombra para destacar cada foto */
-    border-radius: 8px; /* Bordes redondeados */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra suave */
-    /* Asegura que la columna (col-md-4) actúa como el contenedor flexible si es necesario */
-    display: flex;
-    justify-content: center; /* Centra la imagen horizontalmente */
-    align-items: center; /* Centra la imagen verticalmente */
-}
-
-/* Estilos para las imágenes dentro de la galería */
-.gallery-item img {
-    /* Esto es clave para que las imágenes se adapten y se muestren bien en la cuadrícula */
-    display: block; /* Elimina espacio extra debajo de la imagen */
-    width: 100%; /* La imagen ocupa todo el ancho del contenedor (.gallery-item o la columna) */
-    height: 200px; /* Opcional: Establece una altura fija para todas las imágenes de la galería */
-    object-fit: cover; /* Asegura que la imagen cubra el área sin distorsionarse (recorta si es necesario) */
-    /* object-position: center; /* Asegura que el centro de la imagen es visible */
-
-    /* Opcional: Efecto hover al pasar el ratón por encima */
-    transition: transform 0.3s ease; /* Transición suave para el zoom */
-}
-
-/* Efecto al pasar el ratón por encima de la imagen */
-.gallery-item img:hover {
-    transform: scale(1.05); /* Ligeramente más grande */
-}
-
-/* Opcional: Añadir un poco de padding a la sección de la galería */
-#photo-gallery { /* Usa el ID de la sección de la galería */
-    padding: 60px 0; /* 60px de padding arriba y abajo, 0 a los lados */
-    background-color: #f8f9fa; /* Un color de fondo suave para la sección */
-}
-
-#photo-gallery h2 { /* Estilo para el título de la sección */
-    text-align: center; /* Centra el título */
-    margin-bottom: 40px; /* Espacio debajo del título */
-    color: #333; /* Color de texto oscuro */
-}
-
-
-/* Si quieres que el div con col-md-4 mb-4 sea el que tenga el borde/sombra/overflow,
-   mueve las reglas de .gallery-item a .col-md-4. Por ahora, asumo que añades
-   una clase 'gallery-item' a un div que envuelve solo la imagen si no quieres
-   que toda la columna tenga el estilo. Pero si cada imagen ya está en su propia columna,
-   puedes aplicar los estilos directamente a la columna o a la imagen y su contenedor inmediato.
-   Basado en tu HTML, parece que puedes aplicar estilos directamente a la columna y la imagen:
-*/
-
-/* Alternativa: Aplicar estilos directamente a la columna y la imagen */
-/* (Si no quieres añadir una clase 'gallery-item' adicional en el HTML) */
-#photo-gallery .col-md-4 {
     overflow: hidden;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    display: flex; /* Usar flex en la columna para centrar si es necesario */
+    display: flex;
     justify-content: center;
     align-items: center;
 }
 
+/* Estilos para las imágenes dentro de la galería (.gallery-item img) */
+.gallery-item img {
+    display: block;
+    width: 100%;
+    height: 200px; /* Altura fija */
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+/* Efecto al pasar el ratón por encima de la imagen (.gallery-item img:hover) */
+.gallery-item img:hover {
+    transform: scale(1.05);
+}
+
+/* Estilo para la sección completa de la galería (#photo-gallery) */
+#photo-gallery {
+    padding: 60px 0;
+    /* Usando variable para el color de fondo de la sección */
+    /* background-color: var(--color-neutral-light); */ /* Replaced with rgba for opacity */
+    /* #f8f9fa is rgb(248, 249, 250) */
+    background-color: rgba(248, 249, 250, 0.5); /* Adjust the last value (0.3) for opacity */
+    backdrop-filter: blur(4px); /* Adjust blur radius (e.g., 4px) */
+    -webkit-backdrop-filter: blur(4px); /* Prefix for Safari */
+}
+
+/* Estilo para el título de la sección de la galería (#photo-gallery h2) */
+#photo-gallery h2 {
+    text-align: center;
+    margin-bottom: 40px;
+    /* Usando variable para el color del título */
+    color: var(--color-brown-dark); /* O puedes usar var(--color-neutral-dark) o #333 */
+}
+
+/* Alternativa: Estilos aplicados directamente a la columna de Bootstrap (#photo-gallery .col-md-4) */
+#photo-gallery .col-md-4 {
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Estilos para las imágenes dentro de la columna de Bootstrap (#photo-gallery .col-md-4 img) */
 #photo-gallery .col-md-4 img {
      display: block;
      width: 100%;
@@ -76,8 +162,740 @@
 #photo-gallery .col-md-4 img:hover {
     transform: scale(1.05);
 }
-/* Decide si prefieres la primera opción (añadir clase gallery-item) o esta segunda (usar la clase col-md-4 existente).
-   La segunda es más directa si solo estilizarás las columnas de la galería.
-   Vamos a usar la segunda opción por ahora, ya que es más sencilla con tu HTML actual.
-   BORRA la primera sección de reglas CSS (.gallery-item) si usas la segunda.
+/* Nota: Tienes dos conjuntos de reglas para la galería (.gallery-item y #photo-gallery .col-md-4).
+   El segundo conjunto (#photo-gallery .col-md-4) es el que probablemente se aplica si tus imágenes están
+   directamente dentro de divs con class="col-md-4 ..." en la sección #photo-gallery.
+   Puedes borrar el primer conjunto (.gallery-item) si no añades esa clase a un div extra.
+   He mantenido ambos como en tu archivo original.
 */
+
+/* --- NUEVOS ESTILOS BASADOS EN LA PALETA (Código del Paso 188) --- */
+
+/* Barra de Navegación */
+.navbar {
+    background-color: var(--color-brown-darkest) !important;
+}
+
+.navbar-dark .navbar-brand {
+    color: var(--color-brown-lightest);
+}
+
+.navbar-dark .navbar-brand:hover {
+    color: var(--color-brown-lightest);
+    text-decoration: none;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+    color: var(--color-brown-light);
+}
+
+.navbar-dark .navbar-nav .nav-link:hover,
+.navbar-dark .navbar-nav .nav-link:focus {
+    color: var(--color-brown-lightest);
+}
+
+/* Títulos (H1, H2, etc.) - Ya hemos aplicado a #photo-gallery h2 arriba, estas son más generales */
+h1, h2, h3, h4, h5, h6 {
+    color: black; /* Tono de marrón oscuro para los títulos */
+    margin-bottom: 0.5em;
+    font-weight: bold;
+}
+
+/* Botones */
+.btn-primary {
+    background-color: var(--color-brown-medium);
+    border-color: var(--color-brown-dark);
+    color: white;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: var(--color-brown-dark);
+    border-color: var(--color-brown-darkest);
+    color: white;
+}
+
+.btn-primary:active,
+.btn-primary:focus {
+    background-color: var(--color-brown-dark);
+    border-color: var(--color-brown-darkest);
+    /* Usando la variable RGB si la definiste en :root, o un valor rgba directo */
+    /* box-shadow: 0 0 0 0.25rem rgba(var(--color-brown-medium-rgb), .5); */
+    box-shadow: 0 0 0 0.25rem rgba(160, 82, 45, 0.5); /* Ejemplo con valor directo */
+    color: white;
+}
+
+/* Secciones Específicas (ej: con fondo alterno) - Ya hemos aplicado a #photo-gallery arriba */
+#services {
+    /* background-color: var(--color-brown-lightest); */ /* Replaced with rgba for opacity */
+    /* #f5f5dc is rgb(245, 245, 220) */
+    background-color: rgba(245, 245, 220, 0.5); /* Adjust the last value (0.85) for opacity (0.0 to 1.0) */
+    padding: 60px 0;
+    /* Optional: Add backdrop-filter to blur content behind this section */
+    /* Requires a semi-transparent background-color (like rgba above) to see the effect */
+    backdrop-filter: blur(4px); /* Adjust blur radius (e.g., 4px) */
+    -webkit-backdrop-filter: blur(4px); /* Prefix for Safari */
+
+    /* Note: backdrop-filter support varies across browsers */
+    /* Note: Applying filter: blur() directly would blur the content inside #services too */
+}
+
+#about {
+    /* background-color: var(--color-neutral-light); */ /* Replaced with rgba for opacity */
+    /* #f8f9fa is rgb(248, 249, 250) */
+    background-color: rgba(210, 180, 140, 0.8); /* Adjust the last value (0.3) for opacity */
+
+    padding: 60px 0;
+    backdrop-filter: blur(4px); /* Adjust blur radius (e.g., 4px) */
+    -webkit-backdrop-filter: blur(4px); /* Prefix for Safari */
+}
+
+#contact {
+    /* background-color: var(--color-brown-light); */ /* Replaced with rgba for opacity */
+    /* #d2b48c is rgb(210, 180, 140) */
+    background-color: rgba(210, 180, 140, 0.8); /* Adjust the last value (0.3) for opacity */
+
+    padding: 30px 0;
+    backdrop-filter: blur(4px); /* Adjust blur radius (e.g., 4px) */
+    -webkit-backdrop-filter: blur(4px); /* Prefix for Safari */
+}
+
+/* Estilo para las "cards" de Bootstrap */
+.card {
+    border-color: var(--color-brown-light);
+}
+
+/* Estilos para el Calendario de FullCalendar */
+/* Apunta a clases generadas por FullCalendar */
+.fc .fc-col-header-cell { /* Encabezados de día (Dom, Lun, etc.) */
+    background-color: var(--color-brown-light);
+    color: var(--color-brown-darkest);
+    border-color: var(--color-brown-medium);
+}
+
+.fc .fc-toolbar-title { /* Título del mes/vista en el encabezado del calendario */
+    color: var(--color-brown-dark);
+}
+
+.fc .fc-button { /* Botones de navegación (prev, next, today, month, week, day) */
+    background-color: var(--color-brown-medium);
+    border-color: var(--color-brown-dark);
+    color: white; /* Texto blanco para que contraste */
+    /* Asegurarse de que el texto es visible sobre el fondo del botón */
+}
+
+.fc .fc-button:hover {
+     background-color: var(--color-brown-dark);
+     border-color: var(--color-brown-darkest);
+}
+
+/* Estilo específico para los botones primarios deshabilitados de FullCalendar */
+.fc .fc-button-primary:disabled {
+    background-color: var(--color-brown-light) !important; /* Usar !important para sobrescribir estilos de FullCalendar */
+    border-color: var(--color-brown-medium) !important;
+    color: rgba(255, 255, 255, 0.7); /* Texto blanco semi-transparente para indicar que está deshabilitado */
+}
+
+
+/* Estilo para los eventos del calendario (las reservas) */
+/* El color de fondo del evento ya se maneja en el backend según el estado (Paso 177),
+   pero puedes ajustar otros estilos como el color del texto o bordes aquí si es necesario. */
+.fc-event {
+    border-radius: 4px;
+    padding: 2px 4px;
+    font-size: 0.85em;
+    border: none; /* Eliminar borde por defecto si el color ya es el fondo */
+    cursor: pointer; /* Indica que es clicable */
+    color: white; /* Texto blanco para los eventos para que contraste con los colores de estado */
+    /* Asegurarse de que el texto del evento (título) es legible sobre el color de fondo */
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); /* Sombra de texto sutil para mejorar legibilidad */
+}
+
+/* Puedes añadir un borde basado en el color del evento si quieres */
+/* .fc-event-past { opacity: 0.8; } /* Opcional: eventos pasados con menos opacidad */
+
+
+/* Usamos un selector más específico (.container a) para evitar afectar enlaces en la navbar u otros lugares si ya están estilizados */
+.container a {
+    color: black; /* Usa un tono marrón de la paleta */
+    text-decoration: none; /* Elimina el subrayado por defecto de los enlaces */
+    transition: color 0.3s ease; /* Transición suave para el efecto hover */
+}
+
+/* Estilo para los enlaces al pasar el ratón por encima */
+.container a:hover {
+    color: black; /* Usa un tono marrón más oscuro al pasar el ratón */
+    text-decoration: underline; /* Opcional: Añade subrayado al pasar el ratón para indicar que es interactivo */
+}
+
+/* Estilo para el título principal de la sección Servicios ("Nuestros Servicios Estelares") */
+/* Apunta al H2 dentro de la sección con ID #services */
+#services h2 {
+    /* text-center y mb-5 ya están en el HTML, solo cambiamos el color */
+    color: var(--color-brown-darkest); /* Usar un marrón muy oscuro para este título principal */
+    /* Opcional: !important si text-primary lo sigue sobrescribiendo fuertemente */
+    /* color: var(--color-brown-darkest) !important; */
+}
+
+
+/* Estilo para los títulos de los servicios individuales dentro de las cards */
+/* Apunta al H5 con clase .card-title dentro de la sección #services */
+#services .card-title {
+    /* Ya son H5, pero text-primary y card-title son más específicos */
+    color: var(--color-brown-dark); /* Usar un marrón oscuro para los títulos de servicio */
+    /* Opcional: !important si text-primary lo sigue sobrescribiendo fuertemente */
+    /* color: var(--color-brown-dark) !important; */
+}
+
+/* Opcional: Asegurarse de que cualquier texto con clase text-primary en el contenido
+   use un color de la paleta en lugar del azul por defecto */
+.container .text-primary {
+     color: var(--color-brown-dark) !important; /* Sobrescribe el azul primario de Bootstrap */
+}
+
+/* --- NUEVOS ESTILOS: Botones Outline-Primary --- */
+
+/* Estilos para los botones con borde (outline), como el de "Regístrate para Reservar" en las cards de servicio */
+.btn-outline-primary {
+    /* Estado normal: Texto y borde de color marrón medio */
+    color: var(--color-brown-medium);
+    border-color: var(--color-brown-medium);
+    background-color: transparent; /* Fondo transparente */
+    transition: all 0.3s ease; /* Transición suave para los cambios de color y fondo */
+}
+
+/* Estado hover, activo y enfoque: Fondo marrón medio y texto blanco */
+.btn-outline-primary:hover,
+.btn-outline-primary:active,
+.btn-outline-primary:focus {
+    color: white; /* Texto blanco para contrastar con el fondo marrón */
+    background-color: var(--color-brown-medium); /* Fondo sólido marrón en hover/active/focus */
+    border-color: var(--color-brown-dark); /* Borde un poco más oscuro */
+    /* Opcional: Ajustar la sombra de enfoque si usas la variable RGB en :root */
+    /* box-shadow: 0 0 0 0.25rem rgba(var(--color-brown-medium-rgb), .5); */
+     box-shadow: 0 0 0 0.25rem rgba(160, 82, 45, 0.5); /* Ejemplo con valor rgba directo */
+}
+
+/* Si quieres un tono de marrón diferente para el fondo en hover, puedes ajustar la regla :hover */
+/* Por ejemplo, para un marrón más oscuro en hover: */
+/*
+.btn-outline-primary:hover {
+    color: white;
+    background-color: var(--color-brown-dark);
+    border-color: var(--color-brown-darkest);
+}
+*/
+
+.lead {
+    font-size: 1.25rem;
+    font-weight: 300;
+    color: black; /* Cambia el color del texto de la clase lead */
+}
+
+/* Regla para reducir el margen inferior de los párrafos dentro del div .contact-info */
+#contact .contact-info p {
+    margin-bottom: 0.5rem; /* Ajusta este valor si quieres más o menos espacio (1rem es el valor por defecto de Bootstrap) */
+    /* Opcional: color: var(--color-text-primary); /* Asegurar color de texto si no hereda bien */
+    /* Opcional: font-size: 1rem; /* Ajustar tamaño de fuente si es necesario */
+}
+
+
+#contact h2 {
+    text-align: center;
+    /* Reducir margen inferior del título de mb-4 a mb-3 */
+    margin-bottom: 1.5rem; /* Valor de Bootstrap mb-3 */
+    /* color ya definido por h1-h6 o por #services h2/ #contact h2 */
+}
+
+#contact .lead {
+    text-align: center;
+     /* Reducir margen inferior del párrafo lead. mb-3 es 1.5rem, mb-4 es 2rem, mb-5 es 3rem */
+    margin-bottom: 1.5rem; /* Puedes reducir esto a 1rem o incluso 0.5rem si quieres menos espacio */
+    /* color ya definido por body o .lead */
+}
+
+/* Regla para reducir el margen inferior de los párrafos dentro del div .contact-info */
+#contact .contact-info p {
+    /* Reducir el margen inferior entre las líneas de info de contacto */
+    margin-bottom: 0.3rem; /* Valor más pequeño que 0.5rem (ajusta si es necesario) */
+    font-size: 1rem; /* Opcional: ajustar el tamaño de fuente si 1.1rem es grande */
+}
+
+
+#contact h2 {
+    text-align: center;
+    margin-bottom: 1rem; /* O ajústalo a 1rem o menos si quieres menos espacio bajo el título de la sección */
+}
+
+#contact .mb-3 { /* Si es <p class="mb-3"> en HTML */
+    margin-bottom: 0.8rem !important; /* Reducir margen inferior */
+    text-align: center;
+}
+
+#contact .contact-info span { /* <-- Apuntamos a la etiqueta span */
+    /* Ahora que los spans no tienen margen, añadimos un margen inferior para separarlos */
+    margin-bottom: 0.4rem; /* Ajusta este valor para controlar el espacio ENTRE las líneas de info (teléfono, email, dir) */
+    display: block; /* Asegura que se comportan como bloques si no usaste d-block en HTML */
+
+    /* Ajustar tamaño de fuente si es necesario */
+    font-size: 0.95rem; /* Ajusta este valor (ej: 1rem, 0.95rem, 0.9rem) */
+
+    /* color ya definido */
+     color: var(--color-text-primary); /* Asegurar color */
+    /* text-align: center; /* Asegurar centrado */
+}
+
+#contact .contact-info-inline span {
+    /* ... font-size, color ... */
+    /* margin-bottom: 0.4rem; /* Eliminar si no usas display:block */
+    /* display: block; /* Eliminar si quieres que sean inline-block */
+
+    display: inline-block; /* Cambiar a inline-block */
+    margin-right: 0.5rem; /* Espacio a la derecha de cada span (ajusta) */
+    margin-left: 0.5rem; /* Espacio a la izquierda (ajusta) */
+    /* margin-bottom: 0; /* Asegurar que no hay margen inferior */
+    vertical-align: middle; /* Alinear verticalmente si tienen diferentes alturas */
+}
+
+/* Estilo para los spans separadores (|) */
+#contact .contact-info-inline span.mx-2 {
+    /* ... color ... */
+    /* margin-right: 0.5rem; margin-left: 0.5rem; /* mx-2 ya hace esto, ajustar si es necesario */
+    vertical-align: middle;
+}
+
+/* Estilos para las "cards" de Bootstrap (se usan en Login, Registro, Detalles, etc.) */
+.card {
+    /* El borde ya lo definimos en pasos anteriores */
+    border-color: var(--color-brown-light);
+    /* Añade un color de fondo de la paleta */
+    background-color: var(--color-neutral-light); /* Un gris claro o un marrón muy claro */
+    /* background-color: var(--color-brown-lightest); /* O usa el marrón más claro */
+}
+
+/* Opcional: Estilo específico para los campos de formulario si no te gustan los de Bootstrap por defecto */
+ .form-control {
+    border-color: var(--color-brown-medium);
+    color: var(--color-text-primary);
+}
+.form-control:focus {
+    border-color: var(--color-brown-dark);
+    box-shadow: 0 0 0 0.25rem rgba(var(--color-brown-medium-rgb), .25);
+} 
+
+#calendar {
+    padding: 60px 0; /* Espacio superior e inferior */
+    /* #d2b48c is rgb(210, 180, 140) */
+    background-color: rgba(210, 180, 140, 0.8); /* Original: var(--color-brown-light). Adjust the last value (0.8) for desired opacity */
+
+    backdrop-filter: blur(4px); /* Efecto de desenfoque */
+    -webkit-backdrop-filter: blur(4px); /* Prefijo para Safari */
+}
+
+/* --- NUEVOS ESTILOS para la Página "Mis Mascotas" --- */
+
+/* Estilo para las imágenes de las tarjetas de mascota */
+/* Apuntamos a la clase que añadimos en el HTML */
+.pet-card-img {
+    height: 150px; /* <-- Ajusta esta altura. Era 200px. Prueba 180px, 160px, 150px. */
+    object-fit: cover; /* Asegura que la imagen cubra el área sin distorsionarse */
+    /* object-position: center; /* Por defecto es center */
+}
+
+/* Opcional: Reducir el padding interno del cuerpo de la tarjeta */
+.card-body {
+    /* El padding por defecto de Bootstrap es 1.5rem (24px). Puedes reducirlo. */
+    padding: 1rem; /* Ajusta este valor (ej: 1.2rem, 1rem, 0.8rem) */
+}
+
+/* Opcional: Reducir el tamaño de fuente y margen del título de la tarjeta */
+.card-body .card-title {
+    /* El font-size por defecto de h5 es 1.25rem. */
+    font-size: 1.1rem; /* Ajusta este valor si quieres el título más pequeño */
+    /* El margen inferior por defecto de h5 es 0.5em */
+    margin-bottom: 0.5rem; /* Ajusta si quieres menos espacio debajo del título */
+}
+
+/* Opcional: Reducir el tamaño de fuente y margen del texto de la tarjeta (raza, etc.) */
+.card-body .card-text {
+     /* El font-size por defecto de p es 1rem. */
+     font-size: 0.95rem; /* Ajusta si quieres el texto más pequeño */
+     /* El margen inferior por defecto de p es 1rem. */
+     margin-bottom: 0.5rem; /* Ajusta si quieres menos espacio debajo del texto */
+}
+
+/* Asegurarse de que el texto pequeño (<small>) dentro de card-text es legible */
+.card-body .card-text small {
+     font-size: 0.85rem; /* Esto es el tamaño por defecto de <small> en Bootstrap */
+}
+
+
+/* Estilo para el icono que aparece junto a los títulos (ej: paw.png) */
+.title-icon {
+    width: 40px; /* Ajusta el ancho del icono */
+    height: auto; /* Mantiene la proporción de aspecto */
+    vertical-align: middle; /* Alinea verticalmente el icono con el texto del título */
+    /* margin-right: 10px; /* Opcional: Espacio a la derecha si no usas me-2 de Bootstrap */
+}
+
+.paw {
+    display: flex;
+    align-items: flex-start;
+    text-shadow: #f5f5dc 1px 1px 2px; /* Sombra de texto para el título */
+}
+
+/* Estilo general para las tablas (si usas la clase .table de Bootstrap) */
+.table {
+    /* Borde general de la tabla */
+    border: 1px solid var(--color-brown-light);
+    /* Espaciado interno de las celdas */
+    /* Puedes ajustar el padding si quieres más o menos espacio dentro de cada celda */
+    /* --bs-table-cell-padding-y: 0.5rem; /* Bootstrap default */
+    /* --bs-table-cell-padding-x: 0.5rem; /* Bootstrap default */
+}
+
+/* Estilo para el encabezado de la tabla (<thead>) */
+.table thead th {
+    background-color: var(--color-brown-medium); /* Fondo marrón medio para el encabezado */
+    color: white; /* Texto blanco en el encabezado */
+    border-color: var(--color-brown-dark); /* Borde del encabezado */
+    vertical-align: middle; /* Centrado vertical */
+    text-align: center; /* Centrado horizontal del texto del encabezado */
+}
+
+/* Estilo para el cuerpo de la tabla (<tbody>) */
+.table tbody tr {
+     /* Puedes añadir un borde inferior si quieres más separación visual entre filas */
+     border-bottom: 1px solid var(--color-brown-light);
+}
+
+/* Estilo para filas impares si usas table-striped */
+/* Usar un color de la paleta para las franjas */
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(210, 180, 140, 0.1); /* Color de var(--color-brown-light) con baja opacidad */
+}
+
+/* Estilo para filas al pasar el ratón si usas table-hover */
+/* Usar un color de la paleta para el hover */
+.table-hover tbody tr:hover {
+    background-color: rgba(160, 82, 45, 0.2); /* Color de var(--color-brown-medium) con baja opacidad */
+}
+
+/* Estilo para las celdas de la tabla (<td>) */
+.table tbody td {
+    vertical-align: middle; /* Centrado vertical en todas las celdas */
+    /* color: var(--color-text-primary); /* Asegurar color de texto general si es necesario */
+}
+
+
+/* --- REGLA CLAVE: Corregir el color del texto de estado --- */
+/* Apuntamos a la celda del estado y forzamos el color del texto a marrón oscuro */
+/* Usamos !important para asegurar que sobrescribe las clases de Bootstrap como text-white */
+.table td.table-warning, /* Para estado Pendiente */
+.table td.table-success, /* Para estado Confirmada */
+.table td.table-danger, /* Para estado Cancelada */
+.table td.table-secondary, /* Para estado Completada y filas Pasadas */
+.table td.table-light { /* Para estado desconocido */
+    color: black !important; /* ¡Color del texto SIEMPRE marrón muy oscuro! */
+    /* Puedes ajustar el color de fondo de estas clases table-* en tu style.css
+       si no te gustan los colores por defecto de Bootstrap con tu paleta */
+       /* Por ejemplo, para table-success: background-color: rgba(color_verde_bootstrap, opacidad); */
+       /* O usando un color de tu paleta con opacidad: */
+       /* background-color: rgba(var(--color-brown-medium-rgb), 0.3) !important; */
+}
+
+/* Estilo para el fondo de la celda de estado Pendiente */
+.table td.table-warning {
+    /* Bootstrap default es un amarillo pálido. Puedes poner un amarillo más vivo, o un tono marrón claro con opacidad. */
+     background-color: #ffc107 !important; /* Amarillo Bootstrap más vivo */
+    /* background-color: rgba(255, 193, 7, 0.5) !important; /* Amarillo con opacidad */
+    /* background-color: rgba(yellow, 0.5) !important; /* Usa un marrón claro de base con opacidad si tienes la variable RGB */
+     /* O un color sólido que te guste: */
+     /* background-color: #ffeeba !important; /* Un amarillo suave */
+    /* background-color: yellow !important; /* Un beige muy claro de tu paleta */
+
+}
+
+/* Estilo para el fondo de la celda de estado Confirmada */
+.table td.table-success {
+    /* Bootstrap default es un verde. Puedes poner un verde más vivo, o un tono que contraste bien. */
+     background-color: #28a745 !important; /* Verde Bootstrap */
+    /* background-color: rgba(40, 167, 69, 0.5) !important; /* Verde con opacidad */
+    /* background-color: green !important; /* Marrón medio de tu paleta (si lo quieres marrón) */
+     /* O un color verde que combine con tu paleta: */
+     /* background-color: #a4c639 !important; /* Un verde oliva/marrón-verde */
+
+}
+
+/* Estilo para el fondo de la celda de estado Cancelada */
+.table td.table-danger {
+    /* Bootstrap default es un rojo. Puedes poner un rojo más vivo, o un tono de la paleta. */
+    background-color: #dc3545 !important; /* Rojo Bootstrap */
+    /* background-color: rgba(220, 53, 69, 0.5) !important; /* Rojo con opacidad */
+    /* background-color: red !important; /* Marrón oscuro de tu paleta (si lo quieres marrón) */
+    /* O un color rojo/burdeos que combine: */
+    /* background-color: #8b0000 !important; /* Rojo oscuro */
+
+}
+
+ /* Estilo para el fondo de la celda de estado Completada y filas Pasadas */
+ /* Si ya tienes una regla para la fila pasada (tr.table-secondary), esta puede anularla para la celda específica */
+.table td.table-secondary {
+    /* Bootstrap default es un gris. Puedes poner un gris diferente o un tono neutro. */
+     background-color: #6c757d !important; /* Gris Bootstrap */
+    /* background-color: rgba(108, 117, 125, 0.5) !important; /* Gris con opacidad */
+    /* background-color: var(--color-neutral-light) !important; /* Gris muy claro de tu paleta */
+}
+
+ /* Estilo para el fondo de la celda de estado por defecto/desconocido */
+.table td.table-light {
+    /* Bootstrap default es un blanco/gris muy claro */
+     background-color: white !important; /* Blanco o un color muy claro */
+}
+
+/* Nota: Hemos usado !important para asegurar que estas reglas sobrescriben los estilos por defecto de Bootstrap.
+   Asegúrate de que la regla que pusimos antes para el color del texto de estado a marrón oscuro
+   (.table td.table-warning, etc. { color: var(--color-brown-darkest) !important; }) SIGUE PRESENTE
+   para que el texto sea siempre oscuro sin importar el color de fondo que elijas aquí. */
+
+
+/* Estilo para el badge "Pasada" */
+.badge.bg-dark { /* Apunta al badge con fondo oscuro */
+    background-color: var(--color-brown-dark) !important; /* Usar un marrón oscuro para el fondo del badge */
+    color: white !important; /* Texto blanco en el badge */
+}
+
+/* Estilo para los botones pequeños dentro de la tabla */
+/* btn-sm ya viene de Bootstrap, btn-outline-info/danger ya tienen estilo general */
+/* Asegurarse de que el texto es legible sobre el fondo de la celda */
+
+/* --- Estilo específico para botones en tablas --- */
+
+/* Estilo para el botón "Ver" (.btn-outline-info) dentro de la tabla */
+/* Apuntamos a la clase .btn-outline-info DENTRO de cualquier elemento con clase .table */
+.table .btn-outline-info {
+    /* Estado normal: Texto y borde de color marrón medio (como el encabezado de tabla) */
+    color: var(--color-brown-medium);
+    border-color: var(--color-brown-medium);
+    background-color: transparent; /* Fondo transparente */
+    transition: all 0.3s ease; /* Transición suave para los efectos */
+}
+
+/* Estado hover, activo y enfoque del botón "Ver": Fondo sólido con texto blanco */
+.table .btn-outline-info:hover,
+.table .btn-outline-info:active,
+.table .btn-outline-info:focus {
+    background-color: var(--color-brown-medium); /* Fondo sólido marrón medio */
+    border-color: var(--color-brown-dark); /* Borde un poco más oscuro */
+    color: white; /* Texto blanco para contraste */
+    /* Sombra de enfoque usando un color de la paleta */
+    box-shadow: 0 0 0 0.25rem rgba(160, 82, 45, 0.5); /* rgba(color_brown_medium, opacidad) */
+}
+
+/* Opcional: Si el botón "Cancelar" (.btn-outline-danger) también quieres que sea marrón */
+/* Puedes añadir reglas similares para .table .btn-outline-danger */
+/* .table .btn-outline-danger {
+     color: var(--color-brown-medium);
+     border-color: var(--color-brown-medium);
+     background-color: transparent;
+ }
+ .table .btn-outline-danger:hover,
+ .table .btn-outline-danger:active,
+ .table .btn-outline-danger:focus {
+     background-color: var(--color-brown-medium);
+     border-color: var(--color-brown-dark);
+     color: white;
+      box-shadow: 0 0 0 0.25rem rgba(160, 82, 45, 0.5);
+ } */
+
+ .btn-outline-info {
+    /* Estado normal: Texto y borde de color marrón medio (como el encabezado de tabla) */
+    color: var(--color-brown-medium);
+    border-color: var(--color-brown-medium);
+    background-color: transparent; /* Fondo transparente */
+    transition: all 0.3s ease; /* Transición suave para los efectos */
+}
+
+.btn-outline-info:hover,
+.btn-outline-info:active,
+.btn-outline-info:focus {
+    background-color: var(--color-brown-medium); /* Fondo sólido marrón medio */
+    border-color: var(--color-brown-dark); /* Borde un poco más oscuro */
+    color: white; /* Texto blanco para contraste */
+    /* Sombra de enfoque usando un color de la paleta */
+    box-shadow: 0 0 0 0.25rem rgba(160, 82, 45, 0.5); /* rgba(color_brown_medium, opacidad) */
+}
+
+/* --- NUEVOS ESTILOS para la Página "Detalles de Mascota" --- */
+
+/* Estilo para la imagen principal en la página de detalles de mascota */
+.pet-detail-img {
+    width: 100%; /* Asegura que ocupe todo el ancho de su columna */
+    height: 300px; /* <-- Ajusta la altura de la imagen principal según prefieras */
+    object-fit: cover; /* Asegura que la imagen cubra el área sin distorsionarse */
+    /* object-position: center; /* Por defecto es center */
+}
+
+/* Estilo para las notas médicas y de comportamiento para preservar saltos de línea */
+.pet-notes {
+    white-space: pre-wrap; /* Preserva los saltos de línea y espacios del texto original */
+    /* Opcional: Ajustar margen inferior si es necesario */
+    /* margin-bottom: 1rem; */
+}
+
+/* Opcional: Ajustar el espaciado de los títulos dentro del card-body si es necesario */
+/* .card-body .card-title { margin-bottom: 0.75rem; } */
+/* .card-body p.card-text { margin-bottom: 0.5rem; } */
+
+/* Los estilos para .btn-outline-primary y .btn-outline-danger ya están definidos globalmente en tu CSS */
+
+
+/* --- Fin NUEVOS ESTILOS --- */
+
+/* --- Asegúrate de que estas reglas de formulario estén presentes y usen tus variables --- */
+.form-label { color: var(--color-text-primary); }
+.form-control {
+    border-color: var(--color-brown-medium);
+    color: var(--color-text-primary);
+}
+.form-control:focus {
+    border-color: var(--color-brown-dark);
+    box-shadow: 0 0 0 0.25rem rgba(160, 82, 45, 0.25); /* O usa tu variable RGB */
+}
+.form-text { color: var(--color-neutral-dark); font-size: 0.875em; }
+.invalid-feedback { color: var(--color-brown-darkest); font-size: 0.875em; }
+.text-danger { color: var(--color-brown-darkest) !important; /* Asegurar que los errores de campo viejos también se vean oscuros */ }
+
+
+/* --- Mueve los estilos de Drop Zone aquí desde extra_css si no están ya --- */
+/* Y cambia los colores azules a marrones */
+.drop-zone {
+    border: 2px dashed var(--color-brown-medium); /* Borde punteado marrón medio */
+    padding: 30px; text-align: center; cursor: pointer; border-radius: 8px;
+    color: var(--color-brown-dark); /* Color de texto marrón oscuro */
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+    position: relative; min-height: 150px; display: flex; flex-direction: column; justify-content: center; align-items: center; overflow: hidden;
+}
+.drop-zone.dragover {
+    background-color: var(--color-brown-lightest); /* Fondo marrón muy claro al arrastrar */
+    border-color: var(--color-brown-dark); /* Borde marrón oscuro al arrastrar */
+    color: var(--color-brown-darkest); /* Texto aún más oscuro al arrastrar */
+}
+/* Mantén las reglas para input[type="file"], .drop-zone-text, #photo-preview */
+
+
+/* --- Estilos para el Calendario de FullCalendar --- */
+/* Apunta a clases generadas por FullCalendar */
+
+#calendar { /* El div principal del calendario si tiene este ID */
+    /* Puedes añadir padding aquí si no usaste p-3 en el HTML */
+    /* padding: 1.5rem; */
+    /* Puedes añadir un color de fondo si no usas la clase card en el HTML */
+    /* background-color: var(--color-neutral-light); */
+}
+
+.fc-toolbar { /* Contenedor de la barra de herramientas (botones prev/next, título, vistas) */
+    /* Opcional: añadir borde inferior */
+    /* border-bottom: 1px solid var(--color-brown-light); */
+    /* Opcional: fondo */
+    /* background-color: var(--color-brown-lightest); */
+    padding-bottom: 1rem; /* Espacio debajo de la barra de herramientas */
+}
+
+.fc .fc-toolbar-title { /* Título del mes/vista en el encabezado del calendario */
+    color: var(--color-brown-dark); /* Tono marrón oscuro para el título */
+    font-size: 1.5rem; /* Ajusta tamaño si es necesario */
+    font-weight: bold;
+}
+
+.fc .fc-button { /* Botones de navegación y vista (prev, next, today, dayGridMonth, etc.) */
+    background-color: var(--color-brown-medium); /* Fondo marrón medio */
+    border-color: var(--color-brown-dark); /* Borde marrón oscuro */
+    color: black; /* Texto blanco para contraste */
+    /* Opcional: Reducir padding o tamaño de fuente si son muy grandes */
+    /* padding: 0.375rem 0.75rem; /* Bootstrap default button padding */
+    /* font-size: 1rem; */
+}
+
+.fc .fc-button:hover,
+.fc .fc-button:active,
+.fc .fc-button:focus {
+    background-color: var(--color-brown-dark); /* Fondo marrón oscuro al pasar ratón/activo */
+    border-color: var(--color-brown-darkest); /* Borde marrón muy oscuro */
+    color: black;
+    /* Opcional: sombra de enfoque que combine */
+    box-shadow: 0 0 0 0.25rem rgba(160, 82, 45, 0.5); /* rgba(var(--color-brown-medium-rgb), .5) si tienes la variable RGB */
+}
+
+/* Estilo específico para los botones primarios deshabilitados de FullCalendar */
+.fc .fc-button-primary:disabled {
+    background-color: var(--color-brown-light) !important; /* Usar !important para sobrescribir */
+    border-color: var(--color-brown-medium) !important;
+    color: black; /* Texto blanco semi-transparente */
+    cursor: not-allowed;
+}
+
+
+.fc .fc-col-header-cell { /* Encabezados de día (Dom, Lun, etc.) */
+    background-color: var(--color-brown-light); /* Fondo marrón claro */
+    color: black; /* Texto marrón muy oscuro */
+    border-color: var(--color-brown-medium); /* Borde marrón medio */
+    font-weight: bold;
+    padding: 0.5rem; /* Padding interno */
+}
+
+ .fc .fc-daygrid-day-number { /* Número del día en la celda */
+     color: black; /* Usar color de texto principal */
+ }
+
+/* Estilo para los eventos del calendario (las reservas) */
+/* El color de fondo del evento ya se maneja en el backend según el estado (esperamos),
+   pero puedes ajustar otros estilos como el color del texto, bordes, etc. aquí. */
+.fc-event {
+    border-radius: 4px;
+    padding: 2px 5px; /* Ajustar padding */
+    font-size: 0.85em;
+    border: none; /* Eliminar borde por defecto */
+    cursor: pointer;
+    color: black; /* Texto blanco para que contraste con los colores de estado (importante!) */
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); /* Sombra de texto para mejorar legibilidad */
+    /* Asegurarse de que el texto del evento (título) es legible sobre el color de fondo */
+}
+
+/* Opcional: Estilo para los eventos en la vista de lista */
+.fc .fc-list-event {
+     background-color: var(--color-neutral-light); /* Fondo claro para eventos de lista */
+     border-left: 4px solid var(--color-brown-medium); /* Borde a la izquierda usando color de la paleta */
+     padding: 10px;
+     margin-bottom: 5px;
+     color: black; /* Texto oscuro */
+}
+ .fc .fc-list-event-title {
+     font-weight: bold;
+ }
+  .fc .fc-list-event-time {
+     font-size: 0.9em;
+     color: black;
+  }
+
+/* Opcional: Estilo para los selectores de filtro */
+.form-label { color: var(--color-text-primary); } /* Color de las etiquetas de filtro */
+.form-select { /* Estilo para los selectores de filtro */
+    border-color: var(--color-brown-medium);
+    color: black;
+}
+.form-select:focus {
+    border-color: var(--color-brown-dark);
+     box-shadow: 0 0 0 0.25rem rgba(160, 82, 45, 0.25); /* O usa tu variable RGB */
+}
+
+.fc-h-event .fc-event-title { /* Título del evento en la vista de lista */
+    color: black; /* Texto marrón oscuro */
+    font-weight: bold; /* Negrita para el título del evento */
+}
+
+.fc-h-event .fc-event-time { /* Hora del evento en la vista de lista */
+    color: black; /* Tono marrón oscuro para la hora */
+    font-size: 0.9em; /* Tamaño de fuente más pequeño para la hora */
+}
+/* --- Fin NUEVOS ESTILOS de Calendario --- */

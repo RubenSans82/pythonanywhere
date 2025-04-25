@@ -150,15 +150,22 @@
                 {% endfor %}
             </ul>
         {% endif %}
-
-
-        {% block content %}
-        {# El contenido específico de cada plantilla hija irá aquí #}
-        {% endblock %}
     </div>
 
-    {# --- Footer (Opcional en base, pero da consistencia) --- #}
-    {# bg-light py-4: Fondo claro, padding vertical. mt-auto: Si el contenido es corto, el footer se pega al final #}
+    {# --- NUEVO: Contenedor Principal del Contenido (para Sticky Footer) --- #}
+    {# Este div envolverá el bloque de contenido para que se expanda y empuje el footer #}
+    <div class="content-wrapper">
+        {# Mantenemos la estructura de mensajes DENTRO de content-wrapper si las plantillas hijas los incluyen aquí #}
+        {# (Como parece ser el caso en tus plantillas hijas) #}
+        {# El contenido específico de cada plantilla hija (el block content de las plantillas hijas) irá aquí #}
+        {% block content %}
+        {# El contenido de las plantillas hijas se inserta aquí #}
+        {% endblock %}
+    </div>
+    {# --- Fin NUEVO Contenedor Principal --- #}
+
+    {# --- Footer --- #}
+    {# La clase mt-auto ayuda a pegar el footer al final cuando el body es un contenedor flexbox #}
     <footer class="footer bg-light py-4 mt-auto">
         <div class="container text-center">
             <p class="mb-0">&copy; {% now "Y" %} Guardería Canina "Tu Amigo Fiel".</p>
