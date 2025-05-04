@@ -407,7 +407,8 @@ def staff_booking_list(request):
 
 
     # --- Aplicar Ordenamiento Final ---
-    all_bookings = all_bookings.order_by('date', 'time')
+    # Ordenar por fecha descendente (más nuevas primero) y luego por hora descendente
+    all_bookings = all_bookings.order_by('-date', '-time')
 
 
     # --- Lógica de PAGINACIÓN ---
