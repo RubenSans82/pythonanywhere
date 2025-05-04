@@ -5,23 +5,19 @@
 {% block title %}Detalles de {{ mascota.nombre }}{% endblock %}
 
 {% block content %}
-    {# --- NUEVO: Envuelve todo el contenido principal en una Fila y Columna para limitar ancho y centrar --- #}
+    {# --- MODIFIED: Removed justify-content-center from the main row --- #}
     {# row justify-content-center centra la columna; mt-4 mb-4 añaden margen arriba/abajo #}
     {# col-md-10 col-lg-8 limita el ancho (ajusta los números si quieres que sea más estrecho o ancho) #}
-    <div class="row justify-content-center mt-4 mb-4">
+    <div class="row mt-4 mb-4"> {# Removed justify-content-center #}
         <div class="col-md-10 col-lg-8"> {# Columna para limitar el ancho total del contenido #}
 
             {# --- Tu contenido original de la página "Detalles de Mascota" va AQUÍ dentro de esta columna --- #}
 
-            {# Botón "Volver" - ya tiene btn btn-primary mb-4 #}
-            <button onclick="history.back()" class="btn btn-primary mb-4">Volver</button>
+            {# --- REMOVED: Botón "Volver" --- #}
 
             {# Título de la página - H1 con mb-4 #}
             {# Opcional: Añadir icono de pata aquí si lo deseas, similar a otras páginas #}
             <div class="paw"> {# Añadido d-flex y align-items-center para alinear el icono y el título #}
-                {# Icono de pata - imagen estática #}
-                {# Cambiado a una clase de Bootstrap para alineación vertical #}
-                <img src="{% static 'daycare/images/paw.png' %}" alt="Icono de Pata" class="title-icon me-2 align-middle">
                 <h1 class="mb-4 d-inline-block align-middle">Detalles de {{ mascota.nombre }}</h1> {# Añadido d-inline-block y align-middle para alinear el título con el icono #}
                 </div>
             {# Fila para la Imagen y los Detalles #}
@@ -43,8 +39,10 @@
                 <div class="col-md-8"> {# Columna para los detalles (8 de 12 columnas en md y superiores) #}
                     {# Tarjeta alrededor de los detalles #}
                     {# Añadido h-100 para intentar igualar la altura de la tarjeta de detalles con la de la imagen #}
-                    <div class="card shadow-sm h-100">
-                        <div class="card-body">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-body p-4"> {# Añadido padding interno #}
+                            {# --- Modificado: Añadido h5 para subtítulo "Información Básica" --- #}
+                            {# --- Modificado: Añadido mb-3 para margen inferior --- #}
                             <h5 class="card-title">Información Básica</h5>
                             <p class="card-text"><strong>Nombre:</strong> {{ mascota.nombre }}</p>
                             <p class="card-text"><strong>Raza:</strong> {{ mascota.raza|default:"No especificada" }}</p>
@@ -66,13 +64,15 @@
                                 <p class="card-text pet-notes">{{ mascota.comportamiento_notas }}</p> {# Añadida clase pet-notes #}
                             {% endif %}
 
-                            {# Botones Editar/Eliminar - ya tienen clases btn btn-sm btn-outline-info/danger #}
-                            <div class="mt-4"> {# Margen superior para separar los botones de las notas #}
-                            <a href="{% url 'daycare:editar_mascota' mascota.pk %}" class="btn btn-sm btn-outline-primary me-2">Editar</a> {# Cambiado btn-outline-info a btn-outline-primary por consistencia #}
-                            <a href="{% url 'daycare:eliminar_mascota' mascota.pk %}" class="btn btn-sm btn-outline-danger">Eliminar</a>
-                            </div>
+
 
                         </div> {# Fin card-body #}
+                        {# Botones Editar/Eliminar - ya tienen clases btn btn-sm btn-outline-info/danger #}
+                        <div class="card-footer d-flex justify-content-end gap-2"> {# Margen superior para separar los botones de las notas #}
+                        <a href="{% url 'daycare:editar_mascota' mascota.pk %}" class="btn btn-sm btn-primary me-2">Editar</a> {# Cambiado btn-outline-info a btn-outline-primary por consistencia #}
+                        <a href="{% url 'daycare:eliminar_mascota' mascota.pk %}" class="btn btn-sm btn-danger">Eliminar</a>
+                        </div>
+
                     </div> {# Fin card #}
                 </div> {# Fin col-md-8 #}
             </div> {# Fin row con imagen y detalles #}

@@ -1,4 +1,4 @@
-{# pagina/daycare/templates/daycare/base.html #}
+{# pagina/daycare/templates/daycare/base2.html #}
 {% load static %} {# Necesario para {% static %} #}
 
 <!DOCTYPE html>
@@ -16,10 +16,10 @@
 
 
     {# --- Icono de la pestaña del navegador (favicon) --- #}
-    <link rel="icon" type="image/png" href="{% static 'daycare/images/favicon.png' %}">
+    <link rel="icon" type="image/png" href="{% static 'daycare/images/favicon.png' %}"> {# Cambia la ruta según tu estructura de archivos #}
 
-    {# --- CSS de la aplicación --- #}
-    {# Cambiado el nombre del archivo CSS a style.css para mayor claridad #}
+    {# --- CSS Personalizado --- #}
+    {# Cambia la ruta según tu estructura de archivos #}
 
     <link rel="stylesheet" href="{% static 'daycare/css/style.css' %}">
 
@@ -52,6 +52,7 @@
                 <img src="{% static 'daycare/images/logo.jpg' %}" alt="Vigo Can" title="Vigo Can" style="height:56px; width:auto; display:block; object-fit:contain;">
                 <span class="ms-2 vigo-can-logo-text">Vigo Can</span>
             </a>
+            
 
 
             {# Botón Toggler para la vista móvil (aparece en pantallas pequeñas para colapsar el menú) #}
@@ -145,10 +146,9 @@
     {# --- Fin Barra de Navegación Unificada --- #}
 
     {# --- Contenedor Principal del Contenido (para Sticky Footer) --- #}
-    <div class="content-wrapper">
+
         {# --- NUEVO: Contenedor Bootstrap DENTRO del wrapper --- #}
         {# Este div añade el padding lateral y margen superior a todo el contenido #}
-        <div class="container mt-4">
 
             {# Mostrar mensajes de Django (AHORA DENTRO del container) #}
             {% if messages %}
@@ -170,8 +170,7 @@
             {% endblock %}
             {# --- Fin Bloque de Contenido --- #}
 
-        </div> {# --- Fin Contenedor Bootstrap --- #}
-    </div>
+
     {# --- Fin Contenedor Principal --- #}
 
     {# --- Footer --- #}

@@ -11,9 +11,13 @@ class PetForm(forms.ModelForm):
         model = Pet
         fields = ['nombre', 'raza', 'fecha_nacimiento', 'notas_medicas', 'comportamiento_notas', 'foto']
         widgets = {
-            'fecha_nacimiento': forms.DateInput(attrs={'type': 'date'}),
-            'notas_medicas': forms.Textarea(attrs={'rows': 4}),
-            'comportamiento_notas': forms.Textarea(attrs={'rows': 4}),
+            # Añadida clase 'form-control' a todos los widgets
+            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
+            'raza': forms.TextInput(attrs={'class': 'form-control'}),
+            'fecha_nacimiento': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'notas_medicas': forms.Textarea(attrs={'rows': 4, 'class': 'form-control'}),
+            'comportamiento_notas': forms.Textarea(attrs={'rows': 4, 'class': 'form-control'}),
+            'foto': forms.FileInput(attrs={'class': 'form-control'}), # FileInput también usa form-control
         }
 
 
@@ -189,4 +193,4 @@ class StaffNotesForm(forms.ModelForm):
         widgets = {
             'staff_notes': forms.Textarea(attrs={'rows': 4, 'class': 'form-control'}), # Área de texto con estilo Bootstrap
         }
-        
+

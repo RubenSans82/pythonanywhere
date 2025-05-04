@@ -5,23 +5,18 @@
 {% block title %}Agregar Nueva Mascota{% endblock %}
 
 {% block content %}
-    {# Icono de Pata y Título - fuera del envoltorio del formulario para que el título esté al ancho completo del contenedor #}
-    {# Asegúrate de que el texto del título es correcto #}
-    <div class="paw">
-        <img src="{% static 'daycare/images/paw.png' %}" alt="Icono de Pata" class="title-icon me-2 align-middle">
-        <h1 class="mb-4 d-inline-block align-middle">Agregar Nueva Mascota</h1> {# Texto del título corregido #}
-    </div>
-
-    {# --- NUEVO: Envuelve el formulario en una Fila y Columna de Bootstrap para limitar ancho y centrar --- #}
-    {# row justify-content-center centra la columna #}
-    {# col-md-8 col-lg-6 limita el ancho a 8 columnas en md, 6 en lg (ajusta si quieres otro ancho) #}
-    {# mt-4 mb-4 añaden margen arriba y abajo de la fila #}
+    {# --- Envuelve TODO (título y formulario) en UNA Fila y Columna para limitar ancho y centrar --- #}
+    {# Cambiado a col-md-7 col-lg-5 para hacerlo más estrecho #}
     <div class="row justify-content-center mt-4 mb-4">
-        <div class="col-md-8 col-lg-6"> {# Columna para el formulario #}
+        <div class="col-md-7 col-lg-5"> {# Columna más estrecha para título y formulario #}
+            <div class="paw d-flex align-items-center mb-4"> {# Usar flexbox para alinear icono y texto #}
+                <h1 class="mb-0">Agregar Nueva Mascota</h1>
+            </div>
+            {# --- Fin Título --- #}
 
-            {# --- NUEVO: Envuelve el formulario en una Tarjeta de Bootstrap para estilo --- #}
-            <div class="card shadow-sm"> {# Estilo de tarjeta con sombra #}
-                 <div class="card-body"> {# Cuerpo de la tarjeta con padding interno #}
+            {# --- Tarjeta del Formulario (sin cambios internos) --- #}
+            <div class="card shadow-sm">
+                <div class="card-body">
 
                     {# Mostrar errores generales del formulario (no de campo) #}
                     {% if form.non_field_errors %}
@@ -39,105 +34,100 @@
                         {# --- Renderizado Manual de Campos con Clases Bootstrap --- #}
 
                         {# Campo Nombre #}
-                        <div class="mb-3"> {# Margen inferior del grupo de campo #}
-                            <label for="{{ form.nombre.id_for_label }}" class="form-label">Nombre de la Mascota:</label> {# form-label para la etiqueta #}
-                            {# Input del campo 'nombre' con form-control y clases de validación #}
-                            <input type="text"
-                                   name="{{ form.nombre.name }}"
-                                   id="{{ form.nombre.id_for_label }}"
-                                   class="form-control {% if form.nombre.errors %}is-invalid{% endif %}" {# form-control, is-invalid si hay errores #}
-                                   value="{{ form.nombre.value|default:'' }}" {# Mantiene el valor ingresado en caso de error #}
-                                   {% if form.nombre.field.required %}required{% endif %}> {# Atributo required si es obligatorio #}
-                            {# Texto de ayuda #}
-                            {% if form.nombre.help_text %}<div class="form-text">{{ form.nombre.help_text|safe }}</div>{% endif %} {# form-text #}
-                            {# Errores específicos del campo #}
-                            {% for error in form.nombre.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %} {# invalid-feedback d-block #}
+                        <div class="mb-3">
+                            <label for="{{ form.nombre.id_for_label }}" class="form-label">{{ form.nombre.label }}</label>
+                            {{ form.nombre }} {# Django widget ya tiene type='text' por defecto #}
+                            {% if form.nombre.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.nombre.errors|striptags }}
+                                </div>
+                            {% endif %}
+                            {% if form.nombre.help_text %}
+                                <div class="form-text">{{ form.nombre.help_text|safe }}</div>
+                            {% endif %}
                         </div>
 
                         {# Campo Raza #}
                         <div class="mb-3">
-                            <label for="{{ form.raza.id_for_label }}" class="form-label">Raza:</label>
-                            {# Asumiendo input de texto para Raza #}
-                            <input type="text"
-                                   name="{{ form.raza.name }}"
-                                   id="{{ form.raza.id_for_label }}"
-                                   class="form-control {% if form.raza.errors %}is-invalid{% endif %}"
-                                   value="{{ form.raza.value|default:'' }}">
-                            {% if form.raza.help_text %}<div class="form-text">{{ form.raza.help_text|safe }}</div>{% endif %}
-                            {% for error in form.raza.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                            <label for="{{ form.raza.id_for_label }}" class="form-label">{{ form.raza.label }}</label>
+                            {{ form.raza }}
+                            {% if form.raza.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.raza.errors|striptags }}
+                                </div>
+                            {% endif %}
+                            {% if form.raza.help_text %}
+                                <div class="form-text">{{ form.raza.help_text|safe }}</div>
+                            {% endif %}
                         </div>
 
                         {# Campo Fecha de Nacimiento #}
-                         <div class="mb-3">
-                            <label for="{{ form.fecha_nacimiento.id_for_label }}" class="form-label">Fecha de Nacimiento:</label>
-                            {# Input para fecha (tipo text para datepicker o tipo date para navegador) #}
-                            <input type="date" {# Puedes usar "date" si confías en el picker del navegador, o "text" para integrar un datepicker JS #}
-                                   name="{{ form.fecha_nacimiento.name }}"
-                                   id="{{ form.fecha_nacimiento.id_for_label }}"
-                                   class="form-control {% if form.fecha_nacimiento.errors %}is-invalid{% endif %}"
-                                   value="{{ form.fecha_nacimiento.value|default:'' }}"
-                                   {% if form.fecha_nacimiento.field.required %}required{% endif %}>
-                            {% if form.fecha_nacimiento.help_text %}<div class="form-text">{{ form.fecha_nacimiento.help_text|safe }}</div>{% endif %}
-                            {% for error in form.fecha_nacimiento.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                        <div class="mb-3">
+                            <label for="{{ form.fecha_nacimiento.id_for_label }}" class="form-label">{{ form.fecha_nacimiento.label }}</label>
+                            {{ form.fecha_nacimiento }} {# Widget ya tiene type='date' #}
+                            {% if form.fecha_nacimiento.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.fecha_nacimiento.errors|striptags }}
+                                </div>
+                            {% endif %}
+                            {% if form.fecha_nacimiento.help_text %}
+                                <div class="form-text">{{ form.fecha_nacimiento.help_text|safe }}</div>
+                            {% endif %}
                         </div>
 
                         {# Campo Notas Médicas (Textarea) #}
                         <div class="mb-3">
-                            <label for="{{ form.notas_medicas.id_for_label }}" class="form-label">Notas Médicas:</label>
-                            {# Textarea para notas médicas #}
-                            <textarea name="{{ form.notas_medicas.name }}"
-                                      id="{{ form.notas_medicas.id_for_label }}"
-                                      class="form-control {% if form.notas_medicas.errors %}is-invalid{% endif %}">{% if form.notas_medicas.value %}{{ form.notas_medicas.value }}{% endif %}</textarea> {# Mantiene valor #}
-                            {% if form.notas_medicas.help_text %}<div class="form-text">{{ form.notas_medicas.help_text|safe }}</div>{% endif %}
-                            {% for error in form.notas_medicas.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                            <label for="{{ form.notas_medicas.id_for_label }}" class="form-label">{{ form.notas_medicas.label }}</label>
+                            {{ form.notas_medicas }} {# Widget ya es Textarea con rows=4 #}
+                            {% if form.notas_medicas.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.notas_medicas.errors|striptags }}
+                                </div>
+                            {% endif %}
+                            {% if form.notas_medicas.help_text %}
+                                <div class="form-text">{{ form.notas_medicas.help_text|safe }}</div>
+                            {% endif %}
                         </div>
 
                         {# Campo Notas Comportamiento (Textarea) #}
-                         <div class="mb-3">
-                            <label for="{{ form.comportamiento_notas.id_for_label }}" class="form-label">Notas de Comportamiento:</label>
-                            {# Textarea para notas de comportamiento #}
-                             <textarea name="{{ form.comportamiento_notas.name }}"
-                                      id="{{ form.comportamiento_notas.id_for_label }}"
-                                      class="form-control {% if form.comportamiento_notas.errors %}is-invalid{% endif %}">{% if form.comportamiento_notas.value %}{{ form.comportamiento_notas.value }}{% endif %}</textarea> {# Mantiene valor #}
-                            {% if form.comportamiento_notas.help_text %}<div class="form-text">{{ form.comportamiento_notas.help_text|safe }}</div>{% endif %}
-                            {% for error in form.comportamiento_notas.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-                        </div>
-
-
-                        {# Campo Foto (Input de archivo) #}
                         <div class="mb-3">
-                            <label for="{{ form.foto.id_for_label }}" class="form-label">Foto de la Mascota:</label>
-                            {# Input type="file" para la foto #}
-                            <input type="file"
-                                   name="{{ form.foto.name }}"
-                                   id="{{ form.foto.id_for_label }}"
-                                   class="form-control {% if form.foto.errors %}is-invalid{% endif %}"> {# form-control también para file inputs #}
-                            {# Mostrar foto actual si existe (útil en formularios de edición, no hace daño aquí) #}
-                            {% if form.foto.value and not form.foto.value|stringformat:"s" == "None" %}
-                                <div class="mt-2">
-                                    Foto actual: <a href="{{ form.foto.value.url }}" target="_blank">{{ form.foto.value.name }}</a>
+                            <label for="{{ form.comportamiento_notas.id_for_label }}" class="form-label">{{ form.comportamiento_notas.label }}</label>
+                            {{ form.comportamiento_notas }} {# Widget ya es Textarea con rows=4 #}
+                            {% if form.comportamiento_notas.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.comportamiento_notas.errors|striptags }}
                                 </div>
                             {% endif %}
-                            {# Texto de ayuda #}
+                            {% if form.comportamiento_notas.help_text %}
+                                <div class="form-text">{{ form.comportamiento_notas.help_text|safe }}</div>
+                            {% endif %}
+                        </div>
+
+                        {# Campo Foto #}
+                        <div class="mb-3">
+                            <label for="{{ form.foto.id_for_label }}" class="form-label">{{ form.foto.label }}</label>
+                            {{ form.foto }} {# Widget es FileInput #}
+                            {% if form.foto.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.foto.errors|striptags }}
+                                </div>
+                            {% endif %}
                             {% if form.foto.help_text %}
                                 <div class="form-text">{{ form.foto.help_text|safe }}</div>
                             {% endif %}
-                            {# Errores específicos del campo #}
-                            {% for error in form.foto.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
                         </div>
 
-                        {# --- Fin Renderizado Manual --- #}
-
                         {# Botón de Envío #}
-                        <button type="submit" class="btn btn-primary mt-3">Guardar Mascota</button>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Guardar Mascota</button>
+                        </div>
+
                     </form>
 
                  </div> {# Fin card-body #}
             </div> {# Fin card #}
             {# --- Fin del contenido envuelto en tarjeta --- #}
 
-        </div> {# Fin col #}
-    </div> {# Fin row #}
-    {# --- Fin NUEVO Envoltorio de Formulario --- #}
-
+        </div> {# Fin col (envoltorio principal para título y form) #}
+    </div> {# Fin row (envoltorio principal para título y form) #}
 {% endblock content %}

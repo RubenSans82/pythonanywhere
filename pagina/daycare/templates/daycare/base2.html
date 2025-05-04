@@ -1,0 +1,19 @@
+{# pagina/daycare/templates/daycare/base2.html #}
+
+{% extends 'base2.html' %} {# Hereda de la plantilla base a nivel de proyecto (pagina/templates/base.html) #}
+
+{# Puedes redefinir el bloque title si quieres un título diferente por defecto para las páginas de esta app #}
+{# {% block title %}{% endblock %} #}
+
+{# Puedes añadir bloques específicos para esta app si los necesitas en el futuro #}
+{# {% block daycare_specific_content %} {% endblock %} #}
+
+{# Este bloque es donde irá el contenido específico de cada página de la app (ej: agregar_mascota.html) #}
+{% block content %}
+    {# El contenido de las plantillas que hereden de daycare/base.html irá aquí #}
+    {{ block.super }} {# Opcional: Mantiene el contenido del bloque 'content' de la plantilla padre (base.html) #}
+{% endblock content %}
+
+{# Puedes añadir bloques para scripts adicionales, etc. #}
+{# {% block extra_js %}{% endblock %} #}
+{# {% block extra_css %}{% endblock %} #}

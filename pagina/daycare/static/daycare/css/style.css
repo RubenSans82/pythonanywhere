@@ -19,11 +19,30 @@
 
     /* Puedes definir variables para RGB si necesitas para box-shadow con rgba */
     /* --color-brown-medium-rgb: 160, 82, 45; */
+
+    /* Definición de la Paleta de Colores usando Variables CSS */
+    --color-primary: #8B4513; /* Marrón silla de montar (SaddleBrown) - Principal */
+    --color-primary-dark: #6B3510; /* Marrón más oscuro para hover/active */
+    --color-secondary: #D2B48C; /* Beige (Tan) - Secundario */
+    --color-accent: #DAA520; /* Dorado (Goldenrod) - Acento */
+    --color-background: #FAF0E6; /* Blanco lino (Linen) - Fondo principal */
+    --color-card-bg: #FFFFFF; /* Blanco para fondos de tarjetas/formularios */
+    --color-text: #4F4F4F; /* Gris oscuro para texto principal */
+    --color-text-muted: #828282; /* Gris más claro para texto secundario */
+    --color-border: #E0E0E0; /* Gris claro para bordes */
+    --color-success: #28a745; /* Verde Bootstrap para éxito */
+    --color-danger: #dc3545; /* Rojo Bootstrap para peligro/error */
+    --color-warning: #ffc107; /* Amarillo Bootstrap para advertencia */
+    --color-info: #17a2b8; /* Azul Bootstrap para información */
+
+    /* Variables para fuentes (opcional, puedes ajustarlas) */
+    --font-family-sans-serif: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --font-family-headings: 'Georgia', serif; /* Una fuente con serif para títulos puede quedar bien */
 }
 
 /* --- Estilos Generales del Cuerpo para usar la paleta --- */
 body {
-    font-family: 'Arial', sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Ejemplo de fuente base */
     color: var(--color-text-primary);
     background-color: var(--color-background-body);
     line-height: 1.6;
@@ -35,7 +54,9 @@ body {
     min-height: 100vh; /* Asegura que el body tenga al menos el alto de la ventana */
     /* --- Fin Estilos Sticky Footer --- */
 
-
+    background-color: var(--color-background);
+    color: var(--color-text);
+    font-family: var(--font-family-sans-serif);
 }
 
 /* --- Pseudo-elemento para el fondo con opacidad (si lo estás usando) --- */
@@ -48,12 +69,12 @@ body {
         width: 100vw; /* Ancho completo de la ventana */
         height: 100vh; /* Alto completo de la ventana */
         z-index: -1; /* Detrás de todo el contenido */
-        background-image: url('/static/daycare/images/your-pattern-image.png'); /* O la URL de tu imagen */
+        background-image: url('/static/daycare/images/your-pattern-image.webp'); /* O la URL de tu imagen */
         background-size: cover; /* Cubre todo el área */
         background-position: center center; /* Centra la imagen */
         background-repeat: no-repeat; /* O 'repeat' si es un patrón */
         background-attachment: fixed; /* Fijo con respecto a la ventana */
-        opacity: 0.4; /* Ajusta este valor (0.0 a 1.0) para la opacidad deseada */
+        opacity: 0.1; /* Ajusta este valor (0.0 a 1.0) para la opacidad deseada */
     }
 /* --- Fin estilos pseudo-elemento --- */
 
@@ -174,6 +195,10 @@ body {
 /* Barra de Navegación */
 .navbar {
     background-color: var(--color-brown-darkest) !important;
+    background-color: var(--color-primary-dark); /* Fondo oscuro para la navbar */
+    min-height: 56px;
+    padding-top: 0;
+    padding-bottom: 0;
 }
 
 .navbar-dark .navbar-brand {
@@ -194,11 +219,49 @@ body {
     color: var(--color-brown-lightest);
 }
 
+.navbar .navbar-brand,
+.navbar .nav-link {
+    color: var(--color-background); /* Texto claro en la navbar oscura */
+}
+.navbar .nav-link:hover {
+    color: var(--color-secondary); /* Color secundario al pasar el ratón */
+}
+.navbar .navbar-toggler-icon {
+     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(250, 240, 230, 0.8)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e"); /* Icono de hamburguesa claro */
+}
+
+.navbar-brand {
+    height: 56px;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+.navbar-brand img {
+    height: 56px;
+    width: auto;
+    display: block;
+    object-fit: contain;
+}
+
+/* Estilo para el texto 'Vigo Can' en la navbar */
+.vigo-can-logo-text {
+    font-family: 'Slackey', Arial, sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-secondary);
+    letter-spacing: 1px;
+    line-height: 1;
+    margin-bottom: 0;
+    margin-top: 0;
+    display: inline-block;
+}
+
 /* Títulos (H1, H2, etc.) - Ya hemos aplicado a #photo-gallery h2 arriba, estas son más generales */
 h1, h2, h3, h4, h5, h6 {
     color: black; /* Tono de marrón oscuro para los títulos */
     margin-bottom: 0.5em;
     font-weight: bold;
+    font-family: var(--font-family-headings);
+    color: var(--color-primary-dark); /* Títulos un poco más oscuros */
 }
 
 /* Botones */
@@ -207,21 +270,47 @@ h1, h2, h3, h4, h5, h6 {
     border-color: var(--color-brown-dark);
     color: white;
     transition: background-color 0.3s ease, border-color 0.3s ease;
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
 }
 
 .btn-primary:hover {
     background-color: var(--color-brown-dark);
     border-color: var(--color-brown-darkest);
     color: white;
+    background-color: var(--color-primary-dark);
+    border-color: var(--color-primary-dark);
 }
 
 .btn-primary:active,
 .btn-primary:focus {
-    background-color: var(--color-brown-dark);
-    border-color: var(--color-brown-darkest);
+    background-color: var(--color-brown-dark)!important;
+    border-color: var(--color-brown-darkest)!important;
     /* Usando la variable RGB si la definiste en :root, o un valor rgba directo */
     /* box-shadow: 0 0 0 0.25rem rgba(var(--color-brown-medium-rgb), .5); */
-    box-shadow: 0 0 0 0.25rem rgba(160, 82, 45, 0.5); /* Ejemplo con valor directo */
+    color: white;
+}
+
+.btn-secondary {
+    background-color: var(--color-secondary);
+    border-color: var(--color-secondary);
+    color: var(--color-text); /* Texto oscuro para contraste con beige */
+}
+
+.btn-secondary:hover {
+    background-color: #c1a37a; /* Un poco más oscuro que el secundario */
+    border-color: #c1a37a;
+    color: var(--color-text);
+}
+
+.btn-danger {
+    background-color: var(--color-danger);
+    border-color: var(--color-danger);
+    color: white;
+}
+.btn-danger:hover {
+    background-color: #c82333; /* Rojo más oscuro */
+    border-color: #bd2130;
     color: white;
 }
 
@@ -263,6 +352,8 @@ h1, h2, h3, h4, h5, h6 {
 /* Estilo para las "cards" de Bootstrap */
 .card {
     border-color: var(--color-brown-light);
+    background-color: var(--color-card-bg);
+    border-color: var(--color-border);
 }
 
 /* Estilos para el Calendario de FullCalendar */
@@ -315,18 +406,17 @@ h1, h2, h3, h4, h5, h6 {
 /* .fc-event-past { opacity: 0.8; } /* Opcional: eventos pasados con menos opacidad */
 
 
-/* Usamos un selector más específico (.container a) para evitar afectar enlaces en la navbar u otros lugares si ya están estilizados */
-.container a {
-    color: black; /* Usa un tono marrón de la paleta */
-    text-decoration: none; /* Elimina el subrayado por defecto de los enlaces */
-    transition: color 0.3s ease; /* Transición suave para el efecto hover */
+
+
+a {
+    color: var(--color-primary);
+    text-decoration: none; /* Quitar subrayado por defecto */
 }
 
-/* Estilo para los enlaces al pasar el ratón por encima */
-.container a:hover {
-    color: black; /* Usa un tono marrón más oscuro al pasar el ratón */
-    text-decoration: underline; /* Opcional: Añade subrayado al pasar el ratón para indicar que es interactivo */
+a:hover {
+    color: var(--color-primary-dark);
 }
+
 
 /* Estilo para el título principal de la sección Servicios ("Nuestros Servicios Estelares") */
 /* Apunta al H2 dentro de la sección con ID #services */
@@ -373,7 +463,6 @@ h1, h2, h3, h4, h5, h6 {
     border-color: var(--color-brown-dark); /* Borde un poco más oscuro */
     /* Opcional: Ajustar la sombra de enfoque si usas la variable RGB en :root */
     /* box-shadow: 0 0 0 0.25rem rgba(var(--color-brown-medium-rgb), .5); */
-     box-shadow: 0 0 0 0.25rem rgba(160, 82, 45, 0.5); /* Ejemplo con valor rgba directo */
 }
 
 /* Si quieres un tono de marrón diferente para el fondo en hover, puedes ajustar la regla :hover */
@@ -467,10 +556,9 @@ h1, h2, h3, h4, h5, h6 {
 /* Estilos para las "cards" de Bootstrap (se usan en Login, Registro, Detalles, etc.) */
 .card {
     /* El borde ya lo definimos en pasos anteriores */
-    border-color: var(--color-brown-light);
+    border-color: var(--color-brown-medium); /* Borde marrón medio */
     /* Añade un color de fondo de la paleta */
-    background-color: var(--color-neutral-light); /* Un gris claro o un marrón muy claro */
-    /* background-color: var(--color-brown-lightest); /* O usa el marrón más claro */
+    background-color: var(--color-background); /* O usa el marrón más claro */
 }
 
 /* Opcional: Estilo específico para los campos de formulario si no te gustan los de Bootstrap por defecto */
@@ -481,6 +569,7 @@ h1, h2, h3, h4, h5, h6 {
 .form-control:focus {
     border-color: var(--color-brown-dark);
     box-shadow: 0 0 0 0.25rem rgba(var(--color-brown-medium-rgb), .25);
+    background-color: var(--color-neutral-light)!important; /* Fondo marrón oscuro al enfocar */
 } 
 
 #calendar {
@@ -530,18 +619,145 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 
-/* Estilo para el icono que aparece junto a los títulos (ej: paw.png) */
+ /* Estilo para el icono que aparece junto a los títulos (ej: paw.png) */
 .title-icon {
     width: 40px; /* Ajusta el ancho del icono */
     height: auto; /* Mantiene la proporción de aspecto */
     vertical-align: middle; /* Alinea verticalmente el icono con el texto del título */
     /* margin-right: 10px; /* Opcional: Espacio a la derecha si no usas me-2 de Bootstrap */
+    width: 30px; /* Ajusta el tamaño según necesites */
+    height: auto;
+    vertical-align: middle; /* Alinear con el texto */
 }
 
 .paw {
     display: flex;
     align-items: flex-start;
     text-shadow: #f5f5dc 1px 1px 2px; /* Sombra de texto para el título */
+}
+
+/* Estilo general para las tablas (si usas la clase .table de Bootstrap) */
+.table {
+    /* Borde general de la tabla */
+    border: 1px solid var(--color-border); /* Usar color de borde definido */
+    /* Opcional: Redondear esquinas */
+    /* border-radius: 0.375rem; */
+    /* overflow: hidden; /* Necesario si usas border-radius */
+}
+
+/* Estilo para el encabezado de la tabla (<thead>) */
+.table thead th {
+    background-color: var(--color-primary); /* Fondo marrón principal */
+    color: white; /* Texto blanco en el encabezado */
+    border-color: var(--color-primary-dark); /* Borde del encabezado más oscuro */
+    vertical-align: middle; /* Centrado vertical */
+    text-align: center; /* Centrado horizontal del texto del encabezado */
+}
+
+/* Estilo para el cuerpo de la tabla (<tbody>) */
+.table tbody tr {
+     /* Borde inferior para separar filas */
+     border-bottom: 1px solid var(--color-border);
+}
+
+/* Eliminar borde inferior de la última fila para que no se duplique con el borde de la tabla */
+.table tbody tr:last-child {
+    border-bottom: none;
+}
+
+/* Estilo para filas impares si usas table-striped */
+.table-striped > tbody > tr:nth-of-type(odd) > * { /* Selector correcto de Bootstrap 5 */
+    /* Usar un color de fondo muy sutil de la paleta */
+    background-color: rgba(139, 69, 19, 0.05); /* Marrón primario con muy baja opacidad */
+    color: var(--color-text); /* Asegurar color de texto normal */
+}
+
+/* Estilo para filas al pasar el ratón si usas table-hover */
+.table-hover > tbody > tr:hover > * { /* Selector correcto de Bootstrap 5 */
+    /* Usar un color secundario con opacidad */
+    background-color: rgba(210, 180, 140, 0.3); /* Beige secundario con opacidad media */
+    color: var(--color-text); /* Asegurar color de texto normal */
+}
+
+/* Estilo para las celdas de la tabla (<td>) */
+.table tbody td {
+    vertical-align: middle; /* Centrado vertical en todas las celdas */
+    color: var(--color-text); /* Color de texto base */
+    text-align: center;
+}
+
+/* --- Colores de Fondo para Celdas de Estado (Ajustados) --- */
+/* Aseguramos que el texto SIEMPRE sea oscuro (definido antes con !important) */
+
+/* Estado Pendiente (Amarillo) */
+.table td.table-warning {
+    background-color: var(--color-warning) !important; /* Amarillo Bootstrap */
+    color: var(--color-text) !important; /* Forzar texto oscuro */
+}
+
+/* Estado Confirmada (Verde) */
+.table td.table-success {
+    background-color: var(--color-success) !important; /* Verde Bootstrap */
+    color: white !important; /* Forzar texto blanco para contraste con verde */
+}
+
+/* Estado Cancelada (Rojo) */
+.table td.table-danger {
+    background-color: var(--color-danger) !important; /* Rojo Bootstrap */
+    color: white !important; /* Forzar texto blanco para contraste con rojo */
+}
+
+/* Estado Completada y Filas Pasadas (Gris) */
+.table td.table-secondary,
+.table tr.table-secondary > td { /* Aplicar también a celdas de filas pasadas */
+    background-color: #e2e3e5 !important; /* Gris claro Bootstrap (ligeramente más claro que el default) */
+    color: var(--color-text-muted) !important; /* Texto gris apagado */
+}
+
+/* Estado por defecto/desconocido (Claro) */
+.table td.table-light {
+    background-color: var(--color-background) !important; /* Fondo base de la app */
+    color: var(--color-text) !important; /* Texto normal */
+}
+
+/* --- Estilo para el badge "Pasada" --- */
+.badge.bg-dark {
+    background-color: var(--color-primary-dark) !important; /* Marrón muy oscuro */
+    color: var(--color-background) !important; /* Texto claro */
+}
+
+/* --- Estilo específico para botones DENTRO de tablas --- */
+
+/* Botón "Ver" (btn-outline-info) en tablas */
+.table .btn-outline-info {
+    color: var(--color-primary); /* Texto marrón primario */
+    border-color: var(--color-primary); /* Borde marrón primario */
+}
+.table .btn-outline-info:hover,
+.table .btn-outline-info:active,
+.table .btn-outline-info:focus {
+    background-color: var(--color-primary); /* Fondo marrón primario */
+    color: white; /* Texto blanco */
+}
+
+/* Botón "Cancelar" (btn-outline-danger) en tablas */
+.table .btn-outline-danger {
+    color: var(--color-danger); /* Texto rojo */
+    border-color: var(--color-danger); /* Borde rojo */
+}
+.table .btn-outline-danger:hover,
+.table .btn-outline-danger:active,
+.table .btn-outline-danger:focus {
+    background-color: var(--color-danger); /* Fondo rojo */
+    border-color: var(--color-danger); /* Borde rojo */
+    color: white; /* Texto blanco */
+}
+
+/* Ajuste para botones deshabilitados en tablas (ej: Ver en reservas pasadas) */
+.table .btn.disabled, .table .btn:disabled {
+    /* Mantener el estilo visual pero indicar que no es interactivo */
+    opacity: 0.65;
+    pointer-events: none;
 }
 
 /* Estilo general para las tablas (si usas la clase .table de Bootstrap) */
@@ -585,6 +801,7 @@ h1, h2, h3, h4, h5, h6 {
 .table tbody td {
     vertical-align: middle; /* Centrado vertical en todas las celdas */
     /* color: var(--color-text-primary); /* Asegurar color de texto general si es necesario */
+    color: var(--color-text); /* Color de texto base para celdas */
 }
 
 
@@ -609,7 +826,7 @@ h1, h2, h3, h4, h5, h6 {
     /* Bootstrap default es un amarillo pálido. Puedes poner un amarillo más vivo, o un tono marrón claro con opacidad. */
      background-color: #ffc107 !important; /* Amarillo Bootstrap más vivo */
     /* background-color: rgba(255, 193, 7, 0.5) !important; /* Amarillo con opacidad */
-    /* background-color: rgba(yellow, 0.5) !important; /* Usa un marrón claro de base con opacidad si tienes la variable RGB */
+    /* background-color: yellow !important; /* Usa un marrón claro de base con opacidad si tienes la variable RGB */
      /* O un color sólido que te guste: */
      /* background-color: #ffeeba !important; /* Un amarillo suave */
     /* background-color: yellow !important; /* Un beige muy claro de tu paleta */
@@ -681,32 +898,6 @@ h1, h2, h3, h4, h5, h6 {
     transition: all 0.3s ease; /* Transición suave para los efectos */
 }
 
-/* Estado hover, activo y enfoque del botón "Ver": Fondo sólido con texto blanco */
-.table .btn-outline-info:hover,
-.table .btn-outline-info:active,
-.table .btn-outline-info:focus {
-    background-color: var(--color-brown-medium); /* Fondo sólido marrón medio */
-    border-color: var(--color-brown-dark); /* Borde un poco más oscuro */
-    color: white; /* Texto blanco para contraste */
-    /* Sombra de enfoque usando un color de la paleta */
-    box-shadow: 0 0 0 0.25rem rgba(160, 82, 45, 0.5); /* rgba(color_brown_medium, opacidad) */
-}
-
-/* Opcional: Si el botón "Cancelar" (.btn-outline-danger) también quieres que sea marrón */
-/* Puedes añadir reglas similares para .table .btn-outline-danger */
-/* .table .btn-outline-danger {
-     color: var(--color-brown-medium);
-     border-color: var(--color-brown-medium);
-     background-color: transparent;
- }
- .table .btn-outline-danger:hover,
- .table .btn-outline-danger:active,
- .table .btn-outline-danger:focus {
-     background-color: var(--color-brown-medium);
-     border-color: var(--color-brown-dark);
-     color: white;
-      box-shadow: 0 0 0 0.25rem rgba(160, 82, 45, 0.5);
- } */
 
  .btn-outline-info {
     /* Estado normal: Texto y borde de color marrón medio (como el encabezado de tabla) */
@@ -723,7 +914,6 @@ h1, h2, h3, h4, h5, h6 {
     border-color: var(--color-brown-dark); /* Borde un poco más oscuro */
     color: white; /* Texto blanco para contraste */
     /* Sombra de enfoque usando un color de la paleta */
-    box-shadow: 0 0 0 0.25rem rgba(160, 82, 45, 0.5); /* rgba(color_brown_medium, opacidad) */
 }
 
 /* --- NUEVOS ESTILOS para la Página "Detalles de Mascota" --- */
@@ -760,7 +950,6 @@ h1, h2, h3, h4, h5, h6 {
 }
 .form-control:focus {
     border-color: var(--color-brown-dark);
-    box-shadow: 0 0 0 0.25rem rgba(160, 82, 45, 0.25); /* O usa tu variable RGB */
 }
 .form-text { color: var(--color-neutral-dark); font-size: 0.875em; }
 .invalid-feedback { color: var(--color-brown-darkest); font-size: 0.875em; }
@@ -784,15 +973,7 @@ h1, h2, h3, h4, h5, h6 {
 /* Mantén las reglas para input[type="file"], .drop-zone-text, #photo-preview */
 
 
-/* --- Estilos para el Calendario de FullCalendar --- */
-/* Apunta a clases generadas por FullCalendar */
 
-#calendar { /* El div principal del calendario si tiene este ID */
-    /* Puedes añadir padding aquí si no usaste p-3 en el HTML */
-    /* padding: 1.5rem; */
-    /* Puedes añadir un color de fondo si no usas la clase card en el HTML */
-    /* background-color: var(--color-neutral-light); */
-}
 
 .fc-toolbar { /* Contenedor de la barra de herramientas (botones prev/next, título, vistas) */
     /* Opcional: añadir borde inferior */
@@ -899,3 +1080,416 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 0.9em; /* Tamaño de fuente más pequeño para la hora */
 }
 /* --- Fin NUEVOS ESTILOS de Calendario --- */
+
+/* --- Estilos para el Calendario de FullCalendar (Aplicando Paleta) --- */
+
+/* Barra de herramientas (botones prev/next, título, vistas) */
+.fc .fc-toolbar {
+    /* Opcional: Añadir un borde inferior o fondo */
+    /* border-bottom: 1px solid var(--color-border); */
+    /* background-color: var(--color-background); */
+    margin-bottom: 1.5rem; /* Espacio debajo de la barra */
+}
+
+/* Título del mes/vista en la barra de herramientas */
+.fc .fc-toolbar-title {
+    color: var(--color-primary-dark); /* Título en marrón oscuro */
+    font-size: 1.75rem; /* Tamaño un poco más grande */
+    font-family: var(--font-family-headings); /* Usar fuente de encabezados */
+}
+
+/* Botones de navegación y vista (prev, next, today, dayGridMonth, etc.) */
+.fc .fc-button {
+    background-color: var(--color-primary); /* Fondo marrón principal */
+    border-color: var(--color-primary); /* Borde marrón principal */
+    color: white; /* Texto blanco */
+    /* Sobrescribir estilos por defecto de FC si es necesario */
+    text-transform: none; /* Evitar mayúsculas si FC las fuerza */
+    box-shadow: none; /* Quitar sombra por defecto si la tiene */
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+/* Hover/Focus/Active para botones del calendario */
+.fc .fc-button:hover,
+.fc .fc-button:active,
+.fc .fc-button:focus,
+.fc .fc-button.fc-button-active { /* Estado activo (vista seleccionada) */
+    background-color: var(--color-primary-dark) !important; /* Fondo marrón más oscuro */
+    border-color: var(--color-primary-dark) !important; /* Borde marrón más oscuro */
+    color: white;
+    box-shadow: none; /* Mantener sin sombra */
+}
+
+/* Botones deshabilitados (ej: 'prev' en el primer mes) */
+.fc .fc-button:disabled {
+    background-color: var(--color-secondary); /* Fondo beige secundario */
+    border-color: var(--color-secondary); /* Borde beige secundario */
+    color: var(--color-text-muted); /* Texto gris apagado */
+    opacity: 0.7; /* Reducir opacidad */
+}
+
+/* Encabezados de los días de la semana (Lun, Mar, etc.) */
+.fc .fc-col-header-cell {
+    background-color: var(--color-secondary); /* Fondo beige secundario */
+    color: var(--color-primary-dark); /* Texto marrón oscuro */
+    border-color: var(--color-border); /* Borde gris claro */
+    border-bottom-width: 2px; /* Borde inferior un poco más grueso */
+    font-weight: 600; /* Un poco más de peso */
+    padding: 0.75rem 0.25rem; /* Ajustar padding */
+    text-transform: uppercase; /* Opcional: Poner en mayúsculas */
+    font-size: 0.85em;
+}
+
+/* Número del día en la celda */
+.fc .fc-daygrid-day-number {
+    color: var(--color-text); /* Color de texto normal */
+    padding: 0.25em 0.4em; /* Padding alrededor del número */
+    font-weight: 500;
+}
+
+/* Estilo para el día de hoy */
+.fc .fc-day-today {
+    background-color: rgba(218, 165, 32, 0.15); /* Fondo dorado (accent) con baja opacidad */
+}
+.fc .fc-day-today .fc-daygrid-day-number {
+    font-weight: 700; /* Número del día de hoy en negrita */
+    color: var(--color-primary-dark); /* Número del día de hoy en marrón oscuro */
+}
+
+/* Líneas de la cuadrícula */
+.fc th, .fc td, .fc hr, .fc thead, .fc tbody, .fc table {
+    border-color: var(--color-border); /* Usar el color de borde definido */
+}
+
+/* --- Estilo para los Eventos del Calendario --- */
+
+/* Estilo base para todos los eventos */
+.fc-event {
+    border-radius: 4px;
+    padding: 2px 5px;
+    font-size: 0.85em;
+    border: none;
+    cursor: pointer;
+    /* ¡Forzar color de texto oscuro para todos los eventos! */
+    color: var(--color-text) !important; /* Usar color de texto principal oscuro */
+    /* Opcional: quitar sombra de texto si el fondo es claro */
+    /* text-shadow: none; */
+}
+
+/* Estilo específico para el título del evento (si es necesario) */
+.fc-event .fc-event-title {
+    font-weight: 500; /* Peso normal o semi-negrita */
+    color: inherit !important; /* Heredar el color oscuro forzado del .fc-event */
+}
+
+/* Estilo específico para la hora del evento (si se muestra) */
+.fc-event .fc-event-time {
+    font-size: 0.9em;
+    color: inherit !important; /* Heredar el color oscuro forzado del .fc-event */
+    opacity: 0.8; /* Hacer la hora ligeramente menos prominente */
+}
+
+/* --- Estilos para los Filtros del Calendario (Asegurar consistencia) --- */
+
+/* Aplicar estilos base de form-select si no se heredan bien */
+/* Puedes usar un ID o clase del contenedor de filtros si quieres ser más específico */
+/* #calendar-filters .form-select { ... } */
+.form-select {
+    border-color: var(--color-border);
+    color: var(--color-text);
+    /* Asegurar que los estilos de focus también se aplican */
+}
+.form-select:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 0.25rem rgba(139, 69, 19, 0.25);
+}
+
+/* Estilos para los selectores pequeños (form-select-sm) */
+.form-select-sm {
+    padding-top: 0.25rem !important;    /* Reducir padding superior */
+    padding-bottom: 0.25rem !important; /* Reducir padding inferior */
+    padding-left: 0.5rem !important;     /* Reducir padding izquierdo */
+    font-size: 0.875rem !important;    /* Tamaño de fuente más pequeño */
+    border-radius: 0.25rem;           /* Radio de borde más pequeño */
+    height: auto;                     /* Permitir que la altura se ajuste al contenido */
+    /* Ajustes para el icono de flecha del desplegable */
+    background-size: 16px 12px;
+    background-position: right 0.5rem center;
+}
+
+/* Estilos para los selectores pequeños (form-select-sm) - AÚN MÁS ESPECÍFICO */
+/* Apuntamos a .form-select-sm DENTRO de un .row que esté antes de #calendar */
+/* O un selector más general si eso no funciona, como dentro del .content-wrapper */
+.content-wrapper .row .form-select-sm {
+    padding-top: 0.25rem !important;    /* Reducir padding superior */
+    padding-bottom: 0.25rem !important; /* Reducir padding inferior */
+    padding-left: 0.5rem !important;     /* Reducir padding izquierdo */
+    font-size: 0.875rem !important;    /* Tamaño de fuente más pequeño */
+    border-radius: 0.25rem !important; /* Radio de borde más pequeño */
+    height: auto !important;          /* Permitir que la altura se ajuste */
+    /* Ajustes para el icono de flecha del desplegable */
+    background-size: 16px 12px !important;
+    background-position: right 0.5rem center !important;
+}
+
+/* ... resto del código existente ... */
+
+/* Estilos para Alertas de Mensajes */
+.alert-success { background-color: #d4edda; border-color: #c3e6cb; color: #155724; }
+.alert-danger { background-color: #f8d7da; border-color: #f5c6cb; color: #721c24; }
+.alert-warning { background-color: #fff3cd; border-color: #ffeeba; color: #856404; }
+.alert-info { background-color: #d1ecf1; border-color: #bee5eb; color: #0c5460; }
+
+/* Estilos para el footer (si tienes uno en base.html) */
+footer {
+    background-color: var(--color-brown-light); /* Cambiado a marrón claro */
+    color: var(--color-text); /* Cambiado a texto principal para mejor contraste */
+    padding: 1rem 0;
+    margin-top: 2rem;
+    border-top: 1px solid var(--color-brown-medium); /* Cambiado a borde marrón medio */
+    font-size: 0.9em;
+}
+
+/* --- Sobrescribir Clases de Color de Texto de Bootstrap --- */
+
+/* Forzar .text-primary a usar nuestro color primario */
+.text-primary {
+    color: var(--color-primary) !important; /* Usar el marrón principal */
+}
+
+/* Opcional: Si usas .text-secondary, .text-success, etc., y quieres cambiarlos */
+/* .text-secondary {
+    color: var(--color-text-muted) !important; /* Ejemplo: usar nuestro gris apagado */
+/* } */
+/* .text-success {
+    color: var(--color-success) !important; /* Mantener verde o cambiar a un tono de la paleta */
+/* } */
+/* .text-danger {
+    color: var(--color-danger) !important; /* Mantener rojo o cambiar */
+/* } */
+
+/* --- Ajustes de Tipografía --- */
+
+/* Asegurar que el cuerpo usa la fuente sans-serif definida */
+body {
+    /* ... existing background, color ... */
+    font-family: var(--font-family-sans-serif);
+    /* Opcional: Definir un tamaño base si no estás contento con el de Bootstrap */
+    /* font-size: 16px; */
+}
+
+/* Asegurar que los encabezados usan la fuente de encabezados definida */
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-family-headings);
+    color: var(--color-primary-dark); /* Títulos en marrón oscuro */
+    /* ... existing margin, font-weight ... */
+}
+
+/* Asegurar color de texto base en párrafos */
+p {
+    color: var(--color-text); /* Asegurar que los párrafos usan el color de texto principal */
+    /* Opcional: Ajustar line-height si es necesario */
+    /* line-height: 1.7; */
+}
+
+/* Asegurar color de texto en etiquetas de formulario */
+.form-label {
+    color: var(--color-text); /* Usar color de texto principal para etiquetas */
+    font-weight: 500; /* Un poco más de peso para las etiquetas */
+}
+
+/* Asegurar color de texto en texto de ayuda de formulario */
+.form-text {
+    color: var(--color-text-muted); /* Usar color apagado para texto de ayuda */
+}
+
+/* Asegurar color de texto en celdas de tabla (además de los específicos de estado) */
+.table tbody td {
+    color: var(--color-text); /* Color de texto base para celdas */
+    vertical-align: middle;
+}
+
+/* --- Estilos personalizados para la paginación Bootstrap --- */
+.pagination .page-link {
+    color: var(--color-primary); /* Marrón principal para el texto */
+    border-color: var(--color-primary);
+    background-color: #fff;
+    transition: background-color 0.2s, color 0.2s;
+}
+.pagination .page-link:hover,
+.pagination .page-link:focus {
+    color: #fff;
+    background-color: var(--color-primary);
+    border-color: var(--color-primary-dark);
+}
+.pagination .page-item.active .page-link {
+    color: #fff;
+    background-color: var(--color-primary);
+    border-color: var(--color-primary-dark);
+}
+.pagination .page-item.disabled .page-link {
+    color: var(--color-text-muted);
+    background-color: #f8f9fa;
+    border-color: var(--color-border);
+}
+
+.shadow-sm {
+    box-shadow: 0 .15rem .35rem rgba(0, 0, 0, .375) !important;
+}
+
+/* Fondo para la sección HERO de la landing */
+.hero-bg {
+    background: url('/static/daycare/images/hero_bg.jpg') center/cover no-repeat;
+    position: relative;
+}
+/* Fondo para la sección Servicios de la landing */
+.service-bg {
+    background: url('/static/daycare/images/galeria7.jpg') center/cover no-repeat;
+    position: relative;
+}
+/* Fondo para la sección Testimonios de la landing */
+.testimonios-bg {
+    background: url('/static/daycare/images/galeria5.jpg') center/cover no-repeat;
+    position: relative;
+}
+/* Fondo para la sección Contacto de la landing */
+.contact-bg {
+    background: url('/static/daycare/images/your-pattern-image.webp') center/cover no-repeat;
+    position: relative;
+}
+
+/* --- LANDING PAGE: Secciones a pantalla completa y animaciones --- */
+.landing-section {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    position: relative;
+    scroll-snap-align: start;
+    overflow: hidden;
+    padding-top: 56px; /* Altura navbar fija Bootstrap */
+}
+#landing-sections {
+    scroll-snap-type: y mandatory;
+    scroll-behavior: smooth;
+}
+
+/* Overlay para oscurecer imágenes de fondo */
+.landing-section .overlay {
+    pointer-events: none;
+    z-index: 1;
+}
+.landing-section .container, .landing-section .z-1 {
+    z-index: 2;
+    position: relative;
+}
+
+/* Animaciones AOS: fade, zoom, slide */
+[data-aos] {
+    opacity: 0;
+    transition-property: opacity, transform;
+}
+[data-aos].aos-animate {
+    opacity: 1;
+}
+
+/* Ejemplo de animaciones personalizadas para la landing */
+.animate-hero {
+    /* Puedes usar AOS o animación CSS personalizada */
+    animation: heroFadeIn 1.2s cubic-bezier(.4,0,.2,1) both;
+}
+@keyframes heroFadeIn {
+    0% { opacity: 0; transform: scale(0.96) translateY(30px); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* Tarjetas de servicios y testimonios con animación de entrada */
+.service-card[data-aos], .testimonial[data-aos] {
+    will-change: opacity, transform;
+}
+
+/* Responsive: ajustar paddings y tamaños en móvil */
+@media (max-width: 767px) {
+    .landing-section {
+        padding-top: 56px;
+        padding-bottom: 32px;
+    }
+    .service-card, .testimonial {
+        margin-bottom: 1.5rem;
+    }
+    .landing-section h1, .landing-section h2 {
+        font-size: 2rem;
+    }
+}
+
+/* Scrollbar más elegante para la landing */
+#landing-sections {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-primary) #eee;
+}
+#landing-sections::-webkit-scrollbar {
+    width: 8px;
+    background: #eee;
+}
+#landing-sections::-webkit-scrollbar-thumb {
+    background: var(--color-primary);
+    border-radius: 4px;
+}
+
+/* Sombra negra para el texto principal del hero */
+#hero h1.display-3 {
+    text-shadow: 0 2px 8px rgba(0,0,0,0.55), 0 1px 2px rgba(0,0,0,0.35);
+    color: white;
+    font-family:'Shantell Sans'
+}
+
+/* Texto más grueso para el subtítulo del hero */
+#hero .lead {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.25);
+    color: var(--color-secondary);
+}
+
+/* Sombra negra para el texto principal del testimonio */
+#testimonios h2 {
+    text-shadow: 0 2px 8px rgba(0,0,0,0.55), 0 1px 2px rgba(0,0,0,0.35);
+    color: var(--color-brown-lightest);
+}
+
+/* --- Media Queries para Responsividad del Calendario --- */
+
+@media (max-width: 767px) { /* Estilos para pantallas pequeñas (móviles) */
+
+    /* --- Ajuste para evitar que el texto del evento invada la celda siguiente --- */
+    .fc-daygrid-event { /* Eventos específicos de dayGrid */
+        /* Para manejar texto largo en eventos estrechos */
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        /* Mantener un padding mínimo para el texto dentro del evento */
+        padding-left: 2px;
+        padding-right: 2px;
+        /* Asegurar que no haya márgenes extraños que lo desplacen */
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    /* --- Reglas eliminadas para toolbar y alineación detallada --- */
+    /* Se han eliminado las reglas para .fc-toolbar, .fc-toolbar-chunk, .fc-toolbar-title, */
+    /* .fc-button (ajustes generales), .fc-header-toolbar .fc-toolbar-chunk:nth-child(3), */
+    /* .fc-daygrid-day-events, .fc-daygrid-event-harness, .fc-daygrid-day-frame */
+    /* y los ajustes específicos de margen/padding con !important */
+
+}
+
+@media (max-width: 480px) { /* Estilos para pantallas aún más pequeñas */
+    .fc .fc-toolbar-title {
+        font-size: 1.1rem; /* Reducir aún más el título */
+    }
+    .fc .fc-button {
+        font-size: 0.85rem; /* Reducir aún más los botones */
+    }
+    /* Opcional: Ocultar el botón 'Hoy' si ocupa mucho espacio */
+    /* .fc .fc-today-button { display: none; } */
+}

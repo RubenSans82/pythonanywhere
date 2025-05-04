@@ -8,6 +8,8 @@
     {# Contenedor principal del formulario de registro - Fila centrada y ancho limitado #}
     {# mt-5 añade margen superior para separarlo de la navbar #}
     <div class="row justify-content-center mt-5 mb-5"> {# Añadido mt-5 y mb-5 para margen superior/inferior #}
+        <h1 class="text-center mb-4">Registro de Usuario</h1>
+
         {# Columna que contiene el formulario - Usa Bootstrap card clases para estilo, padding y sombra #}
         {# col-md-8 y col-lg-6 de tu código original #}
         {# p-4 padding interno, card y shadow-sm para el estilo de tarjeta #}
@@ -15,7 +17,6 @@
 
             {# Título del Formulario - Centrado y con margen inferior #}
             {# card-title, text-center, mb-4 de tu código original #}
-            <h1 class="card-title text-center mb-4">Registro de Nuevo Dueño</h1>
 
             {# Mostrar errores generales del formulario si los hay #}
             {% if form.non_field_errors %}
@@ -61,7 +62,6 @@
                     {% for error in form.email.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
                 </div>
 
-                 {# Campo Nombre #h}
                  <div class="mb-3">
                     <label for="{{ form.first_name.id_for_label }}" class="form-label">Nombre:</label>
                     <input type="text"
@@ -148,10 +148,10 @@
             </form>
 
             {# Pie de Tarjeta - Enlace a Iniciar Sesión #}
-            {# text-center centra contenido, pt-3 padding superior #}
-             <div class="card-footer text-center pt-3">
+
+            <div class="text-center mt-3"> {# Contenedor para centrar los párrafos, mt-3 margen superior #}
                 ¿Ya tienes una cuenta? <a href="{% url 'login' %}">Iniciar Sesión</a>
-            </div>{# Fin card-footer #}
+           </div>
 
         </div> {# Fin col #}
     </div> {# Fin row #}

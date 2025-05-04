@@ -8,6 +8,8 @@
     {# Contenedor principal del formulario de login - Fila centrada y ancho limitado #}
     {# mt-5 añade margen superior para separarlo de la navbar #}
     <div class="row justify-content-center mt-5">
+        <h1 class="text-center mb-4">Iniciar Sesión</h1> 
+
         {# Columna que contiene el formulario - Añade padding, sombra y aspecto de tarjeta #}
         {# col-md-6 para pantallas medianas, col-lg-5 para grandes, p-4 padding interno #}
         {# card y shadow-sm para el estilo de tarjeta #}
@@ -15,7 +17,6 @@
 
             {# Título del Formulario - Centrado y con margen inferior #}
             {# text-center y mb-4 de Bootstrap ##}
-            <h2 class="text-center mb-4">Iniciar Sesión</h2>
 
             {# Mostrar errores del formulario que no son de campo (ej: credenciales inválidas) #}
             {% if form.non_field_errors %}

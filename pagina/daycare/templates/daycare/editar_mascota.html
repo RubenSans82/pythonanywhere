@@ -94,7 +94,7 @@
 
 
  {% block content %}
-     <h1 class="mb-4">Editar Datos de {{ mascota.nombre }}</h1>
+     <h1 class="mb-4 text-center">Editar Datos de {{ mascota.nombre }}</h1>
 
      <div class="row justify-content-center">
          <div class="col-md-8 col-lg-6">
@@ -117,19 +117,11 @@
                          {# Este div#existing-photo-section se usa para ocultar con JS cuando hay preview o eliminación #}
                          <div id="existing-photo-section">
                             {% if mascota.foto %}
-                                <div class="mb-3 text-center">
-                                    <p>Foto actual:</p>
-                                    <img src="{{ mascota.foto.url }}" alt="Foto de {{ mascota.nombre }}" class="img-thumbnail" style="max-height: 200px; max-width: 100%; object-fit: cover;">
-
-                                     {# --- Botón Personalizado para Eliminar Foto --- #}
-                                     <button type="button" id="delete-photo-button" class="btn btn-danger btn-sm mt-2">
-                                         Eliminar Foto
-                                     </button>
-                                     {# --- End Custom Delete Button --- #}
-
+                                <div class="mb-3 d-flex flex-column align-items-center">
+                                    <img src="{{ mascota.foto.url }}" alt="Foto de {{ mascota.nombre }}" class="img-thumbnail mb-2" style="max-height: 200px; max-width: 100%; object-fit: cover;">
+                                    <button type="button" id="delete-photo-button" class="btn btn-outline-danger btn-sm">Eliminar foto</button>
                                 </div>
                             {% else %}
-                                 {# Mostrar este mensaje si no hay foto actual #}
                                  <div class="mb-3 text-center text-muted">
                                      <p>No hay foto actual.</p>
                                  </div>
@@ -138,92 +130,88 @@
                          {# --- Fin Mostrar foto actual y botón eliminar --- #}
 
 
-                         {# --- Renderizar otros campos del formulario manualmente --- #}
-                         {# Asegúrate de que tienes TODOS los campos necesarios aquí. Copia y pega tus bloques div.mb-3 #}
+                         {# --- Renderizar otros campos del formulario manualmente CON ESTILOS BOOTSTRAP --- #}
 
-                         {# Ejemplo: Campo Nombre #}
+                         {# Campo Nombre #}
                          <div class="mb-3">
                              <label for="{{ form.nombre.id_for_label }}" class="form-label">{{ form.nombre.label }}:</label>
-                             {{ form.nombre }}
-                             {% for error in form.nombre.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+                             <input type="text"
+                                    name="{{ form.nombre.name }}"
+                                    id="{{ form.nombre.id_for_label }}"
+                                    class="form-control {% if form.nombre.errors %}is-invalid{% endif %}"
+                                    value="{{ form.nombre.value|default:'' }}">
+                             {% for error in form.nombre.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
                          </div>
-                          {# Ejemplo: Campo Raza #}
+
+                         {# Campo Raza #}
                          <div class="mb-3">
                              <label for="{{ form.raza.id_for_label }}" class="form-label">{{ form.raza.label }}:</label>
-                             {{ form.raza }}
-                             {% for error in form.raza.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+                             <input type="text"
+                                    name="{{ form.raza.name }}"
+                                    id="{{ form.raza.id_for_label }}"
+                                    class="form-control {% if form.raza.errors %}is-invalid{% endif %}"
+                                    value="{{ form.raza.value|default:'' }}">
+                             {% for error in form.raza.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
                          </div>
-                          {# Ejemplo: Campo Fecha de Nacimiento #}
-                          <div class="mb-3">
-                              <label for="{{ form.fecha_nacimiento.id_for_label }}" class="form-label">{{ form.fecha_nacimiento.label }}:</label>
-                              {{ form.fecha_nacimiento }}
-                              {% for error in form.fecha_nacimiento.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
-                          </div>
-                           {# Ejemplo: Campo Notas Médicas #}
+
+                         {# Campo Fecha de Nacimiento #}
+                         <div class="mb-3">
+                             <label for="{{ form.fecha_nacimiento.id_for_label }}" class="form-label">{{ form.fecha_nacimiento.label }}:</label>
+                             <input type="text" {# Flatpickr targets text inputs #}
+                                    name="{{ form.fecha_nacimiento.name }}"
+                                    id="{{ form.fecha_nacimiento.id_for_label }}"
+                                    class="form-control {% if form.fecha_nacimiento.errors %}is-invalid{% endif %}" {# Add form-control #}
+                                    value="{{ form.fecha_nacimiento.value|default:'' }}"
+                                    placeholder="YYYY-MM-DD"> {# Placeholder for format #}
+                             {% for error in form.fecha_nacimiento.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                         </div>
+
+                         {# Campo Notas Médicas #}
                          <div class="mb-3">
                              <label for="{{ form.notas_medicas.id_for_label }}" class="form-label">{{ form.notas_medicas.label }}:</label>
-                             {{ form.notas_medicas }}
-                              {% if form.notas_medicas.help_text %}<div class="form-text">{{ form.notas_medicas.help_text|safe }}</div>{% endif %}
-                             {% for error in form.notas_medicas.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+                             <textarea name="{{ form.notas_medicas.name }}"
+                                       id="{{ form.notas_medicas.id_for_label }}"
+                                       class="form-control {% if form.notas_medicas.errors %}is-invalid{% endif %}"
+                                       rows="3">{% if form.notas_medicas.value %}{{ form.notas_medicas.value }}{% endif %}</textarea>
+                             {% if form.notas_medicas.help_text %}<div class="form-text">{{ form.notas_medicas.help_text|safe }}</div>{% endif %}
+                             {% for error in form.notas_medicas.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
                          </div>
-                          {# Ejemplo: Campo Comportamiento Notas #}
+
+                         {# Campo Comportamiento Notas #}
                          <div class="mb-3">
                              <label for="{{ form.comportamiento_notas.id_for_label }}" class="form-label">{{ form.comportamiento_notas.label }}:</label>
-                             {{ form.comportamiento_notas }}
+                             <textarea name="{{ form.comportamiento_notas.name }}"
+                                       id="{{ form.comportamiento_notas.id_for_label }}"
+                                       class="form-control {% if form.comportamiento_notas.errors %}is-invalid{% endif %}"
+                                       rows="3">{% if form.comportamiento_notas.value %}{{ form.comportamiento_notas.value }}{% endif %}</textarea>
                              {% if form.comportamiento_notas.help_text %}<div class="form-text">{{ form.comportamiento_notas.help_text|safe }}</div>{% endif %}
-                              {% for error in form.comportamiento_notas.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+                             {% for error in form.comportamiento_notas.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
                          </div>
                          {# Fin Renderizado Manual de Otros Campos #}
 
 
                          {# --- CAMPO FOTO (Renderizado Manual con Área Drag-and-Drop y Vista Previa DENTRO) --- #}
-                         {# Ya NO usamos {{ form.foto }} para tener control total del HTML #}
                          <div class="mb-3">
-                            {# La etiqueta para el campo foto #}
-                            {{ form.foto.label_tag }}
+                            <label for="{{ form.foto.id_for_label }}" class="form-label">{{ form.foto.label }}:</label>
                             {# Errores específicos del campo foto #}
-                            {% for error in form.foto.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
-
+                            {% for error in form.foto.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
 
                             {# --- El Área de Arrastrar y Soltar (Drop Zone) --- #}
-                            {# Este div es donde el usuario arrastrará y soltará archivos. También será clickable. #}
-                            {# La vista previa (#photo-preview) y el texto (.drop-zone-text) están DENTRO de este div #}
-                            <div id="drop-zone" class="drop-zone">
-                                 {# --- Input de Archivo Manual (Invisible) --- #}
-                                 {# Creamos el input de archivo nosotros mismos. Es invisible pero cubre la zona. #}
-                                 {# Es crucial que el atributo 'name' y 'id' coincidan con lo que Django espera ('foto' e 'id_foto'). #}
+                            <div id="drop-zone" class="drop-zone {% if form.foto.errors %}border-danger{% endif %}"> {# Added border-danger if errors #}
                                  <input type="file" name="{{ form.foto.name }}" id="{{ form.foto.id_for_label }}" accept="image/*">
-                                 {# accept="image/*" abre el selector de archivo filtrado para imágenes #}
-                                 {# Fin Input de Archivo Manual #}
-
-                                 {# --- Texto de Instrucción (Visible inicialmente, oculto por JS al seleccionar/soltar) --- ##}
-                                 {# Añadimos una clase CSS para poder seleccionarlos fácilmente con JS #}
                                  <p class="drop-zone-text">Arrastra y suelta una foto aquí</p>
                                  <p class="drop-zone-text">o haz clic para seleccionar</p>
-                                 {# --- Fin Texto de Instrucción --- #}
-
-                                 {# --- Placeholder para la vista previa (Oculta inicialmente, visible por JS al seleccionar/soltar) --- #}
-                                 {# ESTA IMAGEN AHORA ESTÁ DENTRO DE LA ZONA DE SOLTAR #}
                                  <img id="photo-preview" src="#" alt="Vista previa de la nueva foto" class="img-thumbnail" style="display: none;"> {# CSS maneja el tamaño y object-fit #}
-                                 {# alt es importante por accesibilidad #}
-                                 {# --- Fin Placeholder Vista Previa --- #}
-
                              </div>
                              {# --- Fin Área de Arrastrar y Soltar --- #}
 
                             {# Ayuda del campo foto (aparecerá debajo de la zona de soltar) #}
                             {% if form.foto.help_text %}<div class="form-text">{{ form.foto.help_text|safe }}</div>{% endif %}
 
-
                              {# --- Widget de "Limpiar" Oculto Manual --- #}
-                             {# Necesitamos añadir manualmente la casilla y etiqueta "Limpiar" para la lógica de la vista #}
-                             {# Solo añadimos esto si la mascota ya tiene una foto existente. #}
-                             {# Este div se oculta completamente con CSS (.hidden-clear-widget) #}
                              {% if mascota.foto %}
                                  <div class="hidden-clear-widget">
-                                     {# Input checkbox para marcar la eliminación. Name: campo_name-clear, ID: el ID correcto. #}
                                      <input type="checkbox" name="{{ form.foto.name }}-clear" id="foto-clear_id">
-                                     {# Etiqueta para la casilla #}
                                      <label for="foto-clear_id">Limpiar</label>
                                  </div>
                              {% endif %}
@@ -238,8 +226,7 @@
 
 
                         {# --- Botón para Guardar Cambios --- #}
-                        {# ASEGÚRATE de que este botón esté DENTRO de la etiqueta <form> #}
-                        <button type="submit" class="btn btn-primary mt-3">Guardar Cambios</button>
+                        <button type="submit" class="btn btn-primary mt-3 w-100">Guardar Cambios</button>
 
 
                     </form>
@@ -251,16 +238,9 @@
      </div> {# Fin row #}
 
 
-     {# Enlace para volver a los detalles de la mascota (FUERA del form) #}
-     <div class="text-center mt-3">
-          <a href="{% url 'daycare:detalle_mascota' mascota.pk %}" class="btn btn-outline-secondary">Cancelar</a>
-     </div>
-
-
  {% endblock content %}
 
  {# Scripts JS (Flatpickr, tu JS personalizado con preview, delete, drag-drop) #}
- {# Asegúrate de que este bloque extra_js esté justo antes del cierre de </body> en tu base.html #}
  {% block extra_js %}
      {# Scripts de Flatpickr si los necesitas en esta página #}
      <script src="https://unpkg.com/flatpickr@4.6.13/dist/flatpickr.min.js"></script>

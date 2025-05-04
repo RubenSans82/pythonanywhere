@@ -5,56 +5,47 @@
 {% block title %}Calendario de Reservas (Staff){% endblock %}
 
 {% block content %}
-    {# --- NUEVO: Envuelve todo el contenido principal en una Fila y Columna para limitar ancho y centrar --- #}
-    {# row justify-content-center centra la columna; mt-4 mb-4 añaden margen arriba/abajo #}
-    {# col-md-12 col-lg-10 limita el ancho (ajusta los números si quieres que sea más estrecho o ancho) #}
-    {# Usamos un ancho mayor que en los formularios ya que el calendario necesita más espacio #}
+    {# --- RE-AÑADIDO: Envuelve todo el contenido principal en una Fila y Columna para limitar ancho y centrar --- #}
     <div class="row justify-content-center mt-4 mb-4">
         <div class="col-md-12 col-lg-10"> {# Columna para limitar el ancho total del contenido #}
 
-            {# --- Tu contenido original del calendario va AQUÍ dentro de esta columna --- #}
+            {# --- Contenido original del calendario AQUÍ dentro de esta columna --- #}
 
             {# Título de la página - H1 #}
-            {# Puedes añadir el icono de pata aquí si quieres, similar a otras páginas #}
-            <h1 class="mb-4">Calendario de Reservas (Staff)</h1>
+            <h1 class="mb-4">Calendario de Reservas <small class="text-muted">(Staff)</small></h1>
 
-            {# Controles de Filtro - ya usan Bootstrap row y col #}
-            {# Añadimos margen inferior a la fila si no lo tiene #}
+            {# Controles de Filtro #}
             <div class="row mb-4">
-                <div class="col-md-4 mb-3">
+                <div class="col-md-auto me-3">
                     <label for="status-filter" class="form-label">Filtrar por Estado:</label>
-                    <select class="form-select" id="status-filter" name="status-filter">
+                    <select class="form-select form-select-sm" id="status-filter" name="status-filter">
                         <option value="">Todos los Estados</option>
                         {% for choice in status_choices %}
                             <option value="{{ choice.0 }}">{{ choice.1 }}</option>
                         {% endfor %}
                     </select>
                 </div>
-
-                <div class="col-md-4 mb-3">
+                <div class="col-md-auto">
                     <label for="service-filter" class="form-label">Filtrar por Servicio:</label>
-                    <select class="form-select" id="service-filter" name="service-filter">
+                    <select class="form-select form-select-sm" id="service-filter" name="service-filter">
                         <option value="">Todos los Servicios</option>
                         {% for service in services %}
                             <option value="{{ service.pk }}">{{ service.name }}</option>
                         {% endfor %}
                     </select>
                 </div>
-                {# Opcional: Botón Aplicar Filtros si no usas listeners de cambio #}
             </div>
             {# --- Fin Controles de Filtro --- #}
 
-            {# Este es el div donde FullCalendar dibujará el calendario #}
-            {# Añadimos sombra y borde opcional para que destaque en la página #}
-            <div id='calendar' class="shadow-sm card p-3"> {# Añadido shadow-sm, card, p-3 (o solo p-3) #}
+            {# Div del calendario #}
+            <div id='calendar' class="shadow-sm card p-3"> {# Mantenemos estilos card/padding #}
                  {# FullCalendar renderizará su contenido aquí #}
             </div>
             {# --- Fin del contenido del calendario --- #}
 
         </div> {# Fin col (envoltorio principal) #}
     </div> {# Fin row (envoltorio principal) #}
-    {# --- Fin NUEVO Envoltorio --- #}
-
+    {# --- Fin RE-AÑADIDO Envoltorio --- #}
 {% endblock content %}
 
 {% block extra_js %}

@@ -1,6 +1,6 @@
 {# pagina/daycare/templates/daycare/landing_page.html #}
 {# Hereda de la plantilla base para obtener la estructura HTML básica (doctype, head, body, navbar, footer) #}
-{% extends 'daycare/base.html' %}
+{% extends 'daycare/base2.html' %}
 {# Carga las etiquetas estáticas para usar {% static %} #}
 {% load static %}
 
@@ -10,156 +10,113 @@
 {# --- Bloque de Contenido Principal --- #}
 {# TODO el contenido único de la landing page va dentro de este bloque #}
 {% block content %}
+    <div id="landing-sections">
+        <!-- Sección 1: HERO -->
+        <section id="hero" class="landing-section hero-bg d-flex align-items-center justify-content-center text-white position-relative">
+            <div class="overlay position-absolute top-0 start-0 w-100 h-100" style="background: rgba(139,69,19,0.45);"></div>
+            <div class="container position-relative z-1 text-center">
+                <h1 class="display-3 fw-bold mb-3 animate-hero" data-aos="fade-up" data-aos-delay="100">En Vigo Can cuidamos a tu mejor amigo como en casa</h1>
+                <p class="lead mb-4 animate-hero" data-aos="fade-up" data-aos-delay="300">Guardería canina profesional, divertida y segura en tu ciudad</p>
+                {% if not user.is_authenticated %}
+                    <a href="{% url 'daycare:registro_owner' %}" class="btn btn-primary btn-lg animate-hero" data-aos="zoom-in" data-aos-delay="600">Reserva tu primera visita</a>
+                {% endif %}
+            </div>
+        </section>
 
-    {# --- Sección HERO (Encabezado principal de la página) --- #}
-    {# Esta sección suele tener un fondo llamativo (imagen o color) #}
-    {# Usamos la etiqueta <header> por semántica HTML #}
-    {# Puedes añadir una clase para estilos específicos, ej: class="hero-section bg-primary text-white text-center py-5" #}
-    {# Aquí mantenemos tu estructura original con container/row #}
-    <header id="hero" class="hero-section text-white text-center d-flex align-items-center"> {# Añadido ID="hero", text-white, text-center, d-flex... para centrar contenido verticalmente con flexbox #}
-        <div class="container py-5"> {# Añadido py-5 para padding vertical dentro del container #}
-            <div class="row justify-content-center">
-                <div class="col-md-10">
-                    <h1 class="display-4 mb-3">¡La guardería ideal para tu mejor amigo!</h1> {# display-4 de Bootstrap para un título más grande #}
-                    <p class="lead mb-4">Diversión, cuidados y mucho amor mientras no puedes estar con él.</p> {# lead para texto destacado, mb-4 margen inferior #}
-
-                    {# Botones de llamada a la acción (CTAs) - Solo visibles si el usuario NO está logueado #}
-                    {% if not user.is_authenticated %}
-                         {# btn-primary y btn-outline-light son clases de Bootstrap #}
-                         <a href="{% url 'daycare:registro_owner' %}" class="btn btn-primary btn-lg me-2">¡Regístrate Ya!</a>
-                    {% endif %}
+        <!-- Sección 2: Servicios destacados -->
+        <section id="services" class="landing-section service-bg d-flex align-items-center bg-white">
+            <div class="overlay position-absolute top-0 start-0 w-100 h-100" style="background: rgba(255,255,255,0.5);"></div>
+            <div class="container">
+                <h2 class="text-center mb-5" data-aos="fade-up">Nuestros Servicios Estelares</h2>
+                <div class="row justify-content-center">
+                    <div class="col-md-3 mb-4">
+                        <div class="card h-100 text-center shadow service-card animate-section" data-aos="fade-up" data-aos-delay="100">
+                            <img src="{% static 'daycare/images/galeria1.jpg' %}" class="card-img-top" alt="Guardería diurna">
+                            <div class="card-body">
+                                <h5 class="card-title">Guardería Diurna</h5>
+                                <p class="card-text">Diversión, socialización y supervisión todo el día.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-4">
+                        <div class="card h-100 text-center shadow service-card animate-section" data-aos="fade-up" data-aos-delay="250">
+                            <img src="{% static 'daycare/images/galeria2.jpg' %}" class="card-img-top" alt="Paseos y juegos">
+                            <div class="card-body">
+                                <h5 class="card-title">Paseos y Juegos</h5>
+                                <p class="card-text">Ejercicio y entretenimiento adaptado a cada perro.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-4">
+                        <div class="card h-100 text-center shadow service-card animate-section" data-aos="fade-up" data-aos-delay="400">
+                            <img src="{% static 'daycare/images/galeria3.jpg' %}" class="card-img-top" alt="Cuidado veterinario">
+                            <div class="card-body">
+                                <h5 class="card-title">Cuidado Veterinario</h5>
+                                <p class="card-text">Supervisión de salud y atención profesional.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-4">
+                        <div class="card h-100 text-center shadow service-card animate-section" data-aos="fade-up" data-aos-delay="550">
+                            <img src="{% static 'daycare/images/galeria4.jpg' %}" class="card-img-top" alt="Peluquería y baño">
+                            <div class="card-body">
+                                <h5 class="card-title">Peluquería y Baño</h5>
+                                <p class="card-text">Higiene, corte y mimos para tu mascota.</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </header>
-    {# --- Fin Sección HERO --- #}
-
-    {# Envuelve las secciones principales de contenido en la etiqueta <main> por semántica #}
-    <main>
-        {# --- Sección Servicios --- #}
-        {# Usa la etiqueta <section> con un ID único para navegación interna y estilos #}
-        {# Las clases py-5 (padding vertical) y bg-* (fondo) se suelen añadir aquí #}
-        <section id="services" class="services-section py-5"> {# Añadido py-5 #}
-            <div class="container">
-                {# Título principal de la sección de servicios #}
-                {# text-center y mb-5 de Bootstrap #}
-                {# El color se define en tu style.css #}
-                <h2 class="text-center mb-5">Nuestros Servicios Estelares</h2>
-
-                <div class="row"> {# Fila de Bootstrap para la cuadrícula de tarjetas de servicio #}
-                    {# Bucle para mostrar cada servicio pasado desde la vista #}
-                    {% for service in services %}
-                        {# Columna para cada tarjeta de servicio. col-md-4 para 3 por fila en desktop, mb-4 margen inferior #}
-                        <div class="col-md-4 mb-4">
-                            {# Tarjeta de Bootstrap para cada servicio #}
-                            {# shadow-sm añade una pequeña sombra #}
-                            <div class="card h-100 service-card shadow-sm"> {# Añadido h-100 para que todas las tarjetas tengan la misma altura #}
-                                <div class="card-body d-flex flex-column"> {# d-flex y flex-column para usar flexbox y empujar el botón al fondo #}
-                                    {# Título del servicio dentro de la tarjeta #}
-                                    {# card-title de Bootstrap, text-primary (lo estilizamos a marrón en style.css) #}
-                                    <h5 class="card-title">{{ service.name }}</h5>
-                                    {# Descripción del servicio #}
-                                    <p class="card-text">{{ service.description|default:"Sin descripción disponible."|linebreaksbr }}</p>
-                                    {# Detalles adicionales del servicio (Duración, Precio) #}
-                                    {% if service.duration_description %}
-                                         <p class="card-text"><small class="text-muted">Duración: {{ service.duration_description }}</small></p>
-                                    {% endif %}
-                                    {% if service.price is not None %}
-                                         <p class="card-text"><strong>Precio:</strong> {{ service.price }} €</p>
-                                    {% endif %}
-                                     {# Botón de acción en la card de servicio - Solo visible si el usuario NO está logueado #}
-                                     {# mt-auto empuja el botón al fondo de la tarjeta debido a d-flex/flex-column en card-body #}
-                                     {% if not user.is_authenticated %}
-                                          {# btn-outline-primary (lo estilizamos a marrón en style.css), mt-auto margen superior automático #}
-                                          <a href="{% url 'daycare:registro_owner' %}" class="btn btn-outline-primary mt-auto">¡Regístrate para Reservar!</a>
-                                     {% endif %}
-                                </div> {# Fin card-body #}
-                            </div> {# Fin card #}
-                        </div> {# Fin col #}
-                        {% empty %}
-                         {# Mensaje si no hay servicios #}
-                         <div class="col-12">
-                             <p class="text-center lead text-muted">No hay servicios disponibles en este momento.</p>
-                         </div>
-                    {% endfor %}
-                </div> {# Fin row #}
-            </div> {# Fin container #}
         </section>
-        {# --- Fin Sección Servicios --- #}
 
-        {# --- Sección Sobre Nosotros --- #}
-        {# Etiqueta <section> con ID único y clases de padding/fondo #}
-        <section id="about" class="about-section py-5"> {# Añadido py-5 #}
-             <div class="container">
-                {# Título de la sección Sobre Nosotros #}
-                {# text-center y mb-5 de Bootstrap #}
-                {# El color se define en tu style.css #}
-                <h2 class="text-center mb-5">Sobre Nosotros</h2>
+        <!-- Sección 3: Testimonios y confianza -->
+        <section id="testimonios" class="landing-section testimonios-bg d-flex align-items-center position-relative">
+            <div class="overlay position-absolute top-0 start-0 w-100 h-100" style="background: rgba(139,69,19,0.45);"></div>
+            <div class="container position-relative z-1">
+                <h2 class="text-center mb-5" data-aos="fade-up">Confianza y cariño garantizados</h2>
                 <div class="row justify-content-center">
-                    <div class="col-md-8">
-                        {# Texto principal sobre la guardería #}
-                        {# lead para texto destacado, text-center para centrar #}
-                        <p class="lead text-center">Somos un equipo apasionado por los perros, dedicados a ofrecer un entorno seguro, divertido y estimulante para tu compañero peludo. Con años de experiencia, nos aseguramos de que cada perro se sienta como en casa, recibiendo el cuidado y la atención que merece.</p>
-                        <p class="text-center">Nuestras instalaciones están diseñadas pensando en la comodidad y seguridad de los perros, con amplias zonas de juego y descanso. ¡Ven a conocernos!</p>
-                    </div> {# Fin col #}
-                </div> {# Fin row #}
-            </div> {# Fin container #}
-        </section>
-        {# --- Fin Sección Sobre Nosotros --- #}
-
-        {# --- Sección Galería de Fotos --- #}
-        {# Etiqueta <section> con ID único y clases de padding/fondo #}
-        <section id="photo-gallery" class="photo-gallery-section py-5"> {# Añadido py-5 y renombrada clase #}
-            <div class="container">
-                {# Título de la sección Galería #}
-                {# text-center y mb-4 de Bootstrap #}
-                {# El color se define en tu style.css #}
-                <h2 class="text-center mb-4">Galería de Fotos</h2>
-
-                <div class="row"> {# Fila de Bootstrap para la cuadrícula de imágenes #}
-                    {# Ejemplo de columnas con imágenes - Necesitas VARIAS de estas #}
-                    {# col-md-4 para 3 por fila en desktop, col-sm-6 para 2 en tablet, mb-4 margen inferior #}
-                    <div class="col-md-4 col-sm-6 mb-4">
-                        {# img-fluid de Bootstrap para que la imagen sea responsive #}
-                        <img src="{% static 'daycare/images/images.jpg' %}" class="img-fluid" alt="Foto de perro jugando">
+                    <div class="col-md-4 animate-section" data-aos="fade-right" data-aos-delay="100">
+                        <div class="testimonial p-4 bg-white rounded shadow text-center">
+                            <img src="{% static 'daycare/images/testimonio1.jpg' %}" class="rounded-circle mb-3" style="width:80px;height:80px;object-fit:cover;" alt="Cliente 1">
+                            <blockquote class="mb-2">“¡Mi perro sale feliz y cansado cada día! El equipo es encantador.”</blockquote>
+                            <div class="text-muted small">— Laura G.</div>
+                        </div>
                     </div>
-
-                    <div class="col-md-4 col-sm-6 mb-4">
-                        <img src="{% static 'daycare/images/istockphoto-1178352376-612x612.jpg' %}" class="img-fluid" alt="Otra foto de perro">
+                    <div class="col-md-4 animate-section" data-aos="fade-up" data-aos-delay="300">
+                        <div class="testimonial p-4 bg-white rounded shadow text-center">
+                            <img src="{% static 'daycare/images/testimonio2.jpg' %}" class="rounded-circle mb-3" style="width:80px;height:80px;object-fit:cover;" alt="Cliente 2">
+                            <blockquote class="mb-2">“Confío plenamente en ellos, trato familiar y profesional.”</blockquote>
+                            <div class="text-muted small">— Carlos M.</div>
+                        </div>
                     </div>
-
-                    {# ... Añade más bloques <div class="col-md-4 col-sm-6 mb-4">...</div> con tus imágenes ... #}
-
-                </div> {# Fin row #}
-            </div> {# Fin container #}
+                    <div class="col-md-4 animate-section" data-aos="fade-left" data-aos-delay="500">
+                        <div class="testimonial p-4 bg-white rounded shadow text-center">
+                            <img src="{% static 'daycare/images/testimonio3.jpg' %}" class="rounded-circle mb-3" style="width:80px;height:80px;object-fit:cover;" alt="Cliente 3">
+                            <blockquote class="mb-2">“Instalaciones limpias y seguras, ¡repetiremos sin duda!”</blockquote>
+                            <div class="text-muted small">— Marta S.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </section>
-        {# --- Fin Sección Galería de Fotos --- #}
 
-        {# --- Sección Contacto --- #}
-         {# Etiqueta <section> con ID único y clases de padding/fondo #}
-            <section id="contact" class="contact-section py-4"> {# O py-3, o sin py- y controlar padding en CSS #}
-                <div class="container">
-                    <h2 class="text-center mb-4">Contacto y Dónde Encontrarnos</h2>
-                     <div class="row justify-content-center">
-                         <div class="col-md-6 text-center"> {# col-md-5 si quieres más estrecho #}
-                             {# Párrafo "¿Tienes dudas?" - mantén como está (p.mb-3) o ajusta su mb #}
-                             <p class="mb-3">¿Tienes dudas? ¡Contáctanos!</p>
-    
-                             <div class="contact-info">
-                                 {# --- Modificado: Cambiar <p> a <span> con d-block --- #}
-                                 <span class="d-block"> Teléfono: +34 XXX XXX XXX</span> {# d-block para que esté en su propia línea #}
-                                 <span class="d-block"> Email: info@guarderiacanina.com</span>
-                                 <span class="d-block"> Dirección: Calle Falsa 123, Ciudad, Código Postal</span>
-                                 {# --- Fin Modificado --- #}
-                             </div> {# Fin contact-info div #}
-                         </div> {# Fin col #}
-                     </div> {# Fin row #}
-                </div> {# Fin container #}
-             </section>
-         {# --- Fin Sección Contacto --- #}
-    </main> {# Fin main #}
-
-{% endblock content %} {# <-- Fin del bloque content #}
-
-{# No necesitas {% block extra_css %} ni {% block extra_js %} aquí a menos que sean MUY específicos de la landing page #}
-{# La mayoría de los estilos van en style.css y los scripts globales en base.html #}
+        <!-- Sección 4: Contacto y llamada a la acción -->
+        <section id="contact" class="landing-section contact-bg d-flex align-items-center bg-light">
+            <div class="overlay position-absolute top-0 start-0 w-100 h-100" style="background: rgba(255,255,255,0.8);"></div>
+            <div class="container text-center">
+                <h2 class="mb-4" data-aos="fade-up">¿Listo para reservar?</h2>
+                <a href="{% url 'daycare:registro_owner' %}" class="btn btn-primary btn-lg mb-4" data-aos="zoom-in" data-aos-delay="200">Solicita tu reserva</a>
+                <div class="row justify-content-center mb-3">
+                    <div class="col-md-6" data-aos="fade-up" data-aos-delay="400">
+                        <div class="contact-info mb-3">
+                            <span class="d-block mb-2">Teléfono: +34 654 321 987</span>
+                            <span class="d-block mb-2">Email: info@vigocan.com</span>
+                            <span class="d-block mb-2">Dirección: Calle Peludos 123, Vigo, 36200</span>
+                        </div>
+                        <img src="{% static 'daycare/images/galeria6.jpg' %}" class="img-fluid rounded shadow" alt="Ubicación o fachada">
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+{% endblock content %}

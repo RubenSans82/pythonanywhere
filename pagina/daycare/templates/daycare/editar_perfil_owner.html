@@ -4,9 +4,6 @@
 {% block title %}Editar Perfil{% endblock %}
 
 {% block content %}
-    {# Botón "Volver" - ya tiene btn btn-primary mb-4 #}
-    <button onclick="history.back()" class="btn btn-primary mb-4">Volver</button>
-
     {# --- El envoltorio de Fila y Columna ya existe en tu código proporcionado --- #}
     {# Añadimos margen superior/inferior a la fila principal para dar espacio #}
     <div class="row justify-content-center mt-4 mb-4">
@@ -39,6 +36,9 @@
                     <form method="post">
                         {% csrf_token %}
 
+                        {# --- ADDED: Subtítulo Datos de Usuario --- #}
+                        <h5 class="mb-3">Datos de Usuario</h5>
+
                         {# --- Renderizar los campos del formulario con Clases Bootstrap --- #}
 
                         {# Campo Nombre (del modelo User) #}
@@ -67,6 +67,11 @@
                             {% for error in form.last_name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
                         </div>
 
+                        <hr class="mb-3"> {# Separador entre campos de User y Owner con margen inferior #}
+
+                        {# --- ADDED: Subtítulo Datos de Contacto --- #}
+                        <h5 class="mb-3">Datos de Contacto</h5>
+
                         {# Campo Correo Electrónico (del modelo User) #}
                          <div class="mb-3">
                             <label for="{{ form.email.id_for_label }}" class="form-label">{{ form.email.label }}:</label>
@@ -80,10 +85,6 @@
                              {# --- Fin AÑADIDO --- #}
                             {% for error in form.email.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
                         </div>
-
-                        <hr class="mb-3"> {# Separador entre campos de User y Owner con margen inferior #}
-
-
                         {# Campo Teléfono (del modelo Owner) #}
                         <div class="mb-3">
                             <label for="{{ form.telefono.id_for_label }}" class="form-label">{{ form.telefono.label }}:</label>

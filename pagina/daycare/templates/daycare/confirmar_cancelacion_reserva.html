@@ -23,8 +23,8 @@
     {# Este formulario enviará un POST a la misma URL de la vista de cancelación (/reserva/ID/cancelar/) #}
     <form method="post">
         {% csrf_token %}
-        <button type="submit" class="btn btn-danger me-2">Sí, Cancelar Reserva Definitivamente</button> {# Botón de confirmar #}
-        <a href="{% url 'daycare:detalle_reserva' reserva.pk %}" class="btn btn-secondary">No, Volver a Detalles</a> {# Botón de cancelar #}
+        <button type="submit" class="btn btn-danger me-2">Sí, cancelar reserva definitivamente</button> {# Botón de confirmar #}
+        <a href="{% url 'daycare:detalle_reserva' reserva.pk %}" class="btn btn-primary">No, volver a detalles</a> {# Botón de cancelar #}
     </form>
 
 
